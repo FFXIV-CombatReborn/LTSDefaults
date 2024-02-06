@@ -1,1 +1,1 @@
-﻿[assembly: AssemblyLink(Donate = "", UserName = "LTS", Repository = "LTSDefaults")]
+﻿[assembly: AssemblyLink(Donate = "", UserName = "LTS-FFXIV", Repository = "LTSDefaults")]
