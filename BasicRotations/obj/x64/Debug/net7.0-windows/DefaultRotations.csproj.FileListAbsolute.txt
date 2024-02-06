@@ -1,0 +1,13 @@
+C:\Users\Antonio-Work\Source\Repos\BasicRotations\BasicRotations\obj\x64\Debug\net7.0-windows\DefaultRotations.csproj.AssemblyReference.cache
+C:\Users\Antonio-Work\Source\Repos\BasicRotations\BasicRotations\obj\x64\Debug\net7.0-windows\DefaultRotations.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Antonio-Work\Source\Repos\BasicRotations\BasicRotations\obj\x64\Debug\net7.0-windows\DefaultRotations.AssemblyInfoInputs.cache
+C:\Users\Antonio-Work\Source\Repos\BasicRotations\BasicRotations\obj\x64\Debug\net7.0-windows\DefaultRotations.AssemblyInfo.cs
+C:\Users\Antonio-Work\Source\Repos\BasicRotations\BasicRotations\obj\x64\Debug\net7.0-windows\DefaultRotations.csproj.CoreCompileInputs.cache
+C:\Users\Antonio-Work\Source\Repos\BasicRotations\BasicRotations\obj\x64\Debug\net7.0-windows\DefaultRotations.sourcelink.json
+C:\Users\Antonio-Work\Source\Repos\BasicRotations\BasicRotations\bin\x64\Debug\net7.0-windows\DefaultRotations.deps.json
+C:\Users\Antonio-Work\Source\Repos\BasicRotations\BasicRotations\bin\x64\Debug\net7.0-windows\DefaultRotations.dll
+C:\Users\Antonio-Work\Source\Repos\BasicRotations\BasicRotations\bin\x64\Debug\net7.0-windows\DefaultRotations.pdb
+C:\Users\Antonio-Work\Source\Repos\BasicRotations\BasicRotations\obj\x64\Debug\net7.0-windows\DefaultRotations.dll
+C:\Users\Antonio-Work\Source\Repos\BasicRotations\BasicRotations\obj\x64\Debug\net7.0-windows\refint\DefaultRotations.dll
+C:\Users\Antonio-Work\Source\Repos\BasicRotations\BasicRotations\obj\x64\Debug\net7.0-windows\DefaultRotations.pdb
+C:\Users\Antonio-Work\Source\Repos\BasicRotations\BasicRotations\obj\x64\Debug\net7.0-windows\ref\DefaultRotations.dll

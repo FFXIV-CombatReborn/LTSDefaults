@@ -1,0 +1,31 @@
+{
+  "version": 2,
+  "dgSpecHash": "/jO1XK20e296TM6nYrUq44dRuMpmuo3fkkBdnUzsNoTVR1zKyBHcOKiPTGMygcCWD0rZrWecBFWLJXEstF/3Kg==",
+  "success": true,
+  "projectFilePath": "C:\\Users\\Antonio-Work\\Source\\Repos\\BasicRotations\\BasicRotations\\DefaultRotations.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\Antonio-Work\\.nuget\\packages\\excss\\4.1.4\\excss.4.1.4.nupkg.sha512",
+    "C:\\Users\\Antonio-Work\\.nuget\\packages\\fizzler\\1.2.1\\fizzler.1.2.1.nupkg.sha512",
+    "C:\\Users\\Antonio-Work\\.nuget\\packages\\microsoft.netcore.platforms\\5.0.0\\microsoft.netcore.platforms.5.0.0.nupkg.sha512",
+    "C:\\Users\\Antonio-Work\\.nuget\\packages\\microsoft.netcore.targets\\1.1.0\\microsoft.netcore.targets.1.1.0.nupkg.sha512",
+    "C:\\Users\\Antonio-Work\\.nuget\\packages\\microsoft.win32.systemevents\\5.0.0\\microsoft.win32.systemevents.5.0.0.nupkg.sha512",
+    "C:\\Users\\Antonio-Work\\.nuget\\packages\\rotationsolver.basic\\3.5.6\\rotationsolver.basic.3.5.6.nupkg.sha512",
+    "C:\\Users\\Antonio-Work\\.nuget\\packages\\runtime.osx.10.10-x64.corecompat.system.drawing\\5.8.64\\runtime.osx.10.10-x64.corecompat.system.drawing.5.8.64.nupkg.sha512",
+    "C:\\Users\\Antonio-Work\\.nuget\\packages\\svg\\3.4.4\\svg.3.4.4.nupkg.sha512",
+    "C:\\Users\\Antonio-Work\\.nuget\\packages\\system.collections\\4.3.0\\system.collections.4.3.0.nupkg.sha512",
+    "C:\\Users\\Antonio-Work\\.nuget\\packages\\system.diagnostics.debug\\4.3.0\\system.diagnostics.debug.4.3.0.nupkg.sha512",
+    "C:\\Users\\Antonio-Work\\.nuget\\packages\\system.drawing.common\\5.0.3\\system.drawing.common.5.0.3.nupkg.sha512",
+    "C:\\Users\\Antonio-Work\\.nuget\\packages\\system.globalization\\4.3.0\\system.globalization.4.3.0.nupkg.sha512",
+    "C:\\Users\\Antonio-Work\\.nuget\\packages\\system.io\\4.3.0\\system.io.4.3.0.nupkg.sha512",
+    "C:\\Users\\Antonio-Work\\.nuget\\packages\\system.memory\\4.5.4\\system.memory.4.5.4.nupkg.sha512",
+    "C:\\Users\\Antonio-Work\\.nuget\\packages\\system.objectmodel\\4.3.0\\system.objectmodel.4.3.0.nupkg.sha512",
+    "C:\\Users\\Antonio-Work\\.nuget\\packages\\system.reflection\\4.3.0\\system.reflection.4.3.0.nupkg.sha512",
+    "C:\\Users\\Antonio-Work\\.nuget\\packages\\system.reflection.primitives\\4.3.0\\system.reflection.primitives.4.3.0.nupkg.sha512",
+    "C:\\Users\\Antonio-Work\\.nuget\\packages\\system.resources.resourcemanager\\4.3.0\\system.resources.resourcemanager.4.3.0.nupkg.sha512",
+    "C:\\Users\\Antonio-Work\\.nuget\\packages\\system.runtime\\4.3.0\\system.runtime.4.3.0.nupkg.sha512",
+    "C:\\Users\\Antonio-Work\\.nuget\\packages\\system.text.encoding\\4.3.0\\system.text.encoding.4.3.0.nupkg.sha512",
+    "C:\\Users\\Antonio-Work\\.nuget\\packages\\system.threading\\4.3.0\\system.threading.4.3.0.nupkg.sha512",
+    "C:\\Users\\Antonio-Work\\.nuget\\packages\\system.threading.tasks\\4.3.0\\system.threading.tasks.4.3.0.nupkg.sha512"
+  ],
+  "logs": []
+}
