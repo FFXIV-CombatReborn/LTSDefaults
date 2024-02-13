@@ -8,6 +8,11 @@ public sealed class AST_Default : AST_Base
     public override string GameVersion => VERSION;
     public override string RotationName => $"{USERNAME}'s {ClassJob.Abbreviation} [{Type}]";
     public override CombatType Type => CombatType.PvE;
+
+    private const string
+    UseEarthlyStarTime = "UseEarthlyStarTime",
+    SpeedLightUsage = "SpeedLightUsage";
+
     #endregion General rotation info
 
     #region Rotation Configs
