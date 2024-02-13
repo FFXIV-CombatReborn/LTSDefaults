@@ -129,6 +129,9 @@ public sealed class WAR_Default : WAR_Base
     [RotationDesc(ActionID.ShakeItOff, ActionID.Reprisal)]
     protected override bool DefenseAreaAbility(out IAction act)
     {
+        act = null;
+        if (ShakeItOff.IsCoolingDown && !ShakeItOff.WillHaveOneCharge(60)
+            || Reprisal.IsCoolingDown && !Reprisal.WillHaveOneCharge(50)) return false;
         if (ShakeItOff.CanUse(out act, CanUseOption.MustUse)) return true;
         if (Reprisal.CanUse(out act, CanUseOption.MustUse)) return true;
         return base.DefenseAreaAbility(out act);
