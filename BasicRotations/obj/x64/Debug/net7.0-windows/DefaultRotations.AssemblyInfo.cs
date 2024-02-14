@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("LTS")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0.0+0066b2285519e89dab8f64996e8d064deb73aa00")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0.0+10f3c91c544c2032a347866efc714e781332cd10")]
 [assembly: System.Reflection.AssemblyProductAttribute("DefaultRotations")]
 [assembly: System.Reflection.AssemblyTitleAttribute("DefaultRotations")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
