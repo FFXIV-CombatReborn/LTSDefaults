@@ -1,20 +1,24 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\Antonio-Work\\Source\\Repos\\BasicRotations\\BasicRotations\\DefaultRotations.csproj": {}
+    "C:\\Projects\\LTSDefaults\\BasicRotations\\DefaultRotations.csproj": {}
   },
   "projects": {
-    "C:\\Users\\Antonio-Work\\Source\\Repos\\BasicRotations\\BasicRotations\\DefaultRotations.csproj": {
+    "C:\\Projects\\LTSDefaults\\BasicRotations\\DefaultRotations.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Antonio-Work\\Source\\Repos\\BasicRotations\\BasicRotations\\DefaultRotations.csproj",
+        "projectUniqueName": "C:\\Projects\\LTSDefaults\\BasicRotations\\DefaultRotations.csproj",
         "projectName": "DefaultRotations",
-        "projectPath": "C:\\Users\\Antonio-Work\\Source\\Repos\\BasicRotations\\BasicRotations\\DefaultRotations.csproj",
-        "packagesPath": "C:\\Users\\Antonio-Work\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Antonio-Work\\Source\\Repos\\BasicRotations\\BasicRotations\\obj\\",
+        "projectPath": "C:\\Projects\\LTSDefaults\\BasicRotations\\DefaultRotations.csproj",
+        "packagesPath": "C:\\Users\\tombr\\.nuget\\packages\\",
+        "outputPath": "C:\\Projects\\LTSDefaults\\BasicRotations\\obj\\",
         "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
         "configFilePaths": [
-          "C:\\Users\\Antonio-Work\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\tombr\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
@@ -22,6 +26,71 @@
         ],
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "C:\\Program Files\\dotnet\\library-packs": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net7.0-windows7.0": {
+            "targetAlias": "net7.0-windows",
+            "projectReferences": {
+              "C:\\Projects\\RotationSolver\\RotationSolver.Basic\\RotationSolver.Basic.csproj": {
+                "projectPath": "C:\\Projects\\RotationSolver\\RotationSolver.Basic\\RotationSolver.Basic.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        }
+      },
+      "frameworks": {
+        "net7.0-windows7.0": {
+          "targetAlias": "net7.0-windows",
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.100\\RuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "C:\\Projects\\RotationSolver\\ECommons\\ECommons\\ECommons.csproj": {
+      "version": "2.1.0.2",
+      "restore": {
+        "projectUniqueName": "C:\\Projects\\RotationSolver\\ECommons\\ECommons\\ECommons.csproj",
+        "projectName": "ECommons",
+        "projectPath": "C:\\Projects\\RotationSolver\\ECommons\\ECommons\\ECommons.csproj",
+        "packagesPath": "C:\\Users\\tombr\\.nuget\\packages\\",
+        "outputPath": "C:\\Projects\\RotationSolver\\ECommons\\ECommons\\obj\\",
+        "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
+        "configFilePaths": [
+          "C:\\Users\\tombr\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net7.0-windows"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "C:\\Program Files\\dotnet\\library-packs": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
@@ -34,15 +103,26 @@
           "warnAsError": [
             "NU1605"
           ]
+        },
+        "restoreLockProperties": {
+          "restorePackagesWithLockFile": "true"
         }
       },
       "frameworks": {
         "net7.0-windows7.0": {
           "targetAlias": "net7.0-windows",
           "dependencies": {
-            "RotationSolver.Basic": {
+            "Microsoft.NET.ILLink.Analyzers": {
+              "suppressParent": "All",
               "target": "Package",
-              "version": "[3.5.6, )"
+              "version": "[7.0.100-1.23211.1, )",
+              "autoReferenced": true
+            },
+            "Microsoft.NET.ILLink.Tasks": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[7.0.100-1.23211.1, )",
+              "autoReferenced": true
             }
           },
           "imports": [
@@ -59,6 +139,83 @@
           "frameworkReferences": {
             "Microsoft.NETCore.App": {
               "privateAssets": "all"
+            },
+            "Microsoft.WindowsDesktop.App.WindowsForms": {
+              "privateAssets": "none"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.100\\RuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "C:\\Projects\\RotationSolver\\RotationSolver.Basic\\RotationSolver.Basic.csproj": {
+      "version": "0.0.0",
+      "restore": {
+        "projectUniqueName": "C:\\Projects\\RotationSolver\\RotationSolver.Basic\\RotationSolver.Basic.csproj",
+        "projectName": "RotationSolver.Basic",
+        "projectPath": "C:\\Projects\\RotationSolver\\RotationSolver.Basic\\RotationSolver.Basic.csproj",
+        "packagesPath": "C:\\Users\\tombr\\.nuget\\packages\\",
+        "outputPath": "C:\\Projects\\RotationSolver\\RotationSolver.Basic\\obj\\",
+        "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
+        "configFilePaths": [
+          "C:\\Users\\tombr\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net7.0-windows"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "C:\\Program Files\\dotnet\\library-packs": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net7.0-windows7.0": {
+            "targetAlias": "net7.0-windows",
+            "projectReferences": {
+              "C:\\Projects\\RotationSolver\\ECommons\\ECommons\\ECommons.csproj": {
+                "projectPath": "C:\\Projects\\RotationSolver\\ECommons\\ECommons\\ECommons.csproj",
+                "privateAssets": "all"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        }
+      },
+      "frameworks": {
+        "net7.0-windows7.0": {
+          "targetAlias": "net7.0-windows",
+          "dependencies": {
+            "Svg": {
+              "target": "Package",
+              "version": "[3.4.4, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            },
+            "Microsoft.WindowsDesktop.App.WindowsForms": {
+              "privateAssets": "none"
             }
           },
           "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.100\\RuntimeIdentifierGraph.json"
