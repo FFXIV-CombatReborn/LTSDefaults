@@ -12,7 +12,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		README.md = README.md
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RotationSolver.Basic", "..\RotationSolver\RotationSolver.Basic\RotationSolver.Basic.csproj", "{718F6EF5-D39D-4B91-976D-7A6DFD021076}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RotationSolver.Basic", "..\LTSDefaults\RotationSolver\RotationSolver.Basic\RotationSolver.Basic.csproj", "{718F6EF5-D39D-4B91-976D-7A6DFD021076}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
