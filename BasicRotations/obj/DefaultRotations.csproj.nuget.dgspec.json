@@ -1,24 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Projects\\LTSDefaults\\BasicRotations\\DefaultRotations.csproj": {}
+    "C:\\Users\\Antonio-Work\\Source\\Repos\\LTSDefaults\\BasicRotations\\DefaultRotations.csproj": {}
   },
   "projects": {
-    "C:\\Projects\\LTSDefaults\\BasicRotations\\DefaultRotations.csproj": {
-      "version": "1.0.0",
+    "C:\\Users\\Antonio-Work\\Source\\Repos\\LTSDefaults\\BasicRotations\\DefaultRotations.csproj": {
+      "version": "1.0.0.3",
       "restore": {
-        "projectUniqueName": "C:\\Projects\\LTSDefaults\\BasicRotations\\DefaultRotations.csproj",
+        "projectUniqueName": "C:\\Users\\Antonio-Work\\Source\\Repos\\LTSDefaults\\BasicRotations\\DefaultRotations.csproj",
         "projectName": "DefaultRotations",
-        "projectPath": "C:\\Projects\\LTSDefaults\\BasicRotations\\DefaultRotations.csproj",
-        "packagesPath": "C:\\Users\\tombr\\.nuget\\packages\\",
-        "outputPath": "C:\\Projects\\LTSDefaults\\BasicRotations\\obj\\",
+        "projectPath": "C:\\Users\\Antonio-Work\\Source\\Repos\\LTSDefaults\\BasicRotations\\DefaultRotations.csproj",
+        "packagesPath": "C:\\Users\\Antonio-Work\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\Antonio-Work\\Source\\Repos\\LTSDefaults\\BasicRotations\\obj\\",
         "projectStyle": "PackageReference",
-        "fallbackFolders": [
-          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
-        ],
         "configFilePaths": [
-          "C:\\Users\\tombr\\AppData\\Roaming\\NuGet\\NuGet.Config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Users\\Antonio-Work\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
@@ -26,15 +22,14 @@
         ],
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-          "C:\\Program Files\\dotnet\\library-packs": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
           "net7.0-windows7.0": {
             "targetAlias": "net7.0-windows",
             "projectReferences": {
-              "C:\\Projects\\RotationSolver\\RotationSolver.Basic\\RotationSolver.Basic.csproj": {
-                "projectPath": "C:\\Projects\\RotationSolver\\RotationSolver.Basic\\RotationSolver.Basic.csproj"
+              "C:\\Users\\Antonio-Work\\Source\\Repos\\RotationSolver\\RotationSolver.Basic\\RotationSolver.Basic.csproj": {
+                "projectPath": "C:\\Users\\Antonio-Work\\Source\\Repos\\RotationSolver\\RotationSolver.Basic\\RotationSolver.Basic.csproj"
               }
             }
           }
@@ -64,25 +59,21 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.100\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.102\\RuntimeIdentifierGraph.json"
         }
       }
     },
-    "C:\\Projects\\RotationSolver\\ECommons\\ECommons\\ECommons.csproj": {
+    "C:\\Users\\Antonio-Work\\Source\\Repos\\RotationSolver\\ECommons\\ECommons\\ECommons.csproj": {
       "version": "2.1.0.2",
       "restore": {
-        "projectUniqueName": "C:\\Projects\\RotationSolver\\ECommons\\ECommons\\ECommons.csproj",
+        "projectUniqueName": "C:\\Users\\Antonio-Work\\Source\\Repos\\RotationSolver\\ECommons\\ECommons\\ECommons.csproj",
         "projectName": "ECommons",
-        "projectPath": "C:\\Projects\\RotationSolver\\ECommons\\ECommons\\ECommons.csproj",
-        "packagesPath": "C:\\Users\\tombr\\.nuget\\packages\\",
-        "outputPath": "C:\\Projects\\RotationSolver\\ECommons\\ECommons\\obj\\",
+        "projectPath": "C:\\Users\\Antonio-Work\\Source\\Repos\\RotationSolver\\ECommons\\ECommons\\ECommons.csproj",
+        "packagesPath": "C:\\Users\\Antonio-Work\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\Antonio-Work\\Source\\Repos\\RotationSolver\\ECommons\\ECommons\\obj\\",
         "projectStyle": "PackageReference",
-        "fallbackFolders": [
-          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
-        ],
         "configFilePaths": [
-          "C:\\Users\\tombr\\AppData\\Roaming\\NuGet\\NuGet.Config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Users\\Antonio-Work\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
@@ -90,7 +81,6 @@
         ],
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-          "C:\\Program Files\\dotnet\\library-packs": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
@@ -148,21 +138,17 @@
         }
       }
     },
-    "C:\\Projects\\RotationSolver\\RotationSolver.Basic\\RotationSolver.Basic.csproj": {
+    "C:\\Users\\Antonio-Work\\Source\\Repos\\RotationSolver\\RotationSolver.Basic\\RotationSolver.Basic.csproj": {
       "version": "0.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Projects\\RotationSolver\\RotationSolver.Basic\\RotationSolver.Basic.csproj",
+        "projectUniqueName": "C:\\Users\\Antonio-Work\\Source\\Repos\\RotationSolver\\RotationSolver.Basic\\RotationSolver.Basic.csproj",
         "projectName": "RotationSolver.Basic",
-        "projectPath": "C:\\Projects\\RotationSolver\\RotationSolver.Basic\\RotationSolver.Basic.csproj",
-        "packagesPath": "C:\\Users\\tombr\\.nuget\\packages\\",
-        "outputPath": "C:\\Projects\\RotationSolver\\RotationSolver.Basic\\obj\\",
+        "projectPath": "C:\\Users\\Antonio-Work\\Source\\Repos\\RotationSolver\\RotationSolver.Basic\\RotationSolver.Basic.csproj",
+        "packagesPath": "C:\\Users\\Antonio-Work\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\Antonio-Work\\Source\\Repos\\RotationSolver\\RotationSolver.Basic\\obj\\",
         "projectStyle": "PackageReference",
-        "fallbackFolders": [
-          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
-        ],
         "configFilePaths": [
-          "C:\\Users\\tombr\\AppData\\Roaming\\NuGet\\NuGet.Config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Users\\Antonio-Work\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
@@ -170,15 +156,14 @@
         ],
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-          "C:\\Program Files\\dotnet\\library-packs": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
           "net7.0-windows7.0": {
             "targetAlias": "net7.0-windows",
             "projectReferences": {
-              "C:\\Projects\\RotationSolver\\ECommons\\ECommons\\ECommons.csproj": {
-                "projectPath": "C:\\Projects\\RotationSolver\\ECommons\\ECommons\\ECommons.csproj",
+              "C:\\Users\\Antonio-Work\\Source\\Repos\\RotationSolver\\ECommons\\ECommons\\ECommons.csproj": {
+                "projectPath": "C:\\Users\\Antonio-Work\\Source\\Repos\\RotationSolver\\ECommons\\ECommons\\ECommons.csproj",
                 "privateAssets": "all"
               }
             }
@@ -218,7 +203,7 @@
               "privateAssets": "none"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.100\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.102\\RuntimeIdentifierGraph.json"
         }
       }
     }
