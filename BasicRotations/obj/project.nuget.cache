@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "lUTcFiWPV4Wt+efOiu2W76FnO2Dd4JscAe71K3iWBjK/3GLvPpcYhzbmKvwoxX4BsEw0MufV6ehOodrCijc8xg==",
+  "dgSpecHash": "WyWExlYP++E/heU0F/SknxkJFX0hX16bb1iffwTTrAtzZkP/DnrpSgiqc8diHcZRSqiO0x6xLDA3dsNj3WDdUg==",
   "success": true,
-  "projectFilePath": "C:\\Users\\Antonio-Work\\Source\\Repos\\LTSDefaults\\BasicRotations\\DefaultRotations.csproj",
+  "projectFilePath": "D:\\Repo\\LTSDefaults\\BasicRotations\\DefaultRotations.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\Antonio-Work\\.nuget\\packages\\excss\\4.1.4\\excss.4.1.4.nupkg.sha512",
     "C:\\Users\\Antonio-Work\\.nuget\\packages\\fizzler\\1.2.1\\fizzler.1.2.1.nupkg.sha512",

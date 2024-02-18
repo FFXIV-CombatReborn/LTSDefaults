@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\Antonio-Work\\Source\\Repos\\LTSDefaults\\BasicRotations\\DefaultRotations.csproj": {}
+    "D:\\Repo\\LTSDefaults\\BasicRotations\\DefaultRotations.csproj": {}
   },
   "projects": {
-    "C:\\Users\\Antonio-Work\\Source\\Repos\\LTSDefaults\\BasicRotations\\DefaultRotations.csproj": {
+    "D:\\Repo\\LTSDefaults\\BasicRotations\\DefaultRotations.csproj": {
       "version": "1.0.0.3",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Antonio-Work\\Source\\Repos\\LTSDefaults\\BasicRotations\\DefaultRotations.csproj",
+        "projectUniqueName": "D:\\Repo\\LTSDefaults\\BasicRotations\\DefaultRotations.csproj",
         "projectName": "DefaultRotations",
-        "projectPath": "C:\\Users\\Antonio-Work\\Source\\Repos\\LTSDefaults\\BasicRotations\\DefaultRotations.csproj",
+        "projectPath": "D:\\Repo\\LTSDefaults\\BasicRotations\\DefaultRotations.csproj",
         "packagesPath": "C:\\Users\\Antonio-Work\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Antonio-Work\\Source\\Repos\\LTSDefaults\\BasicRotations\\obj\\",
+        "outputPath": "D:\\Repo\\LTSDefaults\\BasicRotations\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\Antonio-Work\\AppData\\Roaming\\NuGet\\NuGet.Config",
@@ -28,8 +28,8 @@
           "net7.0-windows7.0": {
             "targetAlias": "net7.0-windows",
             "projectReferences": {
-              "C:\\Users\\Antonio-Work\\Source\\Repos\\RotationSolver\\RotationSolver.Basic\\RotationSolver.Basic.csproj": {
-                "projectPath": "C:\\Users\\Antonio-Work\\Source\\Repos\\RotationSolver\\RotationSolver.Basic\\RotationSolver.Basic.csproj"
+              "D:\\Repo\\LTSDefaults\\RotationSolver\\RotationSolver.Basic\\RotationSolver.Basic.csproj": {
+                "projectPath": "D:\\Repo\\LTSDefaults\\RotationSolver\\RotationSolver.Basic\\RotationSolver.Basic.csproj"
               }
             }
           }
@@ -63,14 +63,14 @@
         }
       }
     },
-    "C:\\Users\\Antonio-Work\\Source\\Repos\\RotationSolver\\ECommons\\ECommons\\ECommons.csproj": {
-      "version": "2.1.0.2",
+    "D:\\Repo\\LTSDefaults\\RotationSolver\\ECommons\\ECommons\\ECommons.csproj": {
+      "version": "2.1.0.7",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Antonio-Work\\Source\\Repos\\RotationSolver\\ECommons\\ECommons\\ECommons.csproj",
+        "projectUniqueName": "D:\\Repo\\LTSDefaults\\RotationSolver\\ECommons\\ECommons\\ECommons.csproj",
         "projectName": "ECommons",
-        "projectPath": "C:\\Users\\Antonio-Work\\Source\\Repos\\RotationSolver\\ECommons\\ECommons\\ECommons.csproj",
+        "projectPath": "D:\\Repo\\LTSDefaults\\RotationSolver\\ECommons\\ECommons\\ECommons.csproj",
         "packagesPath": "C:\\Users\\Antonio-Work\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Antonio-Work\\Source\\Repos\\RotationSolver\\ECommons\\ECommons\\obj\\",
+        "outputPath": "D:\\Repo\\LTSDefaults\\RotationSolver\\ECommons\\ECommons\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\Antonio-Work\\AppData\\Roaming\\NuGet\\NuGet.Config",
@@ -101,20 +101,6 @@
       "frameworks": {
         "net7.0-windows7.0": {
           "targetAlias": "net7.0-windows",
-          "dependencies": {
-            "Microsoft.NET.ILLink.Analyzers": {
-              "suppressParent": "All",
-              "target": "Package",
-              "version": "[7.0.100-1.23211.1, )",
-              "autoReferenced": true
-            },
-            "Microsoft.NET.ILLink.Tasks": {
-              "suppressParent": "All",
-              "target": "Package",
-              "version": "[7.0.100-1.23211.1, )",
-              "autoReferenced": true
-            }
-          },
           "imports": [
             "net461",
             "net462",
@@ -134,18 +120,18 @@
               "privateAssets": "none"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.100\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.102\\RuntimeIdentifierGraph.json"
         }
       }
     },
-    "C:\\Users\\Antonio-Work\\Source\\Repos\\RotationSolver\\RotationSolver.Basic\\RotationSolver.Basic.csproj": {
+    "D:\\Repo\\LTSDefaults\\RotationSolver\\RotationSolver.Basic\\RotationSolver.Basic.csproj": {
       "version": "0.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Antonio-Work\\Source\\Repos\\RotationSolver\\RotationSolver.Basic\\RotationSolver.Basic.csproj",
+        "projectUniqueName": "D:\\Repo\\LTSDefaults\\RotationSolver\\RotationSolver.Basic\\RotationSolver.Basic.csproj",
         "projectName": "RotationSolver.Basic",
-        "projectPath": "C:\\Users\\Antonio-Work\\Source\\Repos\\RotationSolver\\RotationSolver.Basic\\RotationSolver.Basic.csproj",
+        "projectPath": "D:\\Repo\\LTSDefaults\\RotationSolver\\RotationSolver.Basic\\RotationSolver.Basic.csproj",
         "packagesPath": "C:\\Users\\Antonio-Work\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Antonio-Work\\Source\\Repos\\RotationSolver\\RotationSolver.Basic\\obj\\",
+        "outputPath": "D:\\Repo\\LTSDefaults\\RotationSolver\\RotationSolver.Basic\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\Antonio-Work\\AppData\\Roaming\\NuGet\\NuGet.Config",
@@ -162,8 +148,8 @@
           "net7.0-windows7.0": {
             "targetAlias": "net7.0-windows",
             "projectReferences": {
-              "C:\\Users\\Antonio-Work\\Source\\Repos\\RotationSolver\\ECommons\\ECommons\\ECommons.csproj": {
-                "projectPath": "C:\\Users\\Antonio-Work\\Source\\Repos\\RotationSolver\\ECommons\\ECommons\\ECommons.csproj",
+              "D:\\Repo\\LTSDefaults\\RotationSolver\\ECommons\\ECommons\\ECommons.csproj": {
+                "projectPath": "D:\\Repo\\LTSDefaults\\RotationSolver\\ECommons\\ECommons\\ECommons.csproj",
                 "privateAssets": "all"
               }
             }

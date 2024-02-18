@@ -6,7 +6,7 @@
   "compilationOptions": {},
   "targets": {
     ".NETCoreApp,Version=v7.0": {
-      "DefaultRotations/1.0.0.0": {
+      "DefaultRotations/1.0.0.3": {
         "dependencies": {
           "RotationSolver.Basic": "0.0.0"
         },
@@ -232,18 +232,18 @@
           "RotationSolver.Basic.dll": {}
         }
       },
-      "ECommons/2.1.0.2": {
+      "ECommons/2.1.0.7": {
         "runtime": {
           "ECommons.dll": {
-            "assemblyVersion": "2.1.0.2",
-            "fileVersion": "2.1.0.2"
+            "assemblyVersion": "2.1.0.7",
+            "fileVersion": "2.1.0.7"
           }
         }
       }
     }
   },
   "libraries": {
-    "DefaultRotations/1.0.0.0": {
+    "DefaultRotations/1.0.0.3": {
       "type": "project",
       "serviceable": false,
       "sha512": ""
@@ -400,7 +400,7 @@
       "serviceable": false,
       "sha512": ""
     },
-    "ECommons/2.1.0.2": {
+    "ECommons/2.1.0.7": {
       "type": "reference",
       "serviceable": false,
       "sha512": ""
