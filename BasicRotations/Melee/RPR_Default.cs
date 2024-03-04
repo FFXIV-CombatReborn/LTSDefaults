@@ -1,8 +1,6 @@
 ﻿namespace DefaultRotations.Melee;
 
-[BetaRotation]
 [RotationDesc(ActionID.ArcaneCircle)]
-[LinkDescription("https://www.thebalanceffxiv.com/img/jobs/rpr/double_communio.png")]
 [LinkDescription("https://www.thebalanceffxiv.com/img/jobs/rpr/rpr_6.3_early_enshroud.png")]
 [SourceCode(Path = "main/DefaultRotations/Melee/RPR_Default.cs")]
 public sealed class RPR_Default : RPR_Base
@@ -18,21 +16,6 @@ public sealed class RPR_Default : RPR_Base
     #endregion
 
     #region Countdown logic
-
-    #endregion
-
-    #region GCD Logic
-
-    #endregion
-
-    #region oGCD Logic
-
-    #endregion
-
-    #region Extra Methods
-
-    #endregion
-
     protected override IAction CountDownAction(float remainTime)
     {
         if (remainTime < Harpe.CastTime + CountDownAhead
@@ -42,6 +25,7 @@ public sealed class RPR_Default : RPR_Base
 
         return base.CountDownAction(remainTime);
     }
+    #endregion
 
     private static bool Reaping(out IAction act)
     {
@@ -57,6 +41,7 @@ public sealed class RPR_Default : RPR_Base
         return false;
     }
 
+    #region GCD Logic
     protected override bool GeneralGCD(out IAction act)
     {
         if (SoulSow.CanUse(out act)) return true;
@@ -128,7 +113,9 @@ public sealed class RPR_Default : RPR_Base
 
         return base.GeneralGCD(out act);
     }
+    #endregion
 
+    #region oGCD Logic
     protected override bool AttackAbility(out IAction act)
     {
         var IsTargetBoss = HostileTarget?.IsBossFromTTK() ?? false;
@@ -183,3 +170,20 @@ public sealed class RPR_Default : RPR_Base
         return base.AttackAbility(out act);
     }
 }
+    #endregion
+
+    #region Extra Methods
+    private static bool Reaping(out IAction act)
+    {
+        if (GrimReaping.CanUse(out act)) return true;
+        if (Player.HasStatus(true, StatusID.EnhancedCrossReaping) || !Player.HasStatus(true, StatusID.EnhancedVoidReaping))
+        {
+            if (CrossReaping.CanUse(out act)) return true;
+        }
+        else
+        {
+            if (VoidReaping.CanUse(out act)) return true;
+        }
+        return false;
+    }
+    #endregion
