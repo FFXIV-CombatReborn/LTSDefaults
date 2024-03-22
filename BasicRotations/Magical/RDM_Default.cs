@@ -1,43 +1,13 @@
 namespace DefaultRotations.Magical;
 
-[RotationDesc(ActionID.Embolden)]
+[Rotation("LTS's Default", CombatType.PvE, GameVersion = "6.58")]
 [SourceCode(Path = "main/DefaultRotations/Magical/RDM_Default.cs")]
-[LinkDescription("https://www.thebalanceffxiv.com/img/jobs/rdm/rdm_ew_opener.png")]
-public sealed class RDM_Default : RDM_Base
+public sealed class RDM_Default : RedMageRotation
+
 {
-    #region General rotation info
-    public override string GameVersion => VERSION;
-    public override string RotationName => $"{USERNAME}'s {ClassJob.Abbreviation} [{Type}]";
-    public override CombatType Type => CombatType.PvE;
-    #endregion General rotation info
+    private static BaseAction VerthunderStartUp { get; } = new BaseAction(ActionID.VerthunderPvE, false);
 
-    #region Rotation Configs
-    protected override IRotationConfigSet CreateConfiguration()
-    {
-        return base.CreateConfiguration()
-            .SetBool(CombatType.PvE, "UseVercure", false, "Use Vercure for Dualcast when out of combat.");
-    }
-    #endregion
-
-    #region Countdown logic
-
-    #endregion
-
-    #region GCD Logic
-
-    #endregion
-
-    #region oGCD Logic
-
-    #endregion
-
-    #region Extra Methods
-
-    #endregion
-
-    static IBaseAction VerthunderStartUp { get; } = new BaseAction(ActionID.Verthunder);
-
-    private static bool CanStartMeleeCombo
+    private bool CanStartMeleeCombo
     {
         get
         {
@@ -55,126 +25,127 @@ public sealed class RDM_Default : RDM_Base
                 if (Player.HasStatus(true, StatusID.VerfireReady)) return false;
             }
 
-            if (Player.HasStatus(true, Vercure.StatusProvide)) return false;
+            if (Player.HasStatus(true, VercurePvE.Setting.StatusProvide ?? [])) return false;
 
             //Waiting for embolden.
-            if (Embolden.EnoughLevel && Embolden.WillHaveOneChargeGCD(5)) return false;
+            if (EmboldenPvE.EnoughLevel && EmboldenPvE.Cooldown.WillHaveOneChargeGCD(5)) return false;
 
             return true;
         }
     }
 
+    [RotationConfig(CombatType.PvE, Name = "Use Vercure for Dualcast when out of combat.")]
+    public bool UseVercure { get; set; }
 
-
-    protected override IAction CountDownAction(float remainTime)
+    protected override IAction? CountDownAction(float remainTime)
     {
-        if (remainTime < VerthunderStartUp.CastTime + CountDownAhead
-            && VerthunderStartUp.CanUse(out var act, CanUseOption.EmptyOrSkipCombo)) return act;
+        if (remainTime < VerthunderStartUp.Info.CastTime + CountDownAhead
+            && VerthunderStartUp.CanUse(out var act)) return act;
 
         //Remove Swift
-        StatusHelper.StatusOff(StatusID.DualCast);
+        StatusHelper.StatusOff(StatusID.Dualcast);
         StatusHelper.StatusOff(StatusID.Acceleration);
-        StatusHelper.StatusOff(StatusID.SwiftCast);
+        StatusHelper.StatusOff(StatusID.Swiftcast);
 
         return base.CountDownAction(remainTime);
     }
 
-    protected override bool GeneralGCD(out IAction act)
+    protected override bool GeneralGCD(out IAction? act)
     {
         act = null;
         if (ManaStacks == 3) return false;
 
-        if (!Verthunder2.CanUse(out _))
+        if (!VerthunderIiPvE.CanUse(out _))
         {
-            if (Verfire.CanUse(out act)) return true;
-            if (Verstone.CanUse(out act)) return true;
+            if (VerfirePvE.CanUse(out act)) return true;
+            if (VerstonePvE.CanUse(out act)) return true;
         }
 
-        if (Scatter.CanUse(out act)) return true;
+        if (ScatterPvE.CanUse(out act)) return true;
         if (WhiteMana < BlackMana)
         {
-            if (Veraero2.CanUse(out act) && BlackMana - WhiteMana != 5) return true;
-            if (Veraero.CanUse(out act) && BlackMana - WhiteMana != 6) return true;
+            if (VeraeroIiPvE.CanUse(out act) && BlackMana - WhiteMana != 5) return true;
+            if (VeraeroPvE.CanUse(out act) && BlackMana - WhiteMana != 6) return true;
         }
-        if (Verthunder2.CanUse(out act)) return true;
-        if (Verthunder.CanUse(out act)) return true;
+        if (VerthunderIiPvE.CanUse(out act)) return true;
+        if (VerthunderPvE.CanUse(out act)) return true;
 
-        if (Jolt.CanUse(out act)) return true;
+        if (JoltPvE.CanUse(out act)) return true;
 
-        if (Configs.GetBool("UseVercure") && NotInCombatDelay && Vercure.CanUse(out act)) return true;
+        if (UseVercure && NotInCombatDelay && VercurePvE.CanUse(out act)) return true;
 
         return base.GeneralGCD(out act);
     }
 
-    protected override bool EmergencyGCD(out IAction act)
+    protected override bool EmergencyGCD(out IAction? act)
     {
         if (ManaStacks == 3)
         {
             if (BlackMana > WhiteMana)
             {
-                if (Verholy.CanUse(out act, CanUseOption.MustUse)) return true;
+                if (VerholyPvE.CanUse(out act, skipAoeCheck: true)) return true;
             }
-            if (Verflare.CanUse(out act, CanUseOption.MustUse)) return true;
+            if (VerflarePvE.CanUse(out act, skipAoeCheck: true)) return true;
         }
 
-        if (Resolution.CanUse(out act, CanUseOption.MustUse)) return true;
-        if (Scorch.CanUse(out act, CanUseOption.MustUse)) return true;
+        if (ResolutionPvE.CanUse(out act, skipAoeCheck: true)) return true;
+        if (ScorchPvE.CanUse(out act, skipAoeCheck: true)) return true;
 
 
-        if (IsLastGCD(true, Moulinet) && Moulinet.CanUse(out act, CanUseOption.MustUse)) return true;
-        if (Zwerchhau.CanUse(out act)) return true;
-        if (Redoublement.CanUse(out act)) return true;
+        if (IsLastGCD(true, MoulinetPvE) && MoulinetPvE.CanUse(out act, skipAoeCheck: true)) return true;
+        if (ZwerchhauPvE.CanUse(out act)) return true;
+        if (RedoublementPvE.CanUse(out act)) return true;
 
         if (!CanStartMeleeCombo) return false;
 
-        if (Moulinet.CanUse(out act))
+        if (MoulinetPvE.CanUse(out act))
         {
             if (BlackMana >= 60 && WhiteMana >= 60) return true;
         }
         else
         {
-            if (BlackMana >= 50 && WhiteMana >= 50 && Riposte.CanUse(out act)) return true;
+            if (BlackMana >= 50 && WhiteMana >= 50 && RipostePvE.CanUse(out act)) return true;
         }
-        if (ManaStacks > 0 && Riposte.CanUse(out act)) return true;
+        if (ManaStacks > 0 && RipostePvE.CanUse(out act)) return true;
 
         return base.EmergencyGCD(out act);
     }
 
-    protected override bool EmergencyAbility(IAction nextGCD, out IAction act)
+    protected override bool EmergencyAbility(IAction nextGCD, out IAction? act)
     {
         act = null;
         if (CombatElapsedLess(4)) return false;
 
-        if (IsBurst && HasHostilesInRange && Embolden.CanUse(out act, CanUseOption.MustUse)) return true;
+        if (IsBurst && HasHostilesInRange && EmboldenPvE.CanUse(out act, skipAoeCheck: true)) return true;
 
         //Use Manafication after embolden.
-        if ((Player.HasStatus(true, StatusID.Embolden) || IsLastAbility(ActionID.Embolden))
-            && Manafication.CanUse(out act)) return true;
+        if ((Player.HasStatus(true, StatusID.Embolden) || IsLastAbility(ActionID.EmboldenPvE))
+            && ManaficationPvE.CanUse(out act)) return true;
 
         return base.EmergencyAbility(nextGCD, out act);
     }
 
-    protected override bool AttackAbility(out IAction act)
+    protected override bool AttackAbility(out IAction? act)
     {
         //Swift
         if (ManaStacks == 0 && (BlackMana < 50 || WhiteMana < 50)
-            && (CombatElapsedLess(4) || !Manafication.EnoughLevel || !Manafication.WillHaveOneChargeGCD(0, 1)))
+            && (CombatElapsedLess(4) || !ManaficationPvE.EnoughLevel || !ManaficationPvE.Cooldown.WillHaveOneChargeGCD(0, 1)))
         {
-            if (!Player.HasStatus(true, StatusID.VerfireReady, StatusID.VerstoneReady))
+            if (InCombat && !Player.HasStatus(true, StatusID.VerfireReady, StatusID.VerstoneReady))
             {
-                if (Swiftcast.CanUse(out act)) return true;
-                if (InCombat && Acceleration.CanUse(out act, CanUseOption.EmptyOrSkipCombo)) return true;
+                if (SwiftcastPvE.CanUse(out act)) return true;
+                if (AccelerationPvE.CanUse(out act, usedUp: true)) return true;
             }
         }
 
         if (IsBurst && UseBurstMedicine(out act)) return true;
 
         //Attack abilities.
-        if (ContreSixte.CanUse(out act, CanUseOption.MustUse)) return true;
-        if (Fleche.CanUse(out act)) return true;
+        if (ContreSixtePvE.CanUse(out act, skipAoeCheck: true)) return true;
+        if (FlechePvE.CanUse(out act)) return true;
 
-        if (Engagement.CanUse(out act, CanUseOption.EmptyOrSkipCombo)) return true;
-        if (CorpsACorps.CanUse(out act, CanUseOption.MustUse) && !IsMoving) return true;
+        if (EngagementPvE.CanUse(out act, usedUp: true)) return true;
+        if (CorpsacorpsPvE.CanUse(out act) && !IsMoving) return true;
 
         return base.AttackAbility(out act);
     }

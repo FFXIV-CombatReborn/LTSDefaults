@@ -1,187 +1,180 @@
+using static FFXIVClientStructs.FFXIV.Client.UI.AddonPartyList;
+
 namespace DefaultRotations.Healer;
 
+[Rotation("LTS's Default", CombatType.PvE, GameVersion = "6.58")]
 [SourceCode(Path = "main/DefaultRotations/Healer/WHM_Default.cs")]
-public sealed class WHM_Default : WHM_Base
+public sealed class WHM_Default : WhiteMageRotation
 {
 
-    #region General rotation info
-    public override string GameVersion => VERSION;
-    public override string RotationName => $"{USERNAME}'s {ClassJob.Abbreviation} [{Type}]";
-    public override CombatType Type => CombatType.PvE;
-    #endregion General rotation info
-
     #region Rotation Configs
-    protected override IRotationConfigSet CreateConfiguration()
-                    => base.CreateConfiguration()
-            .SetBool(CombatType.PvE, "UseLilyWhenFull", true, "Use Lily at max stacks.")
-            .SetBool(CombatType.PvE, "UsePreRegen", false, "Regen on Tank at 5 seconds remaining on Countdown.");
+    [RotationConfig(CombatType.PvE, Name = "Use Lily at max stacks.")]
+    public bool UseLilyWhenFull { get; set; } = true;
+
+    [RotationConfig(CombatType.PvE, Name = "Regen on Tank at 5 seconds remaining on Countdown.")]
+    public bool UsePreRegen { get; set; } = true;
     #endregion
 
-    #region Countdown logic
-
-    #endregion
-
-    #region GCD Logic
-
-    #endregion
-
-    #region oGCD Logic
-
-    #endregion
-
-    #region Extra Methods
-
-    #endregion
-    public static IBaseAction RegenDefense { get; } = new BaseAction(ActionID.Regen, ActionOption.Hot)
+    public WHM_Default()
     {
-        ChoiceTarget = TargetFilter.FindAttackedTarget,
-        ActionCheck = (b, m) => b.IsJobCategory(JobRole.Tank),
-        TargetStatus = Regen.TargetStatus,
-    };
+        AfflatusRapturePvE.Setting.RotationCheck = () => BloodLily < 3;
+        AfflatusSolacePvE.Setting.RotationCheck = () => BloodLily < 3;
+    }
 
-    protected override bool AttackAbility(out IAction act)
+    protected override bool GeneralGCD(out IAction? act)
     {
-        if (PresenceOfMind.CanUse(out act)) return true;
+        //if (NotInCombatDelay && RegenDefense.CanUse(out act)) return true;
 
-        if (Assize.CanUse(out act, CanUseOption.MustUse)) return true;
+        if (AfflatusMiseryPvE.CanUse(out act, skipAoeCheck: true)) return true;
+
+        bool liliesNearlyFull = Lily == 2 && LilyTime > 13;
+        bool liliesFullNoBlood = Lily == 3;
+        if (UseLilyWhenFull && (liliesNearlyFull || liliesFullNoBlood) && AfflatusMiseryPvE.EnoughLevel && BloodLily < 3)
+        {
+            if (UseLily(out act)) return true;
+        }
+
+        if (HolyPvE.CanUse(out act)) return true;
+
+        if (AeroPvE.CanUse(out act)) return true;
+
+        if (StonePvE.CanUse(out act)) return true;
+
+        if (Lily >= 2)
+        {
+            if (UseLily(out act)) return true;
+        }
+
+        if (AeroPvE.CanUse(out act, skipStatusProvideCheck: true)) return true;
+
+        return base.GeneralGCD(out act);
+    }
+
+    private bool UseLily(out IAction? act)
+    {
+        if (AfflatusRapturePvE.CanUse(out act, skipAoeCheck: true)) return true;
+        if (AfflatusSolacePvE.CanUse(out act)) return true;
+        return false;
+    }
+
+    protected override bool AttackAbility(out IAction? act)
+    {
+        if (InCombat)
+        {
+            if (PresenceOfMindPvE.CanUse(out act)) return true;
+            if (AssizePvE.CanUse(out act, skipAoeCheck: true)) return true;
+        }
 
         return base.AttackAbility(out act);
     }
 
-    protected override IAction CountDownAction(float remainTime)
+    protected override bool EmergencyAbility(IAction nextGCD, out IAction? act)
     {
-        if (remainTime < Stone.CastTime + CountDownAhead
-            && Stone.CanUse(out var act)) return act;
+        if (nextGCD is IBaseAction action && action.Info.MPNeed >= 1000 &&
+            ThinAirPvE.CanUse(out act)) return true;
 
-        if (Configs.GetBool("UsePreRegen") && remainTime <= 5 && remainTime > 3)
+        if (nextGCD.IsTheSameTo(true, AfflatusRapturePvE, MedicaPvE, MedicaIiPvE, CureIiiPvE)
+            && (MergedStatus.HasFlag(AutoStatus.HealAreaSpell) || MergedStatus.HasFlag(AutoStatus.HealSingleSpell)))
         {
-            if (RegenDefense.CanUse(out act, CanUseOption.IgnoreClippingCheck)) return act;
-            if (DivineBenison.CanUse(out act, CanUseOption.IgnoreClippingCheck)) return act;
-        }
-        return base.CountDownAction(remainTime);
-    }
-
-
-
-    [RotationDesc(ActionID.Temperance, ActionID.LiturgyOfTheBell)]
-    protected override bool DefenseAreaAbility(out IAction act)
-    {
-        if (Temperance.CanUse(out act)) return true;
-
-        if (LiturgyOfTheBell.CanUse(out act)) return true;
-        return base.DefenseAreaAbility(out act);
-    }
-
-    [RotationDesc(ActionID.DivineBenison, ActionID.Aquaveil)]
-    protected override bool DefenseSingleAbility(out IAction act)
-    {
-        if (DivineBenison.CanUse(out act)) return true;
-
-        if (Aquaveil.CanUse(out act)) return true;
-        return base.DefenseSingleAbility(out act);
-    }
-
-    protected override bool EmergencyAbility(IAction nextGCD, out IAction act)
-    {
-        if (nextGCD is IBaseAction action && action.MPNeed >= 1000 &&
-            ThinAir.CanUse(out act)) return true;
-
-        if (nextGCD.IsTheSameTo(true, AfflatusRapture, Medica, Medica2, Cure3))
-        {
-            if (PlenaryIndulgence.CanUse(out act)) return true;
+            if (PlenaryIndulgencePvE.CanUse(out act)) return true;
         }
 
         return base.EmergencyAbility(nextGCD, out act);
     }
 
-    protected override bool GeneralGCD(out IAction act)
+    [RotationDesc(ActionID.AfflatusSolacePvE, ActionID.RegenPvE, ActionID.CureIiPvE, ActionID.CurePvE)]
+    protected override bool HealSingleGCD(out IAction? act)
     {
-        if (NotInCombatDelay && RegenDefense.CanUse(out act)) return true;
+        if (AfflatusSolacePvE.CanUse(out act)) return true;
 
-        if (AfflatusMisery.CanUse(out act, CanUseOption.MustUse)) return true;
+        if (RegenPvE.CanUse(out act)
+            && (IsMoving || RegenPvE.Target?.Target?.GetHealthRatio() > 0.4)) return true;
 
-        bool liliesNearlyFull = Lily == 2 && LilyAfter(17);
-        bool liliesFullNoBlood = Lily == 3 && BloodLily < 3;
-        if (Configs.GetBool("UseLilyWhenFull") && (liliesNearlyFull || liliesFullNoBlood) && AfflatusMisery.EnoughLevel)
-        {
-            if (PartyMembersAverHP < 0.7)
-            {
-                if (AfflatusRapture.CanUse(out act)) return true;
-            }
-            if (AfflatusSolace.CanUse(out act)) return true;
-        }
+        if (CureIiPvE.CanUse(out act)) return true;
 
-        if (Holy.CanUse(out act)) return true;
-
-        if (Aero.CanUse(out act)) return true;
-        if (Stone.CanUse(out act)) return true;
-        if (Aero.CanUse(out act, CanUseOption.MustUse)) return true;
-
-        return base.GeneralGCD(out act);
-    }
-
-    [RotationDesc(ActionID.Asylum)]
-    protected override bool HealAreaAbility(out IAction act)
-    {
-        if (Asylum.CanUse(out act)) return true;
-        return base.HealAreaAbility(out act);
-    }
-
-    [RotationDesc(ActionID.AfflatusRapture, ActionID.Medica2, ActionID.Cure3, ActionID.Medica)]
-    protected override bool HealAreaGCD(out IAction act)
-    {
-        if (AfflatusRapture.CanUse(out act)) return true;
-
-        int hasMedica2 = PartyMembers.Count((n) => n.HasStatus(true, StatusID.Medica2));
-
-        if (Medica2.CanUse(out act) && hasMedica2 < PartyMembers.Count() / 2 && !IsLastAction(true, Medica2)) return true;
-
-        if (Cure3.CanUse(out act)) return true;
-
-        if (Medica.CanUse(out act)) return true;
-
-        return base.HealAreaGCD(out act);
-    }
-
-    [RotationDesc(ActionID.Benediction, ActionID.Asylum, ActionID.DivineBenison, ActionID.Tetragrammaton)]
-    protected override bool HealSingleAbility(out IAction act)
-    {
-        if (Benediction.CanUse(out act) &&
-            Benediction.Target.GetHealthRatio() < 0.3) return true;
-
-        if (!IsMoving && Asylum.CanUse(out act)) return true;
-
-        if (DivineBenison.CanUse(out act)) return true;
-
-        if (Tetragrammaton.CanUse(out act)) return true;
-        return base.HealSingleAbility(out act);
-    }
-
-    [RotationDesc(ActionID.AfflatusSolace, ActionID.Regen, ActionID.Cure2, ActionID.Cure)]
-    protected override bool HealSingleGCD(out IAction act)
-    {
-        if (AfflatusSolace.CanUse(out act)) return true;
-
-        if (Regen.CanUse(out act)
-            && (IsMoving || Regen.Target.GetHealthRatio() > 0.4)) return true;
-
-        if (Cure2.CanUse(out act)) return true;
-
-        if (Cure.CanUse(out act)) return true;
+        if (CurePvE.CanUse(out act)) return true;
 
         return base.HealSingleGCD(out act);
     }
 
-    //[RotationDesc(ActionID.Regen)]
-    //protected override bool DefenseSingleGCD(out IAction act)
-    //{
-    //    if (RegenDefense.CanUse(out act)) return true;
-    //    return base.DefenseSingleGCD(out act);
-    //}
+    [RotationDesc(ActionID.BenedictionPvE, ActionID.AsylumPvE, ActionID.DivineBenisonPvE, ActionID.TetragrammatonPvE)]
+    protected override bool HealSingleAbility(out IAction? act)
+    {
+        if (BenedictionPvE.CanUse(out act) &&
+            RegenPvE.Target?.Target?.GetHealthRatio() < 0.3) return true;
 
-    //protected override bool DefenseAreaGCD(out IAction act)
+        if (!IsMoving && AsylumPvE.CanUse(out act)) return true;
+
+        if (DivineBenisonPvE.CanUse(out act)) return true;
+
+        if (TetragrammatonPvE.CanUse(out act)) return true;
+        return base.HealSingleAbility(out act);
+    }
+
+    [RotationDesc(ActionID.AfflatusRapturePvE, ActionID.MedicaIiPvE, ActionID.CureIiiPvE, ActionID.MedicaPvE)]
+    protected override bool HealAreaGCD(out IAction? act)
+    {
+        if (AfflatusRapturePvE.CanUse(out act)) return true;
+
+        int hasMedica2 = PartyMembers.Count((n) => n.HasStatus(true, StatusID.MedicaIi));
+
+        if (MedicaIiPvE.CanUse(out act) && hasMedica2 < PartyMembers.Count() / 2 && !IsLastAction(true, MedicaIiPvE)) return true;
+
+        if (CureIiiPvE.CanUse(out act)) return true;
+
+        if (MedicaPvE.CanUse(out act)) return true;
+
+        return base.HealAreaGCD(out act);
+    }
+
+    [RotationDesc(ActionID.AsylumPvE)]
+    protected override bool HealAreaAbility(out IAction? act)
+    {
+        if (AsylumPvE.CanUse(out act)) return true;
+        return base.HealAreaAbility(out act);
+    }
+
+    [RotationDesc(ActionID.DivineBenisonPvE, ActionID.AquaveilPvE)]
+    protected override bool DefenseSingleAbility(out IAction? act)
+    {
+        act = null;
+        if (DivineBenisonPvE.Cooldown.IsCoolingDown && !DivineBenisonPvE.Cooldown.WillHaveOneCharge(15)
+            || AquaveilPvE.Cooldown.IsCoolingDown && !AquaveilPvE.Cooldown.WillHaveOneCharge(52)) return false;
+
+        if (DivineBenisonPvE.CanUse(out act)) return true;
+
+        if (AquaveilPvE.CanUse(out act)) return true;
+        return base.DefenseSingleAbility(out act);
+    }
+
+    [RotationDesc(ActionID.TemperancePvE, ActionID.LiturgyOfTheBellPvE)]
+    protected override bool DefenseAreaAbility(out IAction? act)
+    {
+        act = null;
+        if (TemperancePvE.Cooldown.IsCoolingDown && !TemperancePvE.Cooldown.WillHaveOneCharge(100)
+            || LiturgyOfTheBellPvE.Cooldown.IsCoolingDown && !LiturgyOfTheBellPvE.Cooldown.WillHaveOneCharge(160)) return false;
+
+        if (TemperancePvE.CanUse(out act)) return true;
+
+        if (LiturgyOfTheBellPvE.CanUse(out act, skipAoeCheck: true)) return true;
+        return base.DefenseAreaAbility(out act);
+    }
+
+    protected override IAction? CountDownAction(float remainTime)
+    {
+        if (remainTime < StonePvE.Info.CastTime + CountDownAhead
+            && StonePvE.CanUse(out var act)) return act;
+
+        if (UsePreRegen && remainTime <= 5 && remainTime > 3)
+        {
+            if (RegenPvE.CanUse(out act)) return act;
+            if (DivineBenisonPvE.CanUse(out act)) return act;
+        }
+        return base.CountDownAction(remainTime);
+    }
+
+    //public override void DisplayStatus()
     //{
-    //    if (Medica2.CanUse(out act) && PartyMembers.Count((n) => n.HasStatus(true, StatusID.Medica2)) < PartyMembers.Count() / 2) return true;
-    //    return base.DefenseAreaGCD(out act);
+    //    ImGui.Text(LilyTime.ToString());
     //}
 }

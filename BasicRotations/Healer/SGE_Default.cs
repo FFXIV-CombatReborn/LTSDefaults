@@ -1,313 +1,263 @@
 namespace DefaultRotations.Healer;
 
+[Rotation("LTS's Default", CombatType.PvE, GameVersion = "6.58")]
 [SourceCode(Path = "main/DefaultRotations/Healer/SGE_Default.cs")]
-public sealed class SGE_Default : SGE_Base
+public sealed class SGE_Default : SageRotation
 {
-    #region General rotation info
-    public override string GameVersion => VERSION;
-    public override string RotationName => $"{USERNAME}'s {ClassJob.Abbreviation} [{Type}]";
-    public override CombatType Type => CombatType.PvE;
-    #endregion General rotation info
 
-    #region Rotation Configs
-    protected override IRotationConfigSet CreateConfiguration()
+    [RotationConfig(CombatType.PvE, Name = "Use spells with cast times to heal.")]
+    public bool GCDHeal { get; set; } = false;
+
+    public override bool CanHealSingleSpell => base.CanHealSingleSpell && (GCDHeal || PartyMembers.GetJobCategory(JobRole.Healer).Count() < 2);
+    public override bool CanHealAreaSpell => base.CanHealAreaSpell && (GCDHeal || PartyMembers.GetJobCategory(JobRole.Healer).Count() < 2);
+
+    protected override IAction? CountDownAction(float remainTime)
     {
-        return base.CreateConfiguration().SetBool(CombatType.PvE, "GCDHeal", false, "Use spells with cast times to heal.");
-    }
-    #endregion
-
-    #region Countdown logic
-
-    #endregion
-
-    #region GCD Logic
-
-    #endregion
-
-    #region oGCD Logic
-
-    #endregion
-
-    #region Extra Methods
-
-    #endregion
-
-    public override string Description => "Please contact Nore#7219 on Discord for questions about this rotation.";
-
-    private static bool InTwoMIsBurst()
-    {
-        if (RatioOfMembersIn2minsBurst >= 0.5) return true;
-        if (RatioOfMembersIn2minsBurst == -1) return true;
-        else return false;
-    }
-
-    private static BaseAction MEukrasianDiagnosis { get; } = new(ActionID.EukrasianDiagnosis, ActionOption.Heal)
-    {
-        ChoiceTarget = (Targets, mustUse) =>
-        {
-            var targets = Targets.GetJobCategory(JobRole.Tank);
-            if (!targets.Any()) return null;
-            return targets.FirstOrDefault();
-        },
-        ActionCheck = (b, m) =>
-        {
-            if (InCombat || HasHostilesInRange) return false;
-            if (b == Player) return false;
-            if (b.HasStatus(false, StatusID.EukrasianDiagnosis, StatusID.EukrasianPrognosis, StatusID.Galvanize)) return false;
-            return true;
-        }
-    };
-
-    public override bool CanHealSingleSpell => base.CanHealSingleSpell && (Configs.GetBool("GCDHeal") || PartyHealers.Count() < 2);
-    public override bool CanHealAreaSpell => base.CanHealAreaSpell && (Configs.GetBool("GCDHeal") || PartyHealers.Count() < 2);
-
-
-
-    protected override IAction CountDownAction(float remainTime)
-    {
-        if (remainTime <= 1.5 && Dosis.CanUse(out var act)) return act;
+        if (remainTime <= 1.5 && DosisPvE.CanUse(out var act)) return act;
         if (remainTime <= 3 && UseBurstMedicine(out act)) return act;
         return base.CountDownAction(remainTime);
     }
-    protected override bool EmergencyAbility(IAction nextGCD, out IAction act)
+    protected override bool EmergencyAbility(IAction nextGCD, out IAction? act)
     {
         if (base.EmergencyAbility(nextGCD, out act)) return true;
 
-        if (nextGCD.IsTheSameTo(false, Pneuma, EukrasianDiagnosis,
-            EukrasianPrognosis, Diagnosis, Prognosis))
+        if (nextGCD.IsTheSameTo(false, PneumaPvE, EukrasianDiagnosisPvE,
+            EukrasianPrognosisPvE, DiagnosisPvE, PrognosisPvE))
         {
-            if (Zoe.CanUse(out act)) return true;
+            if (ZoePvE.CanUse(out act)) return true;
         }
 
-        if (nextGCD.IsTheSameTo(false, Pneuma))
+        if (nextGCD.IsTheSameTo(false, PneumaPvE))
         {
-            if (Krasis.CanUse(out act)) return true;
+            if (KrasisPvE.CanUse(out act)) return true;
         }
 
         return base.EmergencyAbility(nextGCD, out act);
     }
 
-    [RotationDesc(ActionID.Haima, ActionID.Taurochole, ActionID.Panhaima, ActionID.Kerachole, ActionID.Holos)]
-    protected override bool DefenseSingleAbility(out IAction act)
+    [RotationDesc(ActionID.HaimaPvE, ActionID.TaurocholePvE, ActionID.PanhaimaPvE, ActionID.KeracholePvE, ActionID.HolosPvE)]
+    protected override bool DefenseSingleAbility(out IAction? act)
     {
         if (Addersgall <= 1)
         {
-            if (Haima.CanUse(out act, CanUseOption.OnLastAbility)) return true;
+            if (HaimaPvE.CanUse(out act, onLastAbility: true)) return true;
         }
 
-        if (Taurochole.CanUse(out act, CanUseOption.OnLastAbility) && Taurochole.Target.GetHealthRatio() < 0.8) return true;
+        if (TaurocholePvE.CanUse(out act, onLastAbility: true) && TaurocholePvE.Target?.Target?.GetHealthRatio() < 0.8) return true;
 
         if (Addersgall <= 1)
         {
-            if ((!Haima.EnoughLevel || Haima.ElapsedAfter(20)) && Panhaima.CanUse(out act, CanUseOption.OnLastAbility)) return true;
+            if ((!HaimaPvE.EnoughLevel || HaimaPvE.Cooldown.ElapsedAfter(20)) && PanhaimaPvE.CanUse(out act, onLastAbility: true)) return true;
         }
 
-        if ((!Taurochole.EnoughLevel || Taurochole.ElapsedAfter(20)) && Kerachole.CanUse(out act, CanUseOption.OnLastAbility)) return true;
+        if ((!TaurocholePvE.EnoughLevel || TaurocholePvE.Cooldown.ElapsedAfter(20)) && KeracholePvE.CanUse(out act, onLastAbility: true)) return true;
 
-        if (Holos.CanUse(out act, CanUseOption.OnLastAbility)) return true;
+        if (HolosPvE.CanUse(out act, onLastAbility: true)) return true;
 
         return base.DefenseSingleAbility(out act);
     }
 
-    [RotationDesc(ActionID.EukrasianDiagnosis)]
-    protected override bool DefenseSingleGCD(out IAction act)
+    [RotationDesc(ActionID.EukrasianDiagnosisPvE)]
+    protected override bool DefenseSingleGCD(out IAction? act)
     {
-        if (EukrasianDiagnosis.CanUse(out act))
+        if (EukrasianDiagnosisPvE.CanUse(out act))
         {
-            if (EukrasianDiagnosis.Target.HasStatus(false,
-                StatusID.EukrasianDiagnosis,
-                StatusID.EukrasianPrognosis,
+            if (EukrasianDiagnosisPvE.Target?.Target?.HasStatus(false,
+                StatusID.EukrasianDiagnosis_2865,
+                StatusID.EukrasianPrognosis_2866,
                 StatusID.Galvanize
-            )) return false;
+            ) ?? false) return false;
 
-            if (Eukrasia.CanUse(out act)) return true;
+            if (EukrasiaPvE.CanUse(out act)) return true;
 
-            act = EukrasianDiagnosis;
+            act = EukrasianDiagnosisPvE;
             return true;
         }
 
         return base.DefenseSingleGCD(out act);
     }
 
-    [RotationDesc(ActionID.Panhaima, ActionID.Kerachole, ActionID.Holos)]
-    protected override bool DefenseAreaAbility(out IAction act)
+    [RotationDesc(ActionID.PanhaimaPvE, ActionID.KeracholePvE, ActionID.HolosPvE)]
+    protected override bool DefenseAreaAbility(out IAction? act)
     {
         if (Addersgall <= 1)
         {
-            if (Panhaima.CanUse(out act, CanUseOption.OnLastAbility)) return true;
+            if (PanhaimaPvE.CanUse(out act, onLastAbility: true)) return true;
         }
 
-        if (Kerachole.CanUse(out act, CanUseOption.OnLastAbility)) return true;
+        if (KeracholePvE.CanUse(out act, onLastAbility: true)) return true;
 
-        if (Holos.CanUse(out act, CanUseOption.OnLastAbility)) return true;
+        if (HolosPvE.CanUse(out act, onLastAbility: true)) return true;
 
         return base.DefenseAreaAbility(out act);
     }
 
-    [RotationDesc(ActionID.EukrasianPrognosis)]
-    protected override bool DefenseAreaGCD(out IAction act)
+    [RotationDesc(ActionID.EukrasianPrognosisPvE)]
+    protected override bool DefenseAreaGCD(out IAction? act)
     {
-        if (EukrasianPrognosis.CanUse(out act))
+        if (EukrasianPrognosisPvE.CanUse(out act))
         {
-            if (EukrasianDiagnosis.Target.HasStatus(false,
-                StatusID.EukrasianDiagnosis,
-                StatusID.EukrasianPrognosis,
+            if (EukrasianDiagnosisPvE.Target?.Target?.HasStatus(false,
+                StatusID.EukrasianDiagnosis_2865,
+                StatusID.EukrasianPrognosis_2866,
                 StatusID.Galvanize
-            )) return false;
+            ) ?? false) return false;
 
-            if (Eukrasia.CanUse(out act)) return true;
+            if (EukrasiaPvE.CanUse(out act)) return true;
 
-            act = EukrasianPrognosis;
+            act = EukrasianPrognosisPvE;
             return true;
         }
 
         return base.DefenseAreaGCD(out act);
     }
 
-    protected override bool GeneralAbility(out IAction act)
+    protected override bool GeneralAbility(out IAction? act)
     {
-        if (Kardia.CanUse(out act)) return true;
+        if (KardiaPvE.CanUse(out act)) return true;
 
-        if (Addersgall <= 1 && Rhizomata.CanUse(out act)) return true;
+        if (Addersgall <= 1 && RhizomataPvE.CanUse(out act)) return true;
 
-        if (Soteria.CanUse(out act) && PartyMembers.Any(b => b.HasStatus(true, StatusID.Kardion) && b.GetHealthRatio() < HealthSingleAbility)) return true;
+        if (SoteriaPvE.CanUse(out act) && PartyMembers.Any(b => b.HasStatus(true, StatusID.Kardion) && b.GetHealthRatio() < HealthSingleAbility)) return true;
 
-        if (Pepsis.CanUse(out act)) return true;
+        if (PepsisPvE.CanUse(out act)) return true;
 
         return base.GeneralAbility(out act);
     }
 
-    protected override bool GeneralGCD(out IAction act)
+    protected override bool GeneralGCD(out IAction? act)
     {
         if (HostileTarget?.IsBossFromTTK() ?? false)
         {
-            if (EukrasianDosis.CanUse(out _, CanUseOption.IgnoreCastCheck))
+            if (EukrasianDosisPvE.CanUse(out _, skipCastingCheck: true))
             {
-                if (Eukrasia.CanUse(out act, CanUseOption.IgnoreCastCheck)) return true;
-                act = EukrasianDosis;
+                if (EukrasiaPvE.CanUse(out act, skipCastingCheck: true)) return true;
+                if (DosisPvE.CanUse(out act))
+                {
+                    DosisPvE.Target = EukrasianDosisPvE.Target;
+                    return true;
+                }
+            }
+        }
+
+        if (PhlegmaIiiPvE.CanUse(out act, usedUp: IsMoving, skipAoeCheck: true)) return true;
+        if (!PhlegmaIiiPvE.EnoughLevel && PhlegmaIiPvE.CanUse(out act, usedUp: IsMoving, skipAoeCheck: true)) return true;
+        if (!PhlegmaIiPvE.EnoughLevel && PhlegmaPvE.CanUse(out act, usedUp: IsMoving, skipAoeCheck: true)) return true;
+
+        if (PartyMembers.Any(b => b.GetHealthRatio() < 0.20f) || PartyMembers.GetJobCategory(JobRole.Tank).Any(t => t.GetHealthRatio() < 0.6f))
+        {
+            if (PneumaPvE.CanUse(out act, skipAoeCheck: true)) return true;
+        }
+
+        if (IsMoving && ToxikonPvE.CanUse(out act, skipAoeCheck: true)) return true;
+
+        if (DyskrasiaPvE.CanUse(out act)) return true;
+
+        if (EukrasianDosisPvE.CanUse(out _, skipCastingCheck: true))
+        {
+            if (EukrasiaPvE.CanUse(out act, skipCastingCheck: true)) return true;
+            if (DosisPvE.CanUse(out act))
+            {
+                DosisPvE.Target = EukrasianDosisPvE.Target;
                 return true;
             }
         }
 
-        var option = CanUseOption.MustUse;
-        if (IsMoving || Dyskrasia.CanUse(out _) || InTwoMIsBurst()) option |= CanUseOption.EmptyOrSkipCombo;
-        if (Phlegma3.CanUse(out act, option)) return true;
-        if (!Phlegma3.EnoughLevel && Phlegma2.CanUse(out act, option)) return true;
-        if (!Phlegma2.EnoughLevel && Phlegma.CanUse(out act, option)) return true;
+        if (DosisPvE.CanUse(out act)) return true;
 
-        if (PartyMembers.Any(b => b.GetHealthRatio() < 0.20f) || PartyTanks.Any(t => t.GetHealthRatio() < 0.6f))
+        if (EukrasianDiagnosisPvE.CanUse(out _) && (EukrasianDiagnosisPvE.Target?.Target?.IsJobCategory(JobRole.Tank) ?? false))
         {
-            if (Pneuma.CanUse(out act, CanUseOption.MustUse)) return true;
-        }
-        
-        if (IsMoving && Toxikon.CanUse(out act, CanUseOption.MustUse)) return true;
-
-        if (Dyskrasia.CanUse(out act)) return true;
-
-        if (EukrasianDosis.CanUse(out _, CanUseOption.IgnoreCastCheck))
-        {
-            if (Eukrasia.CanUse(out act, CanUseOption.IgnoreCastCheck)) return true;
-            act = EukrasianDosis;
-            return true;
-        }
-
-        if (Dosis.CanUse(out act)) return true;
-
-        if (MEukrasianDiagnosis.CanUse(out _))
-        {
-            if (Eukrasia.CanUse(out act)) return true;
-
-            act = MEukrasianDiagnosis;
+            if (EukrasiaPvE.CanUse(out act)) return true;
+            act = EukrasianDiagnosisPvE;
             return true;
         }
 
         return base.GeneralGCD(out act);
     }
 
-    [RotationDesc(ActionID.Taurochole, ActionID.Kerachole, ActionID.Druochole, ActionID.Holos, ActionID.Physis, ActionID.Panhaima)]
-    protected override bool HealSingleAbility(out IAction act)
+    [RotationDesc(ActionID.TaurocholePvE, ActionID.KeracholePvE, ActionID.DruocholePvE, ActionID.HolosPvE, ActionID.PhysisPvE, ActionID.PanhaimaPvE)]
+    protected override bool HealSingleAbility(out IAction? act)
     {
-        if (Taurochole.CanUse(out act)) return true;
+        if (TaurocholePvE.CanUse(out act)) return true;
 
-        if (Kerachole.CanUse(out act) && EnhancedKerachole.EnoughLevel) return true;
+        if (KeracholePvE.CanUse(out act) && EnhancedKeracholeTrait.EnoughLevel) return true;
 
-        if ((!Taurochole.EnoughLevel || Taurochole.IsCoolingDown) && Druochole.CanUse(out act)) return true;
+        if ((!TaurocholePvE.EnoughLevel || TaurocholePvE.Cooldown.IsCoolingDown) && DruocholePvE.CanUse(out act)) return true;
 
-        if (Soteria.CanUse(out act) && PartyMembers.Any(b => b.HasStatus(true, StatusID.Kardion) && b.GetHealthRatio() < 0.85f)) return true;
+        if (SoteriaPvE.CanUse(out act) && PartyMembers.Any(b => b.HasStatus(true, StatusID.Kardion) && b.GetHealthRatio() < 0.85f)) return true;
 
 
-        var tank = PartyTanks;
+        var tank = PartyMembers.GetJobCategory(JobRole.Tank);
         if (Addersgall < 1 && (tank.Any(t => t.GetHealthRatio() < 0.65f) || PartyMembers.Any(b => b.GetHealthRatio() < 0.20f)))
         {
-            if (Haima.CanUse(out act, CanUseOption.OnLastAbility)) return true;
+            if (HaimaPvE.CanUse(out act, onLastAbility: true)) return true;
 
-            if (Physis2.CanUse(out act)) return true;
-            if (!Physis2.EnoughLevel && Physis.CanUse(out act)) return true;
-          
-            if (Holos.CanUse(out act, CanUseOption.OnLastAbility)) return true;
+            if (PhysisIiPvE.CanUse(out act)) return true;
+            if (!PhysisIiPvE.EnoughLevel && PhysisPvE.CanUse(out act)) return true;
 
-            if ((!Haima.EnoughLevel || Haima.ElapsedAfter(20)) && Panhaima.CanUse(out act, CanUseOption.OnLastAbility)) return true;
+            if (HolosPvE.CanUse(out act, onLastAbility: true)) return true;
+
+            if ((!HaimaPvE.EnoughLevel || HaimaPvE.Cooldown.ElapsedAfter(20)) && PanhaimaPvE.CanUse(out act, onLastAbility: true)) return true;
         }
 
-        if (PartyTanks.Any(t => t.GetHealthRatio() < 0.60f))
+        if (tank.Any(t => t.GetHealthRatio() < 0.60f))
         {
-            if (Zoe.CanUse(out act)) return true;
+            if (ZoePvE.CanUse(out act)) return true;
         }
 
-        if (PartyTanks.Any(t => t.GetHealthRatio() < 0.70f) || PartyMembers.Any(b => b.GetHealthRatio() < 0.30f))
+        if (tank.Any(t => t.GetHealthRatio() < 0.70f) || PartyMembers.Any(b => b.GetHealthRatio() < 0.30f))
         {
-            if (Krasis.CanUse(out act)) return true;
+            if (KrasisPvE.CanUse(out act)) return true;
         }
 
-        if (Kerachole.CanUse(out act)) return true;
+        if (KeracholePvE.CanUse(out act)) return true;
 
         return base.HealSingleAbility(out act);
     }
 
-    [RotationDesc(ActionID.Diagnosis)]
-    protected override bool HealSingleGCD(out IAction act)
+    [RotationDesc(ActionID.DiagnosisPvE)]
+    protected override bool HealSingleGCD(out IAction? act)
     {
-        if (Diagnosis.CanUse(out act)) return true;
+        if (DiagnosisPvE.CanUse(out act)) return true;
         return base.HealSingleGCD(out act);
     }
 
-    [RotationDesc(ActionID.Pneuma, ActionID.Prognosis, ActionID.EukrasianPrognosis)]
-    protected override bool HealAreaGCD(out IAction act)
+    [RotationDesc(ActionID.PneumaPvE, ActionID.PrognosisPvE, ActionID.EukrasianPrognosisPvE)]
+    protected override bool HealAreaGCD(out IAction? act)
     {
-        if (PartyMembersAverHP < 0.65f || Dyskrasia.CanUse(out _) && PartyTanks.Any(t => t.GetHealthRatio() < 0.6f))
+        if (PartyMembersAverHP < 0.65f || DyskrasiaPvE.CanUse(out _) && PartyMembers.GetJobCategory(JobRole.Tank).Any(t => t.GetHealthRatio() < 0.6f))
         {
-            if (Pneuma.CanUse(out act, CanUseOption.MustUse)) return true;
+            if (PneumaPvE.CanUse(out act, skipAoeCheck: true)) return true;
         }
 
         if (Player.HasStatus(false, StatusID.EukrasianDiagnosis, StatusID.EukrasianPrognosis, StatusID.Galvanize))
         {
-            if (Prognosis.CanUse(out act)) return true;
+            if (PrognosisPvE.CanUse(out act)) return true;
         }
 
-        if (EukrasianPrognosis.CanUse(out _))
+        if (EukrasianPrognosisPvE.CanUse(out _))
         {
-            if (Eukrasia.CanUse(out act)) return true;
-
-            act = EukrasianPrognosis;
+            if (EukrasiaPvE.CanUse(out act)) return true;
+            act = EukrasianPrognosisPvE;
             return true;
         }
 
         return base.HealAreaGCD(out act);
     }
 
-    [RotationDesc(ActionID.Kerachole, ActionID.Physis, ActionID.Holos, ActionID.Ixochole)]
-    protected override bool HealAreaAbility(out IAction act)
+    [RotationDesc(ActionID.KeracholePvE, ActionID.PhysisPvE, ActionID.HolosPvE, ActionID.IxocholePvE)]
+    protected override bool HealAreaAbility(out IAction? act)
     {
-        if (Physis2.CanUse(out act)) return true;
-        if (!Physis2.EnoughLevel && Physis.CanUse(out act)) return true;
+        if (PhysisIiPvE.CanUse(out act)) return true;
+        if (!PhysisIiPvE.EnoughLevel && PhysisPvE.CanUse(out act)) return true;
 
-        if (Kerachole.CanUse(out act, CanUseOption.OnLastAbility) && EnhancedKerachole.EnoughLevel) return true;
+        if (KeracholePvE.CanUse(out act, onLastAbility: true) && EnhancedKeracholeTrait.EnoughLevel) return true;
 
-        if (Holos.CanUse(out act, CanUseOption.OnLastAbility) && PartyMembersAverHP < 0.50f) return true;
+        if (HolosPvE.CanUse(out act, onLastAbility: true) && PartyMembersAverHP < 0.50f) return true;
 
-        if (Ixochole.CanUse(out act, CanUseOption.OnLastAbility)) return true;
+        if (IxocholePvE.CanUse(out act, onLastAbility: true)) return true;
 
-        if (Kerachole.CanUse(out act, CanUseOption.OnLastAbility)) return true;
+        if (KeracholePvE.CanUse(out act, onLastAbility: true)) return true;
 
         return base.HealAreaAbility(out act);
     }

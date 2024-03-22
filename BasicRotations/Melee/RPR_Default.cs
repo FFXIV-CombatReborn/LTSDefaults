@@ -1,79 +1,68 @@
 ﻿namespace DefaultRotations.Melee;
 
-[RotationDesc(ActionID.ArcaneCircle)]
-[LinkDescription("https://www.thebalanceffxiv.com/img/jobs/rpr/rpr_6.3_early_enshroud.png")]
+[Rotation("LTS's Default", CombatType.PvE, GameVersion = "6.58")]
 [SourceCode(Path = "main/DefaultRotations/Melee/RPR_Default.cs")]
-public sealed class RPR_Default : RPR_Base
+public sealed class RPR_Default : ReaperRotation
 {
-    #region General rotation info
-    public override string GameVersion => VERSION;
-    public override string RotationName => $"{USERNAME}'s {ClassJob.Abbreviation} [{Type}]";
-    public override CombatType Type => CombatType.PvE;
-    #endregion General rotation info
+    [RotationConfig(CombatType.PvE)]
+    public bool EnshroudPooling { get; set; } = false;
 
-    #region Rotation Configs
-    // N/A
-    #endregion
-
-    #region Countdown logic
-    protected override IAction CountDownAction(float remainTime)
+    protected override IAction? CountDownAction(float remainTime)
     {
-        if (remainTime < Harpe.CastTime + CountDownAhead
-            && Harpe.CanUse(out var act)) return act;
+        if (remainTime < HarpePvE.Info.CastTime + CountDownAhead
+            && HarpePvE.CanUse(out var act)) return act;
 
-        if (SoulSow.CanUse(out act)) return act;
+        if (SoulsowPvE.CanUse(out act)) return act;
 
         return base.CountDownAction(remainTime);
     }
-    #endregion
 
-    private static bool Reaping(out IAction act)
+    private bool Reaping(out IAction? act)
     {
-        if (GrimReaping.CanUse(out act)) return true;
+        if (GrimReapingPvE.CanUse(out act)) return true;
         if (Player.HasStatus(true, StatusID.EnhancedCrossReaping) || !Player.HasStatus(true, StatusID.EnhancedVoidReaping))
         {
-            if (CrossReaping.CanUse(out act)) return true;
+            if (CrossReapingPvE.CanUse(out act)) return true;
         }
         else
         {
-            if (VoidReaping.CanUse(out act)) return true;
+            if (VoidReapingPvE.CanUse(out act)) return true;
         }
         return false;
     }
 
-    #region GCD Logic
-    protected override bool GeneralGCD(out IAction act)
+    protected override bool GeneralGCD(out IAction? act)
     {
-        if (SoulSow.CanUse(out act)) return true;
+        if (SoulsowPvE.CanUse(out act)) return true;
 
-        if (WhorlOfDeath.CanUse(out act)) return true;
-        if (ShadowOfDeath.CanUse(out act)) return true;
+        if (WhorlOfDeathPvE.CanUse(out act)) return true;
+        if (ShadowOfDeathPvE.CanUse(out act)) return true;
 
         if (HasEnshrouded)
         {
-            if (ShadowOfDeath.CanUse(out act)) return true;
+            if (ShadowOfDeathPvE.CanUse(out act)) return true;
 
             if (LemureShroud > 1)
             {
-                if (PlentifulHarvest.EnoughLevel && ArcaneCircle.WillHaveOneCharge(9) &&
+                if (PlentifulHarvestPvE.EnoughLevel && ArcaneCirclePvE.Cooldown.WillHaveOneCharge(9) &&
                    (LemureShroud == 4 && (HostileTarget?.WillStatusEnd(30, true, StatusID.DeathsDesign) ?? false) || LemureShroud == 3 && (HostileTarget?.WillStatusEnd(50, true, StatusID.DeathsDesign) ?? false)))
                 {
-                    if (ShadowOfDeath.CanUse(out act, CanUseOption.MustUse)) return true;
+                    if (ShadowOfDeathPvE.CanUse(out act, skipStatusProvideCheck: true)) return true;
                 }
 
-                if(Reaping(out act)) return true;
+                if (Reaping(out act)) return true;
             }
             if (LemureShroud == 1)
             {
-                if (Communio.EnoughLevel)
+                if (CommunioPvE.EnoughLevel)
                 {
-                    if (!IsMoving && Communio.CanUse(out act, CanUseOption.MustUse))
+                    if (!IsMoving && CommunioPvE.CanUse(out act, skipAoeCheck: true))
                     {
                         return true;
                     }
                     else
                     {
-                        if (ShadowOfDeath.CanUse(out act, IsMoving ? CanUseOption.MustUse : CanUseOption.None)) return true;
+                        if (ShadowOfDeathPvE.CanUse(out act, skipAoeCheck: IsMoving)) return true;
                     }
                 }
                 else
@@ -85,38 +74,36 @@ public sealed class RPR_Default : RPR_Base
 
         if (HasSoulReaver)
         {
-            if (Guillotine.CanUse(out act)) return true;
+            if (GuillotinePvE.CanUse(out act)) return true;
             if (Player.HasStatus(true, StatusID.EnhancedGibbet))
             {
-                if (Gibbet.CanUse(out act)) return true;
+                if (GibbetPvE.CanUse(out act)) return true;
             }
             else
             {
-                if (Gallows.CanUse(out act)) return true;
+                if (GallowsPvE.CanUse(out act)) return true;
             }
         }
 
-        if (!CombatElapsedLessGCD(2) && PlentifulHarvest.CanUse(out act, CanUseOption.MustUse)) return true;
+        if (!CombatElapsedLessGCD(2) && PlentifulHarvestPvE.CanUse(out act, skipAoeCheck: true)) return true;
 
-        if (SoulScythe.CanUse(out act, CanUseOption.EmptyOrSkipCombo)) return true;
-        if (SoulSlice.CanUse(out act, CanUseOption.EmptyOrSkipCombo)) return true;
+        if (SoulScythePvE.CanUse(out act, usedUp: true)) return true;
+        if (SoulSlicePvE.CanUse(out act, usedUp: true)) return true;
 
-        if (NightmareScythe.CanUse(out act)) return true;
-        if (SpinningScythe.CanUse(out act)) return true;
+        if (NightmareScythePvE.CanUse(out act)) return true;
+        if (SpinningScythePvE.CanUse(out act)) return true;
 
-        if (InfernalSlice.CanUse(out act)) return true;
-        if (WaxingSlice.CanUse(out act)) return true;
-        if (Slice.CanUse(out act)) return true;
+        if (InfernalSlicePvE.CanUse(out act)) return true;
+        if (WaxingSlicePvE.CanUse(out act)) return true;
+        if (SlicePvE.CanUse(out act)) return true;
 
-        if (InCombat && HarvestMoon.CanUse(out act, CanUseOption.MustUse)) return true;
-        if (Harpe.CanUse(out act)) return true;
+        if (InCombat && HarvestMoonPvE.CanUse(out act, skipAoeCheck: true)) return true;
+        if (HarpePvE.CanUse(out act)) return true;
 
         return base.GeneralGCD(out act);
     }
-    #endregion
 
-    #region oGCD Logic
-    protected override bool AttackAbility(out IAction act)
+    protected override bool AttackAbility(out IAction? act)
     {
         var IsTargetBoss = HostileTarget?.IsBossFromTTK() ?? false;
         var IsTargetDying = HostileTarget?.IsDying() ?? false;
@@ -131,59 +118,42 @@ public sealed class RPR_Default : RPR_Base
                 }
                 else
                 {
-                    if(ArcaneCircle.WillHaveOneCharge(5)) return true;
+                    if (ArcaneCirclePvE.Cooldown.WillHaveOneCharge(5)) return true;
                 }
             }
             if ((HostileTarget?.HasStatus(true, StatusID.DeathsDesign) ?? false)
-                && ArcaneCircle.CanUse(out act)) return true;
+                && ArcaneCirclePvE.CanUse(out act, skipAoeCheck: true)) return true;
         }
 
         if (IsTargetBoss && IsTargetDying ||
-           !Configs.GetBool("EnshroudPooling") && Shroud >= 50 ||
-           Configs.GetBool("EnshroudPooling") && Shroud >= 50 &&
-           (!PlentifulHarvest.EnoughLevel ||
+           !EnshroudPooling && Shroud >= 50 ||
+           EnshroudPooling && Shroud >= 50 &&
+           (!PlentifulHarvestPvE.EnoughLevel ||
            Player.HasStatus(true, StatusID.ArcaneCircle) ||
-           ArcaneCircle.WillHaveOneCharge(8) ||
-           !Player.HasStatus(true, StatusID.ArcaneCircle) && ArcaneCircle.WillHaveOneCharge(65) && !ArcaneCircle.WillHaveOneCharge(50) ||
+           ArcaneCirclePvE.Cooldown.WillHaveOneCharge(8) ||
+           !Player.HasStatus(true, StatusID.ArcaneCircle) && ArcaneCirclePvE.Cooldown.WillHaveOneCharge(65) && !ArcaneCirclePvE.Cooldown.WillHaveOneCharge(50) ||
            !Player.HasStatus(true, StatusID.ArcaneCircle) && Shroud >= 90))
         {
-            if (Enshroud.CanUse(out act)) return true;
+            if (EnshroudPvE.CanUse(out act)) return true;
         }
 
         if (HasEnshrouded && (Player.HasStatus(true, StatusID.ArcaneCircle) || LemureShroud < 3))
         {
-            if (LemuresScythe.CanUse(out act, CanUseOption.EmptyOrSkipCombo)) return true;
-            if (LemuresSlice.CanUse(out act, CanUseOption.EmptyOrSkipCombo)) return true;
+            if (LemuresScythePvE.CanUse(out act, usedUp: true)) return true;
+            if (LemuresSlicePvE.CanUse(out act, usedUp: true)) return true;
         }
 
-        if (PlentifulHarvest.EnoughLevel && !Player.HasStatus(true, StatusID.ImmortalSacrifice) && !Player.HasStatus(true, StatusID.BloodSownCircle) || !PlentifulHarvest.EnoughLevel)
+        if (PlentifulHarvestPvE.EnoughLevel && !Player.HasStatus(true, StatusID.ImmortalSacrifice) && !Player.HasStatus(true, StatusID.BloodsownCircle_2972) || !PlentifulHarvestPvE.EnoughLevel)
         {
-            if (Gluttony.CanUse(out act, CanUseOption.MustUse)) return true;
+            if (GluttonyPvE.CanUse(out act, skipAoeCheck: true)) return true;
         }
 
-        if (!Player.HasStatus(true, StatusID.BloodSownCircle) && !Player.HasStatus(true, StatusID.ImmortalSacrifice) && (Gluttony.EnoughLevel && !Gluttony.WillHaveOneChargeGCD(4) || !Gluttony.EnoughLevel || Soul == 100))
+        if (!Player.HasStatus(true, StatusID.BloodsownCircle_2972) && !Player.HasStatus(true, StatusID.ImmortalSacrifice) && (GluttonyPvE.EnoughLevel && !GluttonyPvE.Cooldown.WillHaveOneChargeGCD(4) || !GluttonyPvE.EnoughLevel || Soul == 100))
         {
-            if (GrimSwathe.CanUse(out act)) return true;
-            if (BloodStalk.CanUse(out act)) return true;
+            if (GrimSwathePvE.CanUse(out act)) return true;
+            if (BloodStalkPvE.CanUse(out act)) return true;
         }
 
         return base.AttackAbility(out act);
     }
 }
-    #endregion
-
-    #region Extra Methods
-    private static bool Reaping(out IAction act)
-    {
-        if (GrimReaping.CanUse(out act)) return true;
-        if (Player.HasStatus(true, StatusID.EnhancedCrossReaping) || !Player.HasStatus(true, StatusID.EnhancedVoidReaping))
-        {
-            if (CrossReaping.CanUse(out act)) return true;
-        }
-        else
-        {
-            if (VoidReaping.CanUse(out act)) return true;
-        }
-        return false;
-    }
-    #endregion

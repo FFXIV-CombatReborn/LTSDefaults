@@ -1,139 +1,37 @@
+using static FFXIVClientStructs.FFXIV.Client.UI.AddonPartyList;
+
 namespace DefaultRotations.Healer;
 
-[RotationDesc(ActionID.ChainStratagem)]
+[Rotation("LTS's Default", CombatType.PvE, GameVersion = "6.58")]
 [SourceCode(Path = "main/DefaultRotations/Healer/SCH_Default.cs")]
-public sealed class SCH_Default : SCH_Base
+public sealed class SCH_Default : ScholarRotation
 {
-    #region General rotation info
-    public override string GameVersion => VERSION;
-    public override string RotationName => $"{USERNAME}'s {ClassJob.Abbreviation} [{Type}]";
-    public override CombatType Type => CombatType.PvE;
-    #endregion General rotation info
+    [RotationConfig(CombatType.PvE, Name = "Use spells with cast times to heal.")]
+    public bool GCDHeal { get; set; } = false;
 
-    #region Rotation Configs
-    protected override IRotationConfigSet CreateConfiguration()
+    [RotationConfig(CombatType.PvE, Name = "Recitation at 15 seconds remaining on Countdown.")]
+    public bool PrevDUN { get; set; } = false;
+
+    [RotationConfig(CombatType.PvE, Name = "Give Recitation to Tank")]
+    public bool GiveT { get; set; } = false;
+
+    public override bool CanHealSingleSpell => base.CanHealSingleSpell && (GCDHeal || PartyMembers.GetJobCategory(JobRole.Healer).Count() < 2);
+    public override bool CanHealAreaSpell => base.CanHealAreaSpell && (GCDHeal || PartyMembers.GetJobCategory(JobRole.Healer).Count() < 2);
+
+    protected override bool EmergencyAbility(IAction nextGCD, out IAction? act)
     {
-        return base.CreateConfiguration().SetBool(CombatType.PvE, "GCDHeal", false, "Use spells with cast times to heal.")
-                                            .SetBool(CombatType.PvE, "prevDUN", false, "Recitation at 15 seconds remaining on Countdown.")
-                                            .SetBool(CombatType.PvE, "GiveT", false, "Give Recitation to Tank");
-    }
-    #endregion
-
-    #region Countdown logic
-
-    #endregion
-
-    #region GCD Logic
-
-    #endregion
-
-    #region oGCD Logic
-
-    #endregion
-
-    #region Extra Methods
-
-    #endregion
-
-    public override bool CanHealAreaSpell => base.CanHealAreaSpell && (Configs.GetBool("GCDHeal") || PartyHealers.Count() < 2);
-    public override bool CanHealSingleSpell => base.CanHealSingleSpell && (Configs.GetBool("GCDHeal") || PartyHealers.Count() < 2);
-
-
-
-    protected override IAction CountDownAction(float remainTime)
-    {
-        if (remainTime < Ruin.CastTime + CountDownAhead
-            && Ruin.CanUse(out var act)) return act;
-
-        if (Configs.GetBool("prevDUN") && remainTime <= 15 && !DeploymentTactics.IsCoolingDown && PartyMembers.Count() > 1)
+        if (nextGCD.IsTheSameTo(true, SuccorPvE, AdloquiumPvE))
         {
-
-            if (!Recitation.IsCoolingDown) return Recitation;
-            if (!PartyMembers.Any((n) => n.HasStatus(true, StatusID.Galvanize)))
-            {
-                if (Configs.GetBool("GiveT"))
-                {
-                    return Adloquium;
-                }
-            }
-            else
-            {
-                return DeploymentTactics;
-            }
-        }
-        return base.CountDownAction(remainTime);
-    }
-
-    protected override bool AttackAbility(out IAction act)
-    {
-        if (IsBurst)
-        {
-            if (ChainStratagem.CanUse(out act)) return true;
-        }
-
-        if (Dissipation.EnoughLevel && Dissipation.WillHaveOneChargeGCD(3) && Dissipation.IsEnabled || Aetherflow.WillHaveOneChargeGCD(3))
-        {
-            if (EnergyDrain.CanUse(out act, CanUseOption.EmptyOrSkipCombo)) return true;
-        }
-
-        if (Dissipation.CanUse(out act)) return true;
-
-        if (Aetherflow.CanUse(out act)) return true;
-
-        return base.AttackAbility(out act);
-    }
-
-    [RotationDesc(ActionID.FeyIllumination, ActionID.Expedient, ActionID.SummonSeraph, ActionID.Consolation, ActionID.SacredSoil)]
-    protected override bool DefenseAreaAbility(out IAction act)
-    {
-        //异想的幻光
-        if (FeyIllumination.CanUse(out act)) return true;
-
-        //疾风怒涛之计
-        if (Expedient.CanUse(out act)) return true;
-
-        //慰藉
-        if (WhisperingDawn.ElapsedOneChargeAfterGCD(1) || FeyIllumination.ElapsedOneChargeAfterGCD(1) || FeyBlessing.ElapsedOneChargeAfterGCD(1))
-        {
-            if (SummonSeraph.CanUse(out act)) return true;
-        }
-        if (Consolation.CanUse(out act, CanUseOption.EmptyOrSkipCombo)) return true;
-
-        //野战治疗阵
-        if (SacredSoil.CanUse(out act)) return true;
-
-        return base.DefenseAreaAbility(out act);
-    }
-
-    [RotationDesc(ActionID.Succor)]
-    protected override bool DefenseAreaGCD(out IAction act)
-    {
-        if (Succor.CanUse(out act)) return true;
-        return base.DefenseAreaGCD(out act);
-    }
-
-    [RotationDesc(ActionID.Excogitation)]
-    protected override bool DefenseSingleAbility(out IAction act)
-    {
-        if (Excogitation.CanUse(out act)) return true;
-        return base.DefenseSingleAbility(out act);
-    }
-
-    protected override bool EmergencyAbility(IAction nextGCD, out IAction act)
-    {
-        //秘策绑定单盾群盾
-        if (nextGCD.IsTheSameTo(true, Succor, Adloquium))
-        {
-            if (Recitation.CanUse(out act)) return true;
+            if (RecitationPvE.CanUse(out act)) return true;
         }
 
         //Remove Aetherpact
         foreach (var item in PartyMembers)
         {
             if (item.GetHealthRatio() < 0.9) continue;
-            if (item.HasStatus(true, StatusID.Aetherpact))
+            if (item.HasStatus(true, StatusID.FeyUnion_1223))
             {
-                act = Aetherpact;
+                act = AetherpactPvE;
                 return true;
             }
         }
@@ -141,97 +39,145 @@ public sealed class SCH_Default : SCH_Base
         return base.EmergencyAbility(nextGCD, out act);
     }
 
-    protected override bool GeneralGCD(out IAction act)
+    protected override bool GeneralGCD(out IAction? act)
     {
-        //召唤小仙女
-        if (SummonEos.CanUse(out act)) return true;
-
-        //DoT
-        if (Bio.CanUse(out act)) return true;
+        if (SummonEosPvE.CanUse(out act)) return true;
+        if (BioPvE.CanUse(out act)) return true;
 
         //AOE
-        if (ArtOfWar.CanUse(out act)) return true;
+        if (ArtOfWarPvE.CanUse(out act)) return true;
 
         //Single
-        if (Ruin.CanUse(out act)) return true;
-        if (Ruin2.CanUse(out act)) return true;
+        if (RuinPvE.CanUse(out act)) return true;
+        if (RuinIiPvE.CanUse(out act)) return true;
 
         //Add dot.
-        if (Bio.CanUse(out act, CanUseOption.MustUse)) return true;
+        if (BioPvE.CanUse(out act, skipStatusProvideCheck: true)) return true;
 
         return base.GeneralGCD(out act);
     }
 
-    [RotationDesc(ActionID.SummonSeraph, ActionID.Consolation, ActionID.WhisperingDawn, ActionID.SacredSoil, ActionID.Indomitability)]
-    protected override bool HealAreaAbility(out IAction act)
+    [RotationDesc(ActionID.AdloquiumPvE, ActionID.PhysickPvE)]
+    protected override bool HealSingleGCD(out IAction? act)
     {
-        //慰藉
-        if (WhisperingDawn.ElapsedOneChargeAfterGCD(1) || FeyIllumination.ElapsedOneChargeAfterGCD(1) || FeyBlessing.ElapsedOneChargeAfterGCD(1))
-        {
-            if (SummonSeraph.CanUse(out act)) return true;
-        }
-        if (Consolation.CanUse(out act, CanUseOption.EmptyOrSkipCombo)) return true;
+        if (AdloquiumPvE.CanUse(out act)) return true;
+        if (PhysickPvE.CanUse(out act)) return true;
 
-        //异想的祥光
-        if (FeyBlessing.CanUse(out act)) return true;
-
-        //仙光的低语
-        if (WhisperingDawn.CanUse(out act)) return true;
-
-        //野战治疗阵
-        if (SacredSoil.CanUse(out act)) return true;
-
-        //不屈不挠之策
-        if (Indomitability.CanUse(out act)) return true;
-
-        return base.HealAreaAbility(out act);
+        return base.HealSingleGCD(out act);
     }
 
-    [RotationDesc(ActionID.Succor)]
-    protected override bool HealAreaGCD(out IAction act)
+    [RotationDesc(ActionID.AetherpactPvE, ActionID.ProtractionPvE, ActionID.SacredSoilPvE, ActionID.ExcogitationPvE, ActionID.LustratePvE, ActionID.AetherpactPvE)]
+    protected override bool HealSingleAbility(out IAction? act)
     {
-        //士气高扬之策
-        if (Succor.CanUse(out act)) return true;
+        var haveLink = PartyMembers.Any(p => p.HasStatus(true, StatusID.FeyUnion_1223));
 
-        return base.HealAreaGCD(out act);
-    }
-
-    [RotationDesc(ActionID.Aetherpact, ActionID.Protraction, ActionID.SacredSoil, ActionID.Excogitation, ActionID.Lustrate, ActionID.Aetherpact)]
-    protected override bool HealSingleAbility(out IAction act)
-    {
-        //判断是否有人有线
-        var haveLink = PartyMembers.Any(p => p.HasStatus(true, StatusID.Aetherpact));
-
-        //以太契约
-        if (Aetherpact.CanUse(out act) && FairyGauge >= 70 && !haveLink) return true;
-
-        //生命回生法
-        if (Protraction.CanUse(out act)) return true;
-
-        //野战治疗阵
-        if (SacredSoil.CanUse(out act)) return true;
-
-        //深谋远虑之策
-        if (Excogitation.CanUse(out act)) return true;
-
-        //生命活性法
-        if (Lustrate.CanUse(out act)) return true;
-
-        //以太契约
-        if (Aetherpact.CanUse(out act) && !haveLink) return true;
+        if (AetherpactPvE.CanUse(out act) && FairyGauge >= 70 && !haveLink) return true;
+        if (ProtractionPvE.CanUse(out act)) return true;
+        if (SacredSoilPvE.CanUse(out act)) return true;
+        if (ExcogitationPvE.CanUse(out act)) return true;
+        if (LustratePvE.CanUse(out act)) return true;
+        if (AetherpactPvE.CanUse(out act) && !haveLink) return true;
 
         return base.HealSingleAbility(out act);
     }
 
-    [RotationDesc(ActionID.Adloquium, ActionID.Physick)]
-    protected override bool HealSingleGCD(out IAction act)
+    [RotationDesc(ActionID.ExcogitationPvE)]
+    protected override bool DefenseSingleAbility(out IAction? act)
     {
-        //鼓舞激励之策
-        if (Adloquium.CanUse(out act)) return true;
+        if (ExcogitationPvE.CanUse(out act)) return true;
+        return base.DefenseSingleAbility(out act);
+    }
 
-        //医术
-        if (Physick.CanUse(out act)) return true;
+    [RotationDesc(ActionID.SuccorPvE)]
+    protected override bool HealAreaGCD(out IAction? act)
+    {
+        if (SuccorPvE.CanUse(out act)) return true;
 
-        return base.HealSingleGCD(out act);
+        return base.HealAreaGCD(out act);
+    }
+
+
+    [RotationDesc(ActionID.SummonSeraphPvE, ActionID.ConsolationPvE, ActionID.WhisperingDawnPvE, ActionID.SacredSoilPvE, ActionID.IndomitabilityPvE)]
+    protected override bool HealAreaAbility(out IAction? act)
+    {
+        //慰藉
+        if (WhisperingDawnPvE.Cooldown.ElapsedOneChargeAfterGCD(1) || FeyIlluminationPvE.Cooldown.ElapsedOneChargeAfterGCD(1) || FeyBlessingPvE.Cooldown.ElapsedOneChargeAfterGCD(1))
+        {
+            if (SummonSeraphPvE.CanUse(out act)) return true;
+        }
+        if (ConsolationPvE.CanUse(out act, usedUp: true)) return true;
+        if (FeyBlessingPvE.CanUse(out act)) return true;
+
+        if (WhisperingDawnPvE.CanUse(out act)) return true;
+        if (SacredSoilPvE.CanUse(out act)) return true;
+        if (IndomitabilityPvE.CanUse(out act)) return true;
+
+        return base.HealAreaAbility(out act);
+    }
+
+    [RotationDesc(ActionID.SuccorPvE)]
+    protected override bool DefenseAreaGCD(out IAction? act)
+    {
+        if (SuccorPvE.CanUse(out act)) return true;
+        return base.DefenseAreaGCD(out act);
+    }
+
+    [RotationDesc(ActionID.FeyIlluminationPvE, ActionID.ExpedientPvE, ActionID.SummonSeraphPvE, ActionID.ConsolationPvE, ActionID.SacredSoilPvE)]
+    protected override bool DefenseAreaAbility(out IAction? act)
+    {
+        if (FeyIlluminationPvE.CanUse(out act)) return true;
+        if (ExpedientPvE.CanUse(out act)) return true;
+
+        if (WhisperingDawnPvE.Cooldown.ElapsedOneChargeAfterGCD(1) || FeyIlluminationPvE.Cooldown.ElapsedOneChargeAfterGCD(1) || FeyBlessingPvE.Cooldown.ElapsedOneChargeAfterGCD(1))
+        {
+            if (SummonSeraphPvE.CanUse(out act)) return true;
+        }
+        if (ConsolationPvE.CanUse(out act, usedUp: true)) return true;
+        if (SacredSoilPvE.CanUse(out act)) return true;
+
+        return base.DefenseAreaAbility(out act);
+    }
+
+
+    protected override bool AttackAbility(out IAction? act)
+    {
+        if (IsBurst)
+        {
+            if (ChainStratagemPvE.CanUse(out act)) return true;
+        }
+
+        if (DissipationPvE.EnoughLevel && DissipationPvE.Cooldown.WillHaveOneChargeGCD(3) && DissipationPvE.IsEnabled || AetherflowPvE.Cooldown.WillHaveOneChargeGCD(3))
+        {
+            if (EnergyDrainPvE.CanUse(out act, usedUp: true)) return true;
+        }
+
+        if (DissipationPvE.CanUse(out act)) return true;
+        if (AetherflowPvE.CanUse(out act)) return true;
+
+        return base.AttackAbility(out act);
+    }
+
+    protected override IAction? CountDownAction(float remainTime)
+    {
+        if (remainTime < RuinPvE.Info.CastTime + CountDownAhead
+            && RuinPvE.CanUse(out var act)) return act;
+
+        if (PrevDUN && remainTime <= 15 && !DeploymentTacticsPvE.Cooldown.IsCoolingDown && PartyMembers.Count() > 1)
+        {
+
+            if (!RecitationPvE.Cooldown.IsCoolingDown) return RecitationPvE;
+            if (!PartyMembers.Any((n) => n.HasStatus(true, StatusID.Galvanize)))
+            {
+                if (GiveT)
+                {
+                    return AdloquiumPvE;
+                }
+            }
+            else
+            {
+                return DeploymentTacticsPvE;
+            }
+        }
+        return base.CountDownAction(remainTime);
     }
 }

@@ -1,7 +1,16 @@
 {
   "version": 3,
   "targets": {
-    "net7.0-windows7.0": {
+    "net8.0-windows7.0": {
+      "Clipper2/1.2.3": {
+        "type": "package",
+        "compile": {
+          "lib/netstandard2.0/Clipper2Lib.dll": {}
+        },
+        "runtime": {
+          "lib/netstandard2.0/Clipper2Lib.dll": {}
+        }
+      },
       "ExCSS/4.1.4": {
         "type": "package",
         "compile": {
@@ -21,6 +30,34 @@
         "runtime": {
           "lib/netstandard2.0/Fizzler.dll": {
             "related": ".pdb"
+          }
+        }
+      },
+      "KdTree/1.4.1": {
+        "type": "package",
+        "compile": {
+          "lib/netcoreapp2.0/KdTreeLib.dll": {}
+        },
+        "runtime": {
+          "lib/netcoreapp2.0/KdTreeLib.dll": {}
+        }
+      },
+      "LibTessDotNet/1.1.15": {
+        "type": "package",
+        "compile": {
+          "lib/netstandard2.0/LibTessDotNet.Double.dll": {
+            "related": ".deps.json"
+          },
+          "lib/netstandard2.0/LibTessDotNet.dll": {
+            "related": ".deps.json;.Double.deps.json"
+          }
+        },
+        "runtime": {
+          "lib/netstandard2.0/LibTessDotNet.Double.dll": {
+            "related": ".deps.json"
+          },
+          "lib/netstandard2.0/LibTessDotNet.dll": {
+            "related": ".deps.json;.Double.deps.json"
           }
         }
       },
@@ -61,6 +98,23 @@
           "runtimes/win/lib/netcoreapp3.0/Microsoft.Win32.SystemEvents.dll": {
             "assetType": "runtime",
             "rid": "win"
+          }
+        }
+      },
+      "RotationSolver.Basic/4.2.1.2": {
+        "type": "package",
+        "dependencies": {
+          "Svg": "3.4.4",
+          "XIVPainter": "2.9.1.1"
+        },
+        "compile": {
+          "lib/net8.0-windows7.0/RotationSolver.Basic.dll": {
+            "related": ".xml"
+          }
+        },
+        "runtime": {
+          "lib/net8.0-windows7.0/RotationSolver.Basic.dll": {
+            "related": ".xml"
           }
         }
       },
@@ -351,25 +405,42 @@
           }
         }
       },
-      "RotationSolver.Basic/0.0.0": {
-        "type": "project",
-        "framework": ".NETCoreApp,Version=v7.0",
+      "XIVPainter/2.9.1.1": {
+        "type": "package",
         "dependencies": {
-          "Svg": "3.4.4"
+          "Clipper2": "1.2.3",
+          "KdTree": "1.4.1",
+          "LibTessDotNet": "1.1.15"
         },
         "compile": {
-          "bin/placeholder/RotationSolver.Basic.dll": {}
+          "lib/net7.0-windows7.0/XIVPainter.dll": {
+            "related": ".xml"
+          }
         },
         "runtime": {
-          "bin/placeholder/RotationSolver.Basic.dll": {}
-        },
-        "frameworkReferences": [
-          "Microsoft.WindowsDesktop.App.WindowsForms"
-        ]
+          "lib/net7.0-windows7.0/XIVPainter.dll": {
+            "related": ".xml"
+          }
+        }
       }
     }
   },
   "libraries": {
+    "Clipper2/1.2.3": {
+      "sha512": "0a9qFeQIe60XsZQEEt7CeAbsvs4ovt8lB4tQcCGbqdx4VMEjv+HUsKXpouy1nrX0zPa5hrBHQwNii9+e1JuOiA==",
+      "type": "package",
+      "path": "clipper2/1.2.3",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "License.txt",
+        "README.md",
+        "clipper2.1.2.3.nupkg.sha512",
+        "clipper2.nuspec",
+        "icon.png",
+        "lib/netstandard2.0/Clipper2Lib.dll"
+      ]
+    },
     "ExCSS/4.1.4": {
       "sha512": "6eMFdIazPCVfr9Gios0nCUYq3/02SewnDGvS+aCi/RWaAtoETz2fNT+H//+k0vjoDJBHXkWdVG8EkxUydxtyxA==",
       "type": "package",
@@ -400,6 +471,42 @@
         "lib/netstandard1.0/Fizzler.pdb",
         "lib/netstandard2.0/Fizzler.dll",
         "lib/netstandard2.0/Fizzler.pdb"
+      ]
+    },
+    "KdTree/1.4.1": {
+      "sha512": "yWbb35v/V9y88SLLMUPTlAN3pQEoPhDfZf9PApFnlU4kLtwVQ75U9vW5mW4/alQnLBuLKWBKcy4W5xK95mYsuA==",
+      "type": "package",
+      "path": "kdtree/1.4.1",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "kdtree.1.4.1.nupkg.sha512",
+        "kdtree.nuspec",
+        "lib/net45/KdTreeLib.dll",
+        "lib/net451/KdTreeLib.dll",
+        "lib/net452/KdTreeLib.dll",
+        "lib/net46/KdTreeLib.dll",
+        "lib/net461/KdTreeLib.dll",
+        "lib/net462/KdTreeLib.dll",
+        "lib/net47/KdTreeLib.dll",
+        "lib/net471/KdTreeLib.dll",
+        "lib/netcoreapp2.0/KdTreeLib.dll",
+        "lib/netstandard2.0/KdTreeLib.dll"
+      ]
+    },
+    "LibTessDotNet/1.1.15": {
+      "sha512": "KuA7N3Nv/lIeawJdQBQJR6oqWD9KETHLbWzBqapwFs+Tby+R5I4crkKujKMm5bXcSuFZ8LNtflFQVadsWCbBjg==",
+      "type": "package",
+      "path": "libtessdotnet/1.1.15",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "lib/netstandard2.0/LibTessDotNet.Double.deps.json",
+        "lib/netstandard2.0/LibTessDotNet.Double.dll",
+        "lib/netstandard2.0/LibTessDotNet.deps.json",
+        "lib/netstandard2.0/LibTessDotNet.dll",
+        "libtessdotnet.1.1.15.nupkg.sha512",
+        "libtessdotnet.nuspec"
       ]
     },
     "Microsoft.NETCore.Platforms/5.0.0": {
@@ -461,6 +568,22 @@
         "runtimes/win/lib/netcoreapp3.0/Microsoft.Win32.SystemEvents.xml",
         "useSharedDesignerContext.txt",
         "version.txt"
+      ]
+    },
+    "RotationSolver.Basic/4.2.1.2": {
+      "sha512": "whKN0pK2T5RC+F2oOc2EEFriNhSQLsswtT70O4Ukg3bDxxscdx6JXITQsl4d6CNaiwt8ZyTuhX91X3/aAIQX8g==",
+      "type": "package",
+      "path": "rotationsolver.basic/4.2.1.2",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "COPYING.LESSER",
+        "Logo.png",
+        "README.md",
+        "lib/net8.0-windows7.0/RotationSolver.Basic.dll",
+        "lib/net8.0-windows7.0/RotationSolver.Basic.xml",
+        "rotationsolver.basic.4.2.1.2.nupkg.sha512",
+        "rotationsolver.basic.nuspec"
       ]
     },
     "runtime.osx.10.10-x64.CoreCompat.System.Drawing/5.8.64": {
@@ -1424,59 +1547,74 @@
         "system.threading.tasks.nuspec"
       ]
     },
-    "RotationSolver.Basic/0.0.0": {
-      "type": "project",
-      "path": "../RotationSolver/RotationSolver.Basic/RotationSolver.Basic.csproj",
-      "msbuildProject": "../RotationSolver/RotationSolver.Basic/RotationSolver.Basic.csproj"
+    "XIVPainter/2.9.1.1": {
+      "sha512": "MNsT0rBwHzKEM7kuv24RD0DZ/pc4q7peJRYe5u+V2R1ZCAmAAZAlJ3kwmpRg9D86bFDG/mfvMseERbNr+0cstA==",
+      "type": "package",
+      "path": "xivpainter/2.9.1.1",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "lib/net7.0-windows7.0/XIVPainter.dll",
+        "lib/net7.0-windows7.0/XIVPainter.xml",
+        "xivpainter.2.9.1.1.nupkg.sha512",
+        "xivpainter.nuspec"
+      ]
     }
   },
   "projectFileDependencyGroups": {
-    "net7.0-windows7.0": [
-      "RotationSolver.Basic >= 0.0.0"
+    "net8.0-windows7.0": [
+      "RotationSolver.Basic >= 4.2.1.2"
     ]
   },
   "packageFolders": {
     "C:\\Users\\Antonio-Work\\.nuget\\packages\\": {}
   },
   "project": {
-    "version": "1.0.0.3",
+    "version": "6.5.8",
     "restore": {
-      "projectUniqueName": "D:\\Repo\\LTSDefaults\\BasicRotations\\DefaultRotations.csproj",
+      "projectUniqueName": "C:\\Users\\Antonio-Work\\source\\repos\\LTSDefaultsRebase\\BasicRotations\\DefaultRotations.csproj",
       "projectName": "DefaultRotations",
-      "projectPath": "D:\\Repo\\LTSDefaults\\BasicRotations\\DefaultRotations.csproj",
+      "projectPath": "C:\\Users\\Antonio-Work\\source\\repos\\LTSDefaultsRebase\\BasicRotations\\DefaultRotations.csproj",
       "packagesPath": "C:\\Users\\Antonio-Work\\.nuget\\packages\\",
-      "outputPath": "D:\\Repo\\LTSDefaults\\BasicRotations\\obj\\",
+      "outputPath": "C:\\Users\\Antonio-Work\\source\\repos\\LTSDefaultsRebase\\BasicRotations\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\Antonio-Work\\AppData\\Roaming\\NuGet\\NuGet.Config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
       "originalTargetFrameworks": [
-        "net7.0-windows"
+        "net8.0-windows"
       ],
       "sources": {
         "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
         "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {
-        "net7.0-windows7.0": {
-          "targetAlias": "net7.0-windows",
-          "projectReferences": {
-            "D:\\Repo\\LTSDefaults\\RotationSolver\\RotationSolver.Basic\\RotationSolver.Basic.csproj": {
-              "projectPath": "D:\\Repo\\LTSDefaults\\RotationSolver\\RotationSolver.Basic\\RotationSolver.Basic.csproj"
-            }
-          }
+        "net8.0-windows7.0": {
+          "targetAlias": "net8.0-windows",
+          "projectReferences": {}
         }
       },
       "warningProperties": {
         "warnAsError": [
           "NU1605"
         ]
+      },
+      "restoreAuditProperties": {
+        "enableAudit": "true",
+        "auditLevel": "low",
+        "auditMode": "direct"
       }
     },
     "frameworks": {
-      "net7.0-windows7.0": {
-        "targetAlias": "net7.0-windows",
+      "net8.0-windows7.0": {
+        "targetAlias": "net8.0-windows",
+        "dependencies": {
+          "RotationSolver.Basic": {
+            "target": "Package",
+            "version": "[4.2.1.2, )"
+          }
+        },
         "imports": [
           "net461",
           "net462",
@@ -1493,7 +1631,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.102\\RuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.202/PortableRuntimeIdentifierGraph.json"
       }
     }
   }

@@ -1,193 +1,171 @@
-﻿namespace DefaultRotations.Magical;
+﻿using RotationSolver.Basic.Helpers;
+using System.ComponentModel;
 
-[BetaRotation]
-[RotationDesc(ActionID.SearingLight)]
+namespace DefaultRotations.Magical;
+
+[Rotation("LTS's Default", CombatType.PvE, GameVersion = "6.58")]
 [SourceCode(Path = "main/DefaultRotations/Magical/SMN_Default.cs")]
-[LinkDescription("https://www.thebalanceffxiv.com/img/jobs/smn/6.png")]
-public sealed class SMN_Default : SMN_Base
+public sealed class SMN_Default : SummonerRotation
 {
-    #region General rotation info
-    public override string GameVersion => VERSION;
-    public override string RotationName => $"{USERNAME}'s {ClassJob.Abbreviation} [{Type}]";
-    public override CombatType Type => CombatType.PvE;
-    #endregion General rotation info
-
-    #region Rotation Configs
-    protected override IRotationConfigSet CreateConfiguration()
+    public enum SwiftType : byte
     {
-        return base.CreateConfiguration()
-            .SetCombo(CombatType.PvE, "addSwiftcast", 0, "Use Swiftcast", "No", "Emerald", "Ruby", "All")
-            .SetCombo(CombatType.PvE, "SummonOrder", 0, "Order", "Topaz-Emerald-Ruby", "Topaz-Ruby-Emerald", "Emerald-Topaz-Ruby")
-            .SetBool(CombatType.PvE, "addCrimsonCyclone", true, "Use Crimson Cyclone");
+        No,
+        Emerald,
+        Ruby,
+        All,
     }
-    #endregion
 
-    #region Countdown logic
+    public enum SummonOrderType : byte
+    {
+        [Description("Topaz-Emerald-Ruby")]
+        TopazEmeraldRuby,
 
-    #endregion
+        [Description("Topaz-Ruby-Emerald")]
+        TopazRubyEmerald,
 
-    #region GCD Logic
+        [Description("Emerald-Topaz-Ruby")]
+        EmeraldTopazRuby,
+    }
 
-    #endregion
-
-    #region oGCD Logic
-
-    #endregion
-
-    #region Extra Methods
-
-    #endregion
+    [RotationConfig(CombatType.PvE, Name = "Order")]
+    public SummonOrderType SummonOrder { get; set; } = SummonOrderType.EmeraldTopazRuby;
 
 
+    [RotationConfig(CombatType.PvE, Name = "Use Swiftcast")]
+    public SwiftType AddSwiftcast { get; set; } = SwiftType.No;
+
+    [RotationConfig(CombatType.PvE, Name = "Use Crimson Cyclone")]
+    public bool AddCrimsonCyclone { get; set; } = true;
 
     public override bool CanHealSingleSpell => false;
 
-    [RotationDesc(ActionID.CrimsonCyclone)]
-    protected override bool MoveForwardGCD(out IAction act)
+    [RotationDesc(ActionID.CrimsonCyclonePvE)]
+    protected override bool MoveForwardGCD(out IAction? act)
     {
-        //火神突进
-        if (CrimsonCyclone.CanUse(out act, CanUseOption.MustUse)) return true;
+        if (CrimsonCyclonePvE.CanUse(out act, skipAoeCheck: true)) return true;
         return base.MoveForwardGCD(out act);
     }
 
-    protected override bool GeneralGCD(out IAction act)
+    protected override bool GeneralGCD(out IAction? act)
     {
-        //宝石兽召唤
-        if (SummonCarbuncle.CanUse(out act)) return true;
+        if (SummonCarbunclePvE.CanUse(out act)) return true;
 
-        //风神读条
-        if (Slipstream.CanUse(out act, CanUseOption.MustUse)) return true;
-        //火神冲锋
-        if (CrimsonStrike.CanUse(out act, CanUseOption.MustUse)) return true;
+        if (SlipstreamPvE.CanUse(out act, skipAoeCheck: true)) return true;
+        if (CrimsonStrikePvE.CanUse(out act, skipAoeCheck: true)) return true;
 
         //AOE
-        if (PreciousBrilliance.CanUse(out act)) return true;
-        //单体
-        if (Gemshine.CanUse(out act)) return true;
+        if (PreciousBrilliancePvE.CanUse(out act)) return true;
+        //Single
+        if (GemshinePvE.CanUse(out act)) return true;
 
-        if (!IsMoving && Configs.GetBool("addCrimsonCyclone") && CrimsonCyclone.CanUse(out act, CanUseOption.MustUse)) return true;
+        if (!IsMoving && AddCrimsonCyclone && CrimsonCyclonePvE.CanUse(out act, skipAoeCheck: true)) return true;
 
-        //龙神不死鸟
-        if ((Player.HasStatus(false, StatusID.SearingLight) || SearingLight.IsCoolingDown) && SummonBahamut.CanUse(out act)) return true;
-        if (!SummonBahamut.EnoughLevel && HasHostilesInRange && AetherCharge.CanUse(out act)) return true;
+        if ((Player.HasStatus(false, StatusID.SearingLight) || SearingLightPvE.Cooldown.IsCoolingDown) && SummonBahamutPvE.CanUse(out act)) return true;
+        if (!SummonBahamutPvE.EnoughLevel && HasHostilesInRange && AetherchargePvE.CanUse(out act)) return true;
 
-        //毁4
         if (IsMoving && (Player.HasStatus(true, StatusID.GarudasFavor) || InIfrit)
-            && !Player.HasStatus(true, StatusID.SwiftCast) && !InBahamut && !InPhoenix
-            && RuinIV.CanUse(out act, CanUseOption.MustUse)) return true;
+            && !Player.HasStatus(true, StatusID.Swiftcast) && !InBahamut && !InPhoenix
+            && RuinIvPvE.CanUse(out act, skipAoeCheck: true)) return true;
 
-        //召唤蛮神
-        switch (Configs.GetCombo("SummonOrder"))
+        switch (SummonOrder)
         {
+            case SummonOrderType.TopazEmeraldRuby:
             default:
-                //土
-                if (SummonTopaz.CanUse(out act)) return true;
-                //风
-                if (SummonEmerald.CanUse(out act)) return true;
-                //火
-                if (SummonRuby.CanUse(out act)) return true;
+                if (SummonTopazPvE.CanUse(out act)) return true;
+                if (SummonEmeraldPvE.CanUse(out act)) return true;
+                if (SummonRubyPvE.CanUse(out act)) return true;
                 break;
 
-            case 1:
-                //土
-                if (SummonTopaz.CanUse(out act)) return true;
-                //火
-                if (SummonRuby.CanUse(out act)) return true;
-                //风
-                if (SummonEmerald.CanUse(out act)) return true;
+            case SummonOrderType.TopazRubyEmerald:
+                if (SummonTopazPvE.CanUse(out act)) return true;
+                if (SummonRubyPvE.CanUse(out act)) return true;
+                if (SummonEmeraldPvE.CanUse(out act)) return true;
                 break;
 
-            case 2:
-                //风
-                if (SummonEmerald.CanUse(out act)) return true;
-                //土
-                if (SummonTopaz.CanUse(out act)) return true;
-                //火
-                if (SummonRuby.CanUse(out act)) return true;
+            case SummonOrderType.EmeraldTopazRuby:
+                if (SummonEmeraldPvE.CanUse(out act)) return true;
+                if (SummonTopazPvE.CanUse(out act)) return true;
+                if (SummonRubyPvE.CanUse(out act)) return true;
                 break;
         }
+
+
         if (SummonTimeEndAfterGCD() && AttunmentTimeEndAfterGCD() &&
-            !Player.HasStatus(true, StatusID.SwiftCast) && !InBahamut && !InPhoenix &&
-            RuinIV.CanUse(out act, CanUseOption.MustUse)) return true;
-        //迸裂三灾
-        if (Outburst.CanUse(out act)) return true;
+            !Player.HasStatus(true, StatusID.Swiftcast) && !InBahamut && !InPhoenix &&
+            RuinIvPvE.CanUse(out act, skipAoeCheck: true)) return true;
+
+        if (OutburstPvE.CanUse(out act)) return true;
 
         //毁123
-        if (Ruin.CanUse(out act)) return true;
+        if (RuinPvE.CanUse(out act)) return true;
         return base.GeneralGCD(out act);
     }
 
-    protected override bool AttackAbility(out IAction act)
+    protected override bool AttackAbility(out IAction? act)
     {
         if (IsBurst && !Player.HasStatus(false, StatusID.SearingLight))
         {
-            //灼热之光
-            if (SearingLight.CanUse(out act)) return true;
+            if (SearingLightPvE.CanUse(out act, skipAoeCheck: true)) return true;
         }
 
         var IsTargetBoss = HostileTarget?.IsBossFromTTK() ?? false;
         var IsTargetDying = HostileTarget?.IsDying() ?? false;
 
-        //龙神不死鸟迸发
-        if ((InBahamut && SummonBahamut.ElapsedOneChargeAfterGCD(3) || InPhoenix || IsTargetBoss && IsTargetDying) && EnkindleBahamut.CanUse(out act, CanUseOption.MustUse)) return true;
-        //死星核爆
-        if ((SummonBahamut.ElapsedOneChargeAfterGCD(3) || IsTargetBoss && IsTargetDying) && DeathFlare.CanUse(out act, CanUseOption.MustUse)) return true;
-        //苏生之炎
-        if (Rekindle.CanUse(out act, CanUseOption.MustUse)) return true;
-        //山崩
-        if (MountainBuster.CanUse(out act, CanUseOption.MustUse)) return true;
+        if ((InBahamut && SummonBahamutPvE.Cooldown.ElapsedOneChargeAfterGCD(3) || InPhoenix ||
+            IsTargetBoss && IsTargetDying) && EnkindleBahamutPvE.CanUse(out act, skipAoeCheck: true)) return true;
 
-        //痛苦核爆
-        if ((Player.HasStatus(false, StatusID.SearingLight) && InBahamut && (SummonBahamut.ElapsedOneChargeAfterGCD(3) || !EnergyDrain.IsCoolingDown) ||
-            !SearingLight.EnoughLevel || IsTargetBoss && IsTargetDying) && PainFlare.CanUse(out act)) return true;
-        //溃烂爆发
-        if ((Player.HasStatus(false, StatusID.SearingLight) && InBahamut && (SummonBahamut.ElapsedOneChargeAfterGCD(3) || !EnergyDrain.IsCoolingDown) ||
-            !SearingLight.EnoughLevel || IsTargetBoss && IsTargetDying) && Fester.CanUse(out act)) return true;
+        if ((SummonBahamutPvE.Cooldown.ElapsedOneChargeAfterGCD(3) || IsTargetBoss && IsTargetDying) && DeathflarePvE.CanUse(out act, skipAoeCheck: true)) return true;
+        if (RekindlePvE.CanUse(out act, skipAoeCheck: true)) return true;
+        if (MountainBusterPvE.CanUse(out act, skipAoeCheck: true)) return true;
 
-        //能量抽取
-        if (EnergySiphon.CanUse(out act)) return true;
-        //能量吸收
-        if (EnergyDrain.CanUse(out act)) return true;
+        if ((Player.HasStatus(false, StatusID.SearingLight) && InBahamut && (SummonBahamutPvE.Cooldown.ElapsedOneChargeAfterGCD(3) || !EnergyDrainPvE.Cooldown.IsCoolingDown) ||
+            !SearingLightPvE.EnoughLevel || IsTargetBoss && IsTargetDying) && PainflarePvE.CanUse(out act)) return true;
+
+        if ((Player.HasStatus(false, StatusID.SearingLight) && InBahamut && (SummonBahamutPvE.Cooldown.ElapsedOneChargeAfterGCD(3) || !EnergyDrainPvE.Cooldown.IsCoolingDown) ||
+            !SearingLightPvE.EnoughLevel || IsTargetBoss && IsTargetDying) && FesterPvE.CanUse(out act)) return true;
+
+        if (EnergySiphonPvE.CanUse(out act)) return true;
+        if (EnergyDrainPvE.CanUse(out act)) return true;
 
         return base.AttackAbility(out act);
     }
-    protected override bool EmergencyAbility(IAction nextGCD, out IAction act)
+    protected override bool EmergencyAbility(IAction nextGCD, out IAction? act)
     {
-        //即刻进循环
-        switch (Configs.GetCombo("addSwiftcast"))
+        switch (AddSwiftcast)
         {
+            case SwiftType.No:
             default:
                 break;
-            case 1:
-                if (nextGCD.IsTheSameTo(true, Slipstream) || Attunement == 0 && Player.HasStatus(true, StatusID.GarudasFavor))
+            case SwiftType.Emerald:
+                if (nextGCD.IsTheSameTo(true, SlipstreamPvE) || Attunement == 0 && Player.HasStatus(true, StatusID.GarudasFavor))
                 {
-                    if (Swiftcast.CanUse(out act, CanUseOption.MustUse)) return true;
+                    if (SwiftcastPvE.CanUse(out act)) return true;
                 }
                 break;
-            case 2:
-                if (InIfrit && (nextGCD.IsTheSameTo(true, Gemshine, PreciousBrilliance) || IsMoving))
+            case SwiftType.Ruby:
+                if (InIfrit && (nextGCD.IsTheSameTo(true, GemshinePvE, PreciousBrilliancePvE) || IsMoving))
                 {
-                    if (Swiftcast.CanUse(out act, CanUseOption.MustUse)) return true;
+                    if (SwiftcastPvE.CanUse(out act)) return true;
                 }
                 break;
 
-            case 3:
-                if (nextGCD.IsTheSameTo(true, Slipstream) || Attunement == 0 && Player.HasStatus(true, StatusID.GarudasFavor) ||
-                   InIfrit && (nextGCD.IsTheSameTo(true, Gemshine, PreciousBrilliance) || IsMoving))
+            case SwiftType.All:
+                if (nextGCD.IsTheSameTo(true, SlipstreamPvE) || Attunement == 0 && Player.HasStatus(true, StatusID.GarudasFavor) ||
+                   InIfrit && (nextGCD.IsTheSameTo(true, GemshinePvE, PreciousBrilliancePvE) || IsMoving))
                 {
-                    if (Swiftcast.CanUse(out act, CanUseOption.MustUse)) return true;
+                    if (SwiftcastPvE.CanUse(out act)) return true;
                 }
                 break;
         }
         return base.EmergencyAbility(nextGCD, out act);
     }
 
-    protected override IAction CountDownAction(float remainTime)
+    protected override IAction? CountDownAction(float remainTime)
     {
-        if (SummonCarbuncle.CanUse(out _)) return SummonCarbuncle;
-        //1.5s预读毁3
-        if (remainTime <= Ruin.CastTime + CountDownAhead
-            && Ruin.CanUse(out _)) return Ruin;
+        if (SummonCarbunclePvE.CanUse(out var act)) return act;
+
+        if (remainTime <= RuinPvE.Info.CastTime + CountDownAhead
+            && RuinPvE.CanUse(out act)) return act;
         return base.CountDownAction(remainTime);
     }
 }

@@ -1,33 +1,63 @@
 namespace DefaultRotations.Tank;
 
-
-[RotationDesc(ActionID.BloodWeapon, ActionID.Delirium)]
+[Rotation("LTS's Default", CombatType.PvE, GameVersion = "6.58")]
 [SourceCode(Path = "main/DefaultRotations/Tank/DRK_Balance.cs")]
-[LinkDescription("https://www.thebalanceffxiv.com/img/jobs/drk/drk_standard_6.2_v1.png")]
-public sealed class DRK_Default : DRK_Base
+public sealed class DRK_Default : DarkKnightRotation
 {
-    #region General rotation info
-    public override string GameVersion => VERSION;
-    public override string RotationName => $"{USERNAME}'s {ClassJob.Abbreviation} [{Type}]";
-    public override CombatType Type => CombatType.PvE;
-    #endregion General rotation info
 
-    #region Rotation Configs
-    protected override IRotationConfigSet CreateConfiguration()
-        => base.CreateConfiguration()
-            .SetBool(CombatType.PvE, "TheBlackestNight", true, "Keep at least 3000 MP");
+    public override bool CanHealSingleAbility => false;
 
-    #endregion
+    private bool InTwoMIsBurst()
+    {
+        if ((BloodWeaponPvE.Cooldown.IsCoolingDown && DeliriumPvE.Cooldown.IsCoolingDown && ((LivingShadowPvE.Cooldown.IsCoolingDown && !(LivingShadowPvE.Cooldown.ElapsedAfter(15))) || !LivingShadowPvE.EnoughLevel))) return true;
+        else return false;
+    }
 
-    #region Countdown logic
-    protected override IAction CountDownAction(float remainTime)
+    private static bool CombatLess => CombatElapsedLess(3);
+
+    private bool CheckDarkSide
+    {
+        get
+        {
+            if (DarkSideEndAfterGCD(3)) return true;
+
+            if (CombatLess) return false;
+
+            if ((InTwoMIsBurst() && HasDarkArts) || (HasDarkArts && Player.HasStatus(true, StatusID.BlackestNight)) || (HasDarkArts && DarkSideEndAfterGCD(3))) return true;
+
+            if ((InTwoMIsBurst() && BloodWeaponPvE.Cooldown.IsCoolingDown && LivingShadowPvE.Cooldown.IsCoolingDown && SaltedEarthPvE.Cooldown.IsCoolingDown && ShadowbringerPvE.Cooldown.CurrentCharges == 0 && CarveAndSpitPvE.Cooldown.IsCoolingDown)) return true;
+
+            if (TheBlackestNight && CurrentMp < 6000) return false;
+
+            return CurrentMp >= 8500;
+        }
+    }
+
+    private bool UseBlood
+    {
+        get
+        {
+            if (!DeliriumPvE.EnoughLevel) return true;
+
+            if (Player.HasStatus(true, StatusID.Delirium) && LivingShadowPvE.Cooldown.IsCoolingDown) return true;
+
+            if ((DeliriumPvE.Cooldown.WillHaveOneChargeGCD(1) && !LivingShadowPvE.Cooldown.WillHaveOneChargeGCD(3)) || Blood >= 90 && !LivingShadowPvE.Cooldown.WillHaveOneChargeGCD(1)) return true;
+
+            return false;
+        }
+    }
+
+    [RotationConfig(CombatType.PvE, Name = "Keep at least 3000 MP")]
+    public bool TheBlackestNight { get; set; } = true;
+
+    protected override IAction? CountDownAction(float remainTime)
     {
         //Provoke when has Shield.
         if (remainTime <= CountDownAhead)
         {
             if (HasTankStance)
             {
-                if (Provoke.CanUse(out _, CanUseOption.IgnoreClippingCheck)) return Provoke;
+                if (ProvokePvE.CanUse(out _)) return ProvokePvE;
             }
             //else
             //{
@@ -35,40 +65,12 @@ public sealed class DRK_Default : DRK_Base
             //}
         }
         if (remainTime <= 2 && UseBurstMedicine(out var act)) return act;
-        if (remainTime <= 3 && TheBlackestNight.CanUse(out act, CanUseOption.IgnoreClippingCheck)) return act;
-        if (remainTime <= 4 && BloodWeapon.CanUse(out act, CanUseOption.IgnoreClippingCheck)) return act;
+        if (remainTime <= 3 && TheBlackestNightPvE.CanUse(out act)) return act;
+        if (remainTime <= 4 && BloodWeaponPvE.CanUse(out act)) return act;
         return base.CountDownAction(remainTime);
     }
-    #endregion
 
-    #region GCD Logic
-    protected override bool GeneralGCD(out IAction act)
-    {
-        //Use Blood
-        if (UseBlood)
-        {
-            if (Quietus.CanUse(out act)) return true;
-            if (BloodSpiller.CanUse(out act)) return true;
-        }
-
-        //AOE
-        if (StalwartSoul.CanUse(out act)) return true;
-        if (Unleash.CanUse(out act)) return true;
-
-        //单体
-        if (Souleater.CanUse(out act)) return true;
-        if (SyphonStrike.CanUse(out act)) return true;
-        if (HardSlash.CanUse(out act)) return true;
-
-        if (IsMoveForward && MoveForwardAbility(out act)) return true;
-        if (BloodWeapon.IsCoolingDown && !Player.HasStatus(true, StatusID.BloodWeapon) && Unmend.CanUse(out act)) return true;
-
-        return base.GeneralGCD(out act);
-    }
-    #endregion
-
-    #region oGCD Logic
-    protected override bool EmergencyAbility(IAction nextGCD, out IAction act)
+    protected override bool EmergencyAbility(IAction nextGCD, out IAction? act)
     {
         if (base.EmergencyAbility(nextGCD, out act)) return true;
 
@@ -86,28 +88,92 @@ public sealed class DRK_Default : DRK_Base
 
             //    BloodWeapon.CanUse(out act, CanUseOption.MustUse);
             //}
-            if (BloodWeapon.CanUse(out act, CanUseOption.MustUse)) return true;
+            if (BloodWeaponPvE.CanUse(out act, skipAoeCheck: true)) return true;
 
         }
 
         return base.EmergencyAbility(nextGCD, out act);
     }
 
-    protected override bool AttackAbility(out IAction act)
+    [RotationDesc(ActionID.TheBlackestNightPvE)]
+    protected override bool HealSingleAbility(out IAction? act)
+    {
+        if (TheBlackestNightPvE.CanUse(out act)) return true;
+        return base.HealSingleAbility(out act);
+    }
+
+    [RotationDesc(ActionID.DarkMissionaryPvE, ActionID.ReprisalPvE)]
+    protected override bool DefenseAreaAbility(out IAction? act)
+    {
+        if (!InTwoMIsBurst() && DarkMissionaryPvE.CanUse(out act)) return true;
+        if (!InTwoMIsBurst() && ReprisalPvE.CanUse(out act, skipAoeCheck: true)) return true;
+
+        return base.DefenseAreaAbility(out act);
+    }
+
+    [RotationDesc(ActionID.TheBlackestNightPvE, ActionID.OblationPvE, ActionID.ReprisalPvE, ActionID.ShadowWallPvE, ActionID.RampartPvE, ActionID.DarkMindPvE)]
+    protected override bool DefenseSingleAbility(out IAction? act)
+    {
+        act = null;
+
+        if (Player.HasStatus(true, StatusID.BlackestNight)) return false;
+
+        //10
+        if (OblationPvE.CanUse(out act, usedUp: true, onLastAbility: true)) return true;
+
+        if (ReprisalPvE.CanUse(out act, skipAoeCheck: true, onLastAbility: true)) return true;
+
+        if (TheBlackestNightPvE.CanUse(out act, onLastAbility: true)) return true;
+        //30
+        if ((!RampartPvE.Cooldown.IsCoolingDown || RampartPvE.Cooldown.ElapsedAfter(60)) && ShadowWallPvE.CanUse(out act)) return true;
+
+        //20
+        if (ShadowWallPvE.Cooldown.IsCoolingDown && ShadowWallPvE.Cooldown.ElapsedAfter(60) && RampartPvE.CanUse(out act)) return true;
+        if (DarkMindPvE.CanUse(out act)) return true;
+
+        return base.DefenseAreaAbility(out act);
+    }
+
+    protected override bool GeneralGCD(out IAction? act)
+    {
+        //Use Blood
+        if (UseBlood)
+        {
+            if (QuietusPvE.CanUse(out act)) return true;
+            if (BloodspillerPvE.CanUse(out act)) return true;
+        }
+
+        //AOE
+        if (StalwartSoulPvE.CanUse(out act)) return true;
+        if (UnleashPvE.CanUse(out act)) return true;
+
+        //单体
+        if (SouleaterPvE.CanUse(out act)) return true;
+        if (SyphonStrikePvE.CanUse(out act)) return true;
+        if (HardSlashPvE.CanUse(out act)) return true;
+
+        if (MergedStatus.HasFlag(AutoStatus.MoveForward) && MoveForwardAbility(out act)) return true;
+        if (BloodWeaponPvE.Cooldown.IsCoolingDown && !Player.HasStatus(true, StatusID.BloodWeapon) && UnmendPvE.CanUse(out act)) return true;
+
+        return base.GeneralGCD(out act);
+    }
+
+    protected override bool AttackAbility(out IAction? act)
     {
         //if (InCombat && CombatElapsedLess(2) && BloodWeapon.CanUse(out act)) return true;
         if (CheckDarkSide)
         {
-            if (FloodOfDarkness.CanUse(out act)) return true;
-            if (EdgeOfDarkness.CanUse(out act)) return true;
+            if (FloodOfDarknessPvE.CanUse(out act)) return true;
+            if (EdgeOfDarknessPvE.CanUse(out act)) return true;
         }
 
         if (IsBurst)
         {
             if (UseBurstMedicine(out act)) return true;
-            if (Delirium.CanUse(out act)) return true;
-            if (Delirium.ElapsedAfterGCD(1) && !Delirium.ElapsedAfterGCD(3) && BloodWeapon.CanUse(out act)) return true;
-            if (LivingShadow.CanUse(out act, CanUseOption.MustUse)) return true;
+            if (InCombat && DeliriumPvE.CanUse(out act)) return true;
+            if (DeliriumPvE.Cooldown.ElapsedAfterGCD(1) && !DeliriumPvE.Cooldown.ElapsedAfterGCD(3)
+                && BloodWeaponPvE.CanUse(out act)) return true;
+            if (LivingShadowPvE.CanUse(out act, skipAoeCheck: true)) return true;
         }
 
         if (CombatLess)
@@ -116,114 +182,28 @@ public sealed class DRK_Default : DRK_Base
             return false;
         }
 
-        if (!IsMoving && SaltedEarth.CanUse(out act, CanUseOption.MustUse)) return true;
+        if (!IsMoving && SaltedEarthPvE.CanUse(out act, skipAoeCheck: true)) return true;
 
-        if (ShadowBringer.CanUse(out act, CanUseOption.MustUse)) return true;
+        if (ShadowbringerPvE.CanUse(out act, skipAoeCheck: true)) return true;
 
-        if (NumberOfHostilesInRange >= 3 && AbyssalDrain.CanUse(out act)) return true;
-        if (CarveAndSpit.CanUse(out act)) return true;
+        if (NumberOfHostilesInRange >= 3 && AbyssalDrainPvE.CanUse(out act)) return true;
+        if (CarveAndSpitPvE.CanUse(out act)) return true;
 
         if (InTwoMIsBurst())
         {
-            if (ShadowBringer.CanUse(out act, CanUseOption.MustUse | CanUseOption.EmptyOrSkipCombo)) return true;
+            if (ShadowbringerPvE.CanUse(out act, usedUp: true, skipAoeCheck: true)) return true;
 
         }
 
-        if (Plunge.CanUse(out act, CanUseOption.MustUse) && !IsMoving) return true;
+        if (PlungePvE.CanUse(out act, skipAoeCheck: true) && !IsMoving) return true;
 
-        if (SaltandDarkness.CanUse(out act)) return true;
+        if (SaltAndDarknessPvE.CanUse(out act)) return true;
 
         if (InTwoMIsBurst())
         {
-            if (Plunge.CanUse(out act, CanUseOption.MustUse | CanUseOption.EmptyOrSkipCombo) && !IsMoving) return true;
+            if (PlungePvE.CanUse(out act, usedUp: true, skipAoeCheck: true) && !IsMoving) return true;
         }
 
         return base.AttackAbility(out act);
-    }
-
-    [RotationDesc(ActionID.TheBlackestNight)]
-    protected override bool HealSingleAbility(out IAction act)
-    {
-        if (TheBlackestNight.CanUse(out act)) return true;
-
-        return base.HealSingleAbility(out act);
-    }
-
-    [RotationDesc(ActionID.DarkMissionary, ActionID.Reprisal)]
-    protected override bool DefenseAreaAbility(out IAction act)
-    {
-        if (!InTwoMIsBurst() && DarkMissionary.CanUse(out act)) return true;
-        if (!InTwoMIsBurst() && Reprisal.CanUse(out act, CanUseOption.MustUse)) return true;
-
-        return base.DefenseAreaAbility(out act);
-    }
-
-    [RotationDesc(ActionID.TheBlackestNight, ActionID.Oblation, ActionID.Reprisal, ActionID.ShadowWall, ActionID.Rampart, ActionID.DarkMind)]
-    protected override bool DefenseSingleAbility(out IAction act)
-    {
-        act = null;
-
-        if (Player.HasStatus(true, StatusID.TheBlackestNight)) return false;
-
-        //10
-        if (Oblation.CanUse(out act, CanUseOption.EmptyOrSkipCombo | CanUseOption.OnLastAbility)) return true;
-
-        if (Reprisal.CanUse(out act, CanUseOption.MustUse | CanUseOption.OnLastAbility)) return true;
-
-        if (TheBlackestNight.CanUse(out act, CanUseOption.OnLastAbility)) return true;
-        //30
-        if ((!Rampart.IsCoolingDown || Rampart.ElapsedAfter(60)) && ShadowWall.CanUse(out act)) return true;
-
-        //20
-        if (ShadowWall.IsCoolingDown && ShadowWall.ElapsedAfter(60) && Rampart.CanUse(out act)) return true;
-        if (DarkMind.CanUse(out act)) return true;
-
-        return base.DefenseAreaAbility(out act);
-    }
-    #endregion
-
-    #region Extra Methods
-    private static bool InTwoMIsBurst()
-    {
-        if (RatioOfMembersIn2minsBurst >= 0.5) return true;
-        if (RatioOfMembersIn2minsBurst == -1 && (BloodWeapon.IsCoolingDown && Delirium.IsCoolingDown && ((LivingShadow.IsCoolingDown && !(LivingShadow.ElapsedAfter(15))) || !LivingShadow.EnoughLevel))) return true;
-        else return false;
-    }
-
-    private static bool CombatLess => CombatElapsedLess(3);
-    #endregion
-
-    public override bool CanHealSingleAbility => false;
-
-    private bool CheckDarkSide
-    {
-        get
-        {
-            if (DarkSideEndAfterGCD(3)) return true;
-
-            if (CombatLess) return false;
-
-            if ((InTwoMIsBurst() && HasDarkArts) || (HasDarkArts && Player.HasStatus(true, StatusID.TheBlackestNight)) || (HasDarkArts && DarkSideEndAfterGCD(3))) return true;
-
-            if ((InTwoMIsBurst() && BloodWeapon.IsCoolingDown && LivingShadow.IsCoolingDown && SaltedEarth.IsCoolingDown && ShadowBringer.CurrentCharges == 0 && CarveAndSpit.IsCoolingDown  && SaltandDarkness.IsCoolingDown)) return true;
-
-            if (Configs.GetBool("TheBlackestNight") && CurrentMp < 6000) return false;
-
-            return CurrentMp >= 8500;
-        }
-    }
-
-    private static bool UseBlood
-    {
-        get
-        {
-            if (!Delirium.EnoughLevel) return true;
-
-            if (Player.HasStatus(true, StatusID.Delirium) && LivingShadow.IsCoolingDown) return true;
-
-            if ((Delirium.WillHaveOneChargeGCD(1) && !LivingShadow.WillHaveOneChargeGCD(3)) || Blood >= 90 && !LivingShadow.WillHaveOneChargeGCD(1)) return true;
-
-            return false;
-        }
     }
 }

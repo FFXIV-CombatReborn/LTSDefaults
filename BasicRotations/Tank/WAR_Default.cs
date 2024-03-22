@@ -1,146 +1,147 @@
+using static FFXIVClientStructs.FFXIV.Client.UI.AddonJobHudWAR0;
+
 namespace DefaultRotations.Tank;
 
+[Rotation("LTS's Default", CombatType.PvE, GameVersion = "6.58")]
 [SourceCode(Path = "main/DefaultRotations/Tank/WAR_Default.cs")]
-[LinkDescription("https://cdn.discordapp.com/attachments/277962807813865472/963548326433796116/unknown.png")]
-public sealed class WAR_Default : WAR_Base
+public sealed class WAR_Default : WarriorRotation
 {
-    #region General rotation info
-    public override string GameVersion => VERSION;
-    public override string RotationName => $"{USERNAME}'s {ClassJob.Abbreviation} [{Type}]";
-    public override CombatType Type => CombatType.PvE;
-    #endregion General rotation info
+    private static bool IsBurstStatus => !Player.WillStatusEndGCD(0, 0, false, StatusID.InnerStrength);
 
-    #region Rotation Configs
-    // N/A
-    #endregion
-
-    #region Countdown logic
-    protected override IAction CountDownAction(float remainTime)
+    protected override IAction? CountDownAction(float remainTime)
     {
         if (remainTime <= CountDownAhead)
         {
             if (HasTankStance)
             {
-                if (Provoke.CanUse(out var act1, CanUseOption.IgnoreClippingCheck)) return act1;
+                if (ProvokePvE.CanUse(out var act)) return act;
             }
             else
             {
-                if (Tomahawk.CanUse(out var act1, CanUseOption.IgnoreClippingCheck)) return act1;
+                if (TomahawkPvE.CanUse(out var act)) return act;
             }
         }
         return base.CountDownAction(remainTime);
     }
-    #endregion
 
-    #region GCD Logic
-    protected override bool GeneralGCD(out IAction act)
+    protected override bool GeneralGCD(out IAction? act)
     {
         if (!Player.WillStatusEndGCD(3, 0, true, StatusID.SurgingTempest))
         {
-            if (!IsMoving && IsBurstStatus && PrimalRend.CanUse(out act, CanUseOption.MustUse))
+            if (!IsMoving && IsBurstStatus && PrimalRendPvE.CanUse(out act, skipAoeCheck: true))
             {
-                if (PrimalRend.Target.DistanceToPlayer() < 1) return true;
+                if (PrimalRendPvE.Target?.Target?.DistanceToPlayer() < 1) return true;
             }
             if (IsBurstStatus || !Player.HasStatus(false, StatusID.NascentChaos) || BeastGauge > 80)
             {
-                if (SteelCyclone.CanUse(out act)) return true;
-                if (InnerBeast.CanUse(out act)) return true;
+                if (SteelCyclonePvE.CanUse(out act)) return true;
+                if (InnerBeastPvE.CanUse(out act)) return true;
             }
         }
 
-        if (MythrilTempest.CanUse(out act)) return true;
-        if (Overpower.CanUse(out act)) return true;
+        if (MythrilTempestPvE.CanUse(out act)) return true;
+        if (OverpowerPvE.CanUse(out act)) return true;
 
-        if (StormsEye.CanUse(out act)) return true;
-        if (StormsPath.CanUse(out act)) return true;
-        if (Maim.CanUse(out act)) return true;
-        if (HeavySwing.CanUse(out act)) return true;
+        if (StormsEyePvE.CanUse(out act)) return true;
+        if (StormsPathPvE.CanUse(out act)) return true;
+        if (MaimPvE.CanUse(out act)) return true;
+        if (HeavySwingPvE.CanUse(out act)) return true;
 
-        if (IsMoveForward && MoveForwardAbility(out act)) return true;
-        if (Tomahawk.CanUse(out act)) return true;
+        if (MergedStatus.HasFlag(AutoStatus.MoveForward) && MoveForwardAbility(out act)) return true;
+
+        if (TomahawkPvE.CanUse(out act)) return true;
 
         return base.GeneralGCD(out act);
     }
-    #endregion
 
-    #region oGCD Logic
-    protected override bool AttackAbility(out IAction act)
+    protected override bool AttackAbility(out IAction? act)
     {
-        if (Infuriate.CanUse(out act, gcdCountForAbility: 3)) return true;
+        if (InfuriatePvE.CanUse(out act, gcdCountForAbility: 3)) return true;
 
         if (CombatElapsedLessGCD(1)) return false;
 
         if (UseBurstMedicine(out act)) return true;
         if (Player.HasStatus(false, StatusID.SurgingTempest)
             && !Player.WillStatusEndGCD(6, 0, true, StatusID.SurgingTempest)
-            || !MythrilTempest.EnoughLevel)
+            || !MythrilTempestPvE.EnoughLevel)
         {
-            if (Berserk.CanUse(out act, CanUseOption.OnLastAbility)) return true;
+            if (BerserkPvE.CanUse(out act, onLastAbility: true)) return true;
         }
 
         if (IsBurstStatus)
         {
-            if (Infuriate.CanUse(out act, CanUseOption.EmptyOrSkipCombo)) return true;
+            if (InfuriatePvE.CanUse(out act, usedUp: true)) return true;
         }
 
         if (CombatElapsedLessGCD(4)) return false;
 
-        if (Orogeny.CanUse(out act)) return true;
-        if (Upheaval.CanUse(out act)) return true;
+        if (OrogenyPvE.CanUse(out act)) return true;
+        if (UpheavalPvE.CanUse(out act)) return true;
 
-        var option = CanUseOption.MustUse;
-        if (IsBurstStatus) option |= CanUseOption.EmptyOrSkipCombo;
-        if (Onslaught.CanUse(out act, option) && !IsMoving) return true;
+        if (OnslaughtPvE.CanUse(out act, usedUp: IsBurstStatus) && !IsMoving) return true;
 
         return base.AttackAbility(out act);
     }
 
-    protected override bool GeneralAbility(out IAction act)
+    protected override bool GeneralAbility(out IAction? act)
     {
         //Auto healing
         if (Player.GetHealthRatio() < 0.6f)
         {
-            if (ThrillOfBattle.CanUse(out act)) return true;
-            if (Equilibrium.CanUse(out act)) return true;
+            if (ThrillOfBattlePvE.CanUse(out act)) return true;
+            if (EquilibriumPvE.CanUse(out act)) return true;
         }
 
-        if (!HasTankStance && NascentFlash.CanUse(out act)) return true;
+        if (!HasTankStance && NascentFlashPvE.CanUse(out act)) return true;
 
         return base.GeneralAbility(out act);
     }
 
-    [RotationDesc(ActionID.RawIntuition, ActionID.Vengeance, ActionID.Rampart, ActionID.RawIntuition, ActionID.Reprisal)]
-    protected override bool DefenseSingleAbility(out IAction act)
+    [RotationDesc(ActionID.RawIntuitionPvE, ActionID.VengeancePvE, ActionID.RampartPvE, ActionID.RawIntuitionPvE, ActionID.ReprisalPvE)]
+    protected override bool DefenseSingleAbility(out IAction? act)
     {
-        //10
-        if (RawIntuition.CanUse(out act, CanUseOption.OnLastAbility)) return true;
+        if (MobsTime)
+        {
+            //10
+            if (RawIntuitionPvE.CanUse(out act, onLastAbility: true) && NumberOfHostilesInRange > 2) return true;
+            //if (RawIntuitionPvE.CanUse(out act)) return false;
 
-        //30
-        if ((!Rampart.IsCoolingDown || Rampart.ElapsedAfter(60)) && Vengeance.CanUse(out act)) return true;
+            if (!Player.WillStatusEndGCD(0, 0, true, StatusID.Bloodwhetting, StatusID.RawIntuition)) return false;
 
-        //20
-        if (Vengeance.IsCoolingDown && Vengeance.ElapsedAfter(60) && Rampart.CanUse(out act)) return true;
-
-        if (Reprisal.CanUse(out act)) return true;
+            if (HighDefense(out act)) return true;
+            if (ReprisalPvE.CanUse(out act)) return true;
+        }
+        else
+        {
+            if (HighDefense(out act)) return true;
+            //10
+            if (RawIntuitionPvE.CanUse(out act, onLastAbility: true)) return true;
+        }
 
         return false;
     }
 
-    [RotationDesc(ActionID.ShakeItOff, ActionID.Reprisal)]
-    protected override bool DefenseAreaAbility(out IAction act)
+    private bool HighDefense(out IAction? act)
+    {
+        //30
+        if ((!RampartPvE.Cooldown.IsCoolingDown || RampartPvE.Cooldown.ElapsedAfter(60)) && VengeancePvE.CanUse(out act)) return true;
+
+        //20
+        if (VengeancePvE.Cooldown.IsCoolingDown && VengeancePvE.Cooldown.ElapsedAfter(60) && RampartPvE.CanUse(out act)) return true;
+
+        act = null;
+        return false;
+    }
+
+    [RotationDesc(ActionID.ShakeItOffPvE, ActionID.ReprisalPvE)]
+    protected override bool DefenseAreaAbility(out IAction? act)
     {
         act = null;
-        if (ShakeItOff.IsCoolingDown && !ShakeItOff.WillHaveOneCharge(60)
-            || Reprisal.IsCoolingDown && !Reprisal.WillHaveOneCharge(50)) return false;
-        if (ShakeItOff.CanUse(out act, CanUseOption.MustUse)) return true;
-        if (Reprisal.CanUse(out act, CanUseOption.MustUse)) return true;
+        if (ShakeItOffPvE.Cooldown.IsCoolingDown && !ShakeItOffPvE.Cooldown.WillHaveOneCharge(60)
+            || ReprisalPvE.Cooldown.IsCoolingDown && !ReprisalPvE.Cooldown.WillHaveOneCharge(50)) return false;
+
+        if (ShakeItOffPvE.CanUse(out act, skipAoeCheck: true)) return true;
+        if (ReprisalPvE.CanUse(out act, skipAoeCheck: true)) return true;
         return base.DefenseAreaAbility(out act);
     }
-    #endregion
-
-    #region Extra Methods
-    // N/A
-    #endregion
-
-    private static bool IsBurstStatus => !Player.WillStatusEndGCD(0, 0, false, StatusID.InnerStrength);
 }
