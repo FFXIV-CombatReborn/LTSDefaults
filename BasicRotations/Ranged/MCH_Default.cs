@@ -7,13 +7,7 @@ public sealed class MCH_Default : MachinistRotation
 {
     protected override IAction? CountDownAction(float remainTime)
     {
-        if (remainTime < CountDownAhead)
-        {
-            if (AirAnchorPvE.CanUse(out var act1)) return act1;
-            else if (!AirAnchorPvE.EnoughLevel && HotShotPvE.CanUse(out act1)) return act1;
-        }
         if (remainTime < 2 && UseBurstMedicine(out var act)) return act;
-        if (remainTime < 5 && ReassemblePvE.CanUse(out act, usedUp: true)) return act;
         return base.CountDownAction(remainTime);
     }
 
