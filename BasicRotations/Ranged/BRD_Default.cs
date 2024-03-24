@@ -10,25 +10,25 @@ public sealed class BRD_Default : BardRotation
     [RotationConfig(CombatType.PvE, Name = @"Use Raging Strikes on ""Wanderer's Minuet""")]
     public bool BindWAND { get; set; } = false;
 
-    [RotationConfig(CombatType.PvE, Name = "First Song")]
+    [RotationConfig(CombatType.PvE, Name = @"First Song""")]
     private Song FirstSong { get; set; } = Song.WANDERER;
 
     [Range(0, 45, ConfigUnitType.Seconds, 1)]
-    [RotationConfig(CombatType.PvE, Name = "Wanderer's Minuet Uptime")]
+    [RotationConfig(CombatType.PvE, Name = @"Wanderer's Minuet Uptime""")]
     public float WANDTime { get; set; } = 43;
 
     [Range(0, 45, ConfigUnitType.Seconds, 1)]
-    [RotationConfig(CombatType.PvE, Name = "Mage's Ballad Uptime")]
+    [RotationConfig(CombatType.PvE, Name = @"Mage's Ballad Uptime""")]
     public float MAGETime { get; set; } = 34;
 
     [Range(0, 45, ConfigUnitType.Seconds, 1)]
-    [RotationConfig(CombatType.PvE, Name = "Army's Paeon Uptime")]
+    [RotationConfig(CombatType.PvE, Name = @"Army's Paeon Uptime""")]
     public float ARMYTime { get; set; } = 43;
 
     private bool BindWANDEnough => BindWAND && this.TheWanderersMinuetPvE.EnoughLevel;
-    private float WANDRemainTime => 45 - WANDTime;
-    private float MAGERemainTime => 45 - MAGETime;
-    private float ARMYRemainTime => 45 - ARMYTime;
+    private float WANDRemainTime => 43 - WANDTime;
+    private float MAGERemainTime => 34 - MAGETime;
+    private float ARMYRemainTime => 43 - ARMYTime;
 
     protected override bool GeneralGCD(out IAction? act)
     {
