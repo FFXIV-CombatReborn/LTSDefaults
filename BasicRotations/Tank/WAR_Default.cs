@@ -1,5 +1,3 @@
-using static FFXIVClientStructs.FFXIV.Client.UI.AddonJobHudWAR0;
-
 namespace DefaultRotations.Tank;
 
 [Rotation("LTS's Default", CombatType.PvE, GameVersion = "6.58")]
@@ -30,7 +28,7 @@ public sealed class WAR_Default : WarriorRotation
         {
             if (!IsMoving && IsBurstStatus && PrimalRendPvE.CanUse(out act, skipAoeCheck: true))
             {
-                if (PrimalRendPvE.Target?.Target?.DistanceToPlayer() < 1) return true;
+                if (PrimalRendPvE.Target.Target?.DistanceToPlayer() < 1) return true;
             }
             if (IsBurstStatus || !Player.HasStatus(false, StatusID.NascentChaos) || BeastGauge > 80)
             {
@@ -48,7 +46,7 @@ public sealed class WAR_Default : WarriorRotation
         if (HeavySwingPvE.CanUse(out act)) return true;
 
         if (MergedStatus.HasFlag(AutoStatus.MoveForward) && MoveForwardAbility(out act)) return true;
-
+        
         if (TomahawkPvE.CanUse(out act)) return true;
 
         return base.GeneralGCD(out act);

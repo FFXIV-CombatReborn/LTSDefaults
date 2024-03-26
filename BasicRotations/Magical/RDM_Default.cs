@@ -3,7 +3,6 @@ namespace DefaultRotations.Magical;
 [Rotation("LTS's Default", CombatType.PvE, GameVersion = "6.58")]
 [SourceCode(Path = "main/DefaultRotations/Magical/RDM_Default.cs")]
 public sealed class RDM_Default : RedMageRotation
-
 {
     private static BaseAction VerthunderStartUp { get; } = new BaseAction(ActionID.VerthunderPvE, false);
 
@@ -34,7 +33,7 @@ public sealed class RDM_Default : RedMageRotation
         }
     }
 
-    [RotationConfig(CombatType.PvE, Name = "Use Vercure for Dualcast when out of combat.")]
+    [RotationConfig( CombatType.PvE, Name = "Use Vercure for Dualcast when out of combat.")]
     public bool UseVercure { get; set; }
 
     protected override IAction? CountDownAction(float remainTime)

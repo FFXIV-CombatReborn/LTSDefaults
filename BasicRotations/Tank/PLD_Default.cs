@@ -1,12 +1,9 @@
-﻿using static FFXIVClientStructs.FFXIV.Client.UI.AddonJobHudPLD0;
-
-namespace DefaultRotations.Tank;
+﻿namespace DefaultRotations.Tank;
 
 [Rotation("LTS's Default", CombatType.PvE, GameVersion = "6.58")]
 [SourceCode(Path = "main/DefaultRotations/Tank/PLD_Default.cs")]
 public class PLD_Default : PaladinRotation
 {
-    #region Rotation Configs
     [RotationConfig(CombatType.PvE, Name = "Use Divine Veil at 15 seconds remaining on Countdown")]
     public bool UseDivineVeilPre { get; set; } = false;
 
@@ -15,9 +12,7 @@ public class PLD_Default : PaladinRotation
 
     [RotationConfig(CombatType.PvE, Name = "Use Shield Bash when Low Blow is cooling down")]
     public bool UseShieldBash { get; set; } = true;
-    #endregion
 
-    #region Countdown logic
     protected override IAction? CountDownAction(float remainTime)
     {
         if (remainTime < HolySpiritPvE.Info.CastTime + CountDownAhead
@@ -28,9 +23,31 @@ public class PLD_Default : PaladinRotation
 
         return base.CountDownAction(remainTime);
     }
-    #endregion
 
-    #region GCD Logic
+    protected override bool AttackAbility(out IAction? act)
+    {
+        act = null;
+
+        if (InCombat)
+        {
+            if (UseBurstMedicine(out act)) return true;
+            if (IsBurst && !CombatElapsedLess(5) && FightOrFlightPvE.CanUse(out act, onLastAbility: true)) return true;
+        }
+        if (CombatElapsedLess(8)) return false;
+
+        if (CircleOfScornPvE.CanUse(out act, skipAoeCheck: true)) return true;
+        if (SpiritsWithinPvE.CanUse(out act, skipAoeCheck: true)) return true;
+
+        if (Player.WillStatusEndGCD(6, 0, true, StatusID.FightOrFlight)
+            && RequiescatPvE.CanUse(out act, skipAoeCheck: true)) return true;
+
+        if (!IsMoving && IntervenePvE.CanUse(out act, skipAoeCheck: true, usedUp: HasFightOrFlight)) return true;
+
+        if (HasTankStance && OathGauge == 100 && UseOath(out act)) return true;
+
+        return base.AttackAbility(out act);
+    }
+
     protected override bool GeneralGCD(out IAction? act)
     {
         if (Player.HasStatus(true, StatusID.Requiescat))
@@ -75,32 +92,6 @@ public class PLD_Default : PaladinRotation
 
         return base.GeneralGCD(out act);
     }
-    #endregion
-
-    #region oGCD Logic
-    protected override bool AttackAbility(out IAction? act)
-    {
-        act = null;
-
-        if (InCombat)
-        {
-            if (UseBurstMedicine(out act)) return true;
-            if (IsBurst && !CombatElapsedLess(5) && FightOrFlightPvE.CanUse(out act, onLastAbility: true)) return true;
-        }
-        if (CombatElapsedLess(8)) return false;
-
-        if (CircleOfScornPvE.CanUse(out act, skipAoeCheck: true)) return true;
-        if (SpiritsWithinPvE.CanUse(out act, skipAoeCheck: true)) return true;
-
-        if (Player.WillStatusEndGCD(6, 0, true, StatusID.FightOrFlight)
-            && RequiescatPvE.CanUse(out act, skipAoeCheck: true)) return true;
-
-        if (!IsMoving && IntervenePvE.CanUse(out act, skipAoeCheck: true, usedUp: HasFightOrFlight)) return true;
-
-        if (HasTankStance && OathGauge == 100 && UseOath(out act)) return true;
-
-        return base.AttackAbility(out act);
-    }
 
     [RotationDesc(ActionID.ReprisalPvE, ActionID.DivineVeilPvE)]
     protected override bool DefenseAreaAbility(out IAction? act)
@@ -133,9 +124,7 @@ public class PLD_Default : PaladinRotation
 
         return base.DefenseSingleAbility(out act);
     }
-    #endregion
 
-    #region Extra Methods
     private bool UseOath(out IAction act, bool onLast = false)
     {
         if (SheltronPvE.CanUse(out act, onLastAbility: onLast)) return true;
@@ -143,5 +132,4 @@ public class PLD_Default : PaladinRotation
 
         return false;
     }
-    #endregion
 }

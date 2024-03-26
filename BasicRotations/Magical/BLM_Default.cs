@@ -261,7 +261,7 @@ public class BLM_Default : BlackMageRotation
             if (AddThunder(out act, 0)) return true;
         }
 
-        if (TriplecastPvE.CanUse(out act, skipClippingCheck: true)) return true;
+        if (TriplecastPvE.CanUse(out act, skipClippingCheck:true)) return true;
 
         if (AddThunder(out act, 0) && Player.WillStatusEndGCD(1, 0, true,
             StatusID.Thundercloud)) return true;
@@ -302,7 +302,7 @@ public class BLM_Default : BlackMageRotation
         if (IsLastGCD(ActionID.ThunderPvE, ActionID.ThunderIiPvE, ActionID.ThunderIiiPvE, ActionID.ThunderIvPvE)) return false;
 
         //So long for thunder.
-        if (ThunderPvE.CanUse(out _) && (!ThunderPvE.Target?.Target?.WillStatusEndGCD(gcdCount, 0, true,
+        if (ThunderPvE.CanUse(out _) && (!ThunderPvE.Target.Target?.WillStatusEndGCD(gcdCount, 0, true,
             StatusID.Thunder, StatusID.ThunderIi, StatusID.ThunderIii, StatusID.ThunderIv) ?? false))
             return false;
 

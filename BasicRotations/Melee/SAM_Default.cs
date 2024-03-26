@@ -1,12 +1,10 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace DefaultRotations.Melee;
+﻿namespace DefaultRotations.Melee;
 
 [Rotation("LTS's Default", CombatType.PvE, GameVersion = "6.58")]
 [SourceCode(Path = "main/DefaultRotations/Melee/SAM_Default.cs")]
 public sealed class SAM_Default : SamuraiRotation
 {
-    [RotationSolver.Basic.Attributes.Range(0, 85, ConfigUnitType.None, 5)]
+    [Range(0, 85, ConfigUnitType.None, 5)]
     [RotationConfig(CombatType.PvE, Name = "Use Kenki above.")]
     public int AddKenki { get; set; } = 50;
 
@@ -38,7 +36,7 @@ public sealed class SAM_Default : SamuraiRotation
             if (MidareSetsugekkaPvE.CanUse(out act)) return true;
         }
 
-        if ((!HasMoon || IsMoonTimeLessThanFlower || !OkaPvE.EnoughLevel) && MangetsuPvE.CanUse(out act, skipAoeCheck: HaveMeikyoShisui && !HasGetsu)) return true;
+        if ((!HasMoon || IsMoonTimeLessThanFlower || !OkaPvE.EnoughLevel) && MangetsuPvE.CanUse(out act, skipAoeCheck : HaveMeikyoShisui && !HasGetsu)) return true;
         if ((!HasFlower || !IsMoonTimeLessThanFlower) && OkaPvE.CanUse(out act, skipAoeCheck: HaveMeikyoShisui && !HasKa)) return true;
 
         if (!HasSetsu && YukikazePvE.CanUse(out act, skipAoeCheck: HaveMeikyoShisui && HasGetsu && HasKa && !HasSetsu)) return true;

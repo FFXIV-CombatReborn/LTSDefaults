@@ -1,5 +1,3 @@
-using static FFXIVClientStructs.FFXIV.Client.UI.AddonPartyList;
-
 namespace DefaultRotations.Ranged;
 
 [Rotation("LTS's Default", CombatType.PvE, GameVersion = "6.58")]
@@ -125,7 +123,7 @@ public sealed class DNC_Default : DancerRotation
             {
                 if (friend.HasStatus(true, StatusID.ClosedPosition_2026))
                 {
-                    if (ClosedPositionPvE.Target?.Target != friend) return true;
+                    if (ClosedPositionPvE.Target.Target != friend) return true;
                     break;
                 }
             }

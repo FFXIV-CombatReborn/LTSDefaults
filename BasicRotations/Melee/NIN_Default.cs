@@ -123,7 +123,7 @@ public sealed class NIN_Default : NinjaRotation
             //Aoe
             if (KatonPvE.CanUse(out _))
             {
-                if (!Player.HasStatus(true, StatusID.Doton) && !IsMoving
+                if (!Player.HasStatus(true, StatusID.Doton) && !IsMoving 
                     && (!TenChiJinPvE.Cooldown.WillHaveOneCharge(6)) || !TenChiJinPvE.Cooldown.IsCoolingDown)
                     SetNinjutsu(DotonPvE);
                 else SetNinjutsu(KatonPvE);
@@ -371,9 +371,9 @@ public sealed class NIN_Default : NinjaRotation
 
     public override void DisplayStatus()
     {
-        if (_ninActionAim != null)
+        if(_ninActionAim != null)
         {
-            ImGui.Text(_ninActionAim.ToString() + _ninActionAim.AdjustedID.ToString());
+            ImGui.Text(_ninActionAim.ToString()  + _ninActionAim.AdjustedID.ToString());
         }
         base.DisplayStatus();
     }

@@ -66,7 +66,7 @@ public sealed class GNB_Default : GunbreakerRotation
 
         if (DangerZonePvE.CanUse(out act))
         {
-            if (!IsFullParty && !(DangerZonePvE.Target?.Target?.IsBossFromTTK() ?? false)) return true;
+            if (!IsFullParty && !(DangerZonePvE.Target.Target?.IsBossFromTTK() ?? false)) return true;
 
             if (!GnashingFangPvE.EnoughLevel && (Player.HasStatus(true, StatusID.NoMercy) || !NoMercyPvE.Cooldown.WillHaveOneCharge(15))) return true;
 
@@ -208,7 +208,7 @@ public sealed class GNB_Default : GunbreakerRotation
             if (Player.HasStatus(true, StatusID.NoMercy) &&
             AmmoComboStep == 0 &&
                 !GnashingFangPvE.Cooldown.WillHaveOneCharge(1)) return true;
-
+            
             if (!CartridgeChargeIiTrait.EnoughLevel && Ammo == 2) return true;
 
             if (IsLastGCD((ActionID)BrutalShellPvE.ID) &&

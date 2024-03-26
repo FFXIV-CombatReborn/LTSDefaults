@@ -1,19 +1,14 @@
-using static FFXIVClientStructs.FFXIV.Client.UI.AddonPartyList;
-
 namespace DefaultRotations.Healer;
 
 [Rotation("LTS's Default", CombatType.PvE, GameVersion = "6.58")]
 [SourceCode(Path = "main/DefaultRotations/Healer/WHM_Default.cs")]
-public sealed class WHM_Default : WhiteMageRotation
+public sealed class WHM_Default :WhiteMageRotation
 {
-
-    #region Rotation Configs
     [RotationConfig(CombatType.PvE, Name = "Use Lily at max stacks.")]
     public bool UseLilyWhenFull { get; set; } = true;
 
     [RotationConfig(CombatType.PvE, Name = "Regen on Tank at 5 seconds remaining on Countdown.")]
     public bool UsePreRegen { get; set; } = true;
-    #endregion
 
     public WHM_Default()
     {
@@ -88,7 +83,7 @@ public sealed class WHM_Default : WhiteMageRotation
         if (AfflatusSolacePvE.CanUse(out act)) return true;
 
         if (RegenPvE.CanUse(out act)
-            && (IsMoving || RegenPvE.Target?.Target?.GetHealthRatio() > 0.4)) return true;
+            && (IsMoving || RegenPvE.Target.Target?.GetHealthRatio() > 0.4)) return true;
 
         if (CureIiPvE.CanUse(out act)) return true;
 
@@ -101,7 +96,7 @@ public sealed class WHM_Default : WhiteMageRotation
     protected override bool HealSingleAbility(out IAction? act)
     {
         if (BenedictionPvE.CanUse(out act) &&
-            RegenPvE.Target?.Target?.GetHealthRatio() < 0.3) return true;
+            RegenPvE.Target.Target?.GetHealthRatio() < 0.3) return true;
 
         if (!IsMoving && AsylumPvE.CanUse(out act)) return true;
 

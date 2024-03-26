@@ -2,8 +2,10 @@ namespace DefaultRotations.Melee;
 
 [Rotation("LTS's Default", CombatType.PvE, GameVersion = "6.58")]
 [SourceCode(Path = "main/DefaultRotations/Melee/DRG_Default.cs")]
+
 public sealed class DRG_Default : DragoonRotation
 {
+    [RotationDesc(ActionID.SpineshatterDivePvE, ActionID.DragonfireDivePvE)]
     protected override bool MoveForwardAbility(out IAction act)
     {
         if (SpineshatterDivePvE.CanUse(out act)) return true;

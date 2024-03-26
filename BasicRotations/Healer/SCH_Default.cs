@@ -1,5 +1,3 @@
-using static FFXIVClientStructs.FFXIV.Client.UI.AddonPartyList;
-
 namespace DefaultRotations.Healer;
 
 [Rotation("LTS's Default", CombatType.PvE, GameVersion = "6.58")]

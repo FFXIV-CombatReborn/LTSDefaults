@@ -76,13 +76,13 @@ public sealed class SMN_Default : SummonerRotation
                 if (SummonRubyPvE.CanUse(out act)) return true;
                 break;
 
-            case SummonOrderType.TopazRubyEmerald:
+            case  SummonOrderType.TopazRubyEmerald:
                 if (SummonTopazPvE.CanUse(out act)) return true;
                 if (SummonRubyPvE.CanUse(out act)) return true;
                 if (SummonEmeraldPvE.CanUse(out act)) return true;
                 break;
 
-            case SummonOrderType.EmeraldTopazRuby:
+            case  SummonOrderType.EmeraldTopazRuby:
                 if (SummonEmeraldPvE.CanUse(out act)) return true;
                 if (SummonTopazPvE.CanUse(out act)) return true;
                 if (SummonRubyPvE.CanUse(out act)) return true;
@@ -111,7 +111,7 @@ public sealed class SMN_Default : SummonerRotation
         var IsTargetBoss = HostileTarget?.IsBossFromTTK() ?? false;
         var IsTargetDying = HostileTarget?.IsDying() ?? false;
 
-        if ((InBahamut && SummonBahamutPvE.Cooldown.ElapsedOneChargeAfterGCD(3) || InPhoenix ||
+        if ((InBahamut && SummonBahamutPvE.Cooldown.ElapsedOneChargeAfterGCD(3) || InPhoenix || 
             IsTargetBoss && IsTargetDying) && EnkindleBahamutPvE.CanUse(out act, skipAoeCheck: true)) return true;
 
         if ((SummonBahamutPvE.Cooldown.ElapsedOneChargeAfterGCD(3) || IsTargetBoss && IsTargetDying) && DeathflarePvE.CanUse(out act, skipAoeCheck: true)) return true;
@@ -120,7 +120,7 @@ public sealed class SMN_Default : SummonerRotation
 
         if ((Player.HasStatus(false, StatusID.SearingLight) && InBahamut && (SummonBahamutPvE.Cooldown.ElapsedOneChargeAfterGCD(3) || !EnergyDrainPvE.Cooldown.IsCoolingDown) ||
             !SearingLightPvE.EnoughLevel || IsTargetBoss && IsTargetDying) && PainflarePvE.CanUse(out act)) return true;
-
+        
         if ((Player.HasStatus(false, StatusID.SearingLight) && InBahamut && (SummonBahamutPvE.Cooldown.ElapsedOneChargeAfterGCD(3) || !EnergyDrainPvE.Cooldown.IsCoolingDown) ||
             !SearingLightPvE.EnoughLevel || IsTargetBoss && IsTargetDying) && FesterPvE.CanUse(out act)) return true;
 

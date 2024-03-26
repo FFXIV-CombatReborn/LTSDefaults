@@ -4,7 +4,6 @@ namespace DefaultRotations.Tank;
 [SourceCode(Path = "main/DefaultRotations/Tank/DRK_Balance.cs")]
 public sealed class DRK_Default : DarkKnightRotation
 {
-
     public override bool CanHealSingleAbility => false;
 
     private bool InTwoMIsBurst()
@@ -171,7 +170,7 @@ public sealed class DRK_Default : DarkKnightRotation
         {
             if (UseBurstMedicine(out act)) return true;
             if (InCombat && DeliriumPvE.CanUse(out act)) return true;
-            if (DeliriumPvE.Cooldown.ElapsedAfterGCD(1) && !DeliriumPvE.Cooldown.ElapsedAfterGCD(3)
+            if (DeliriumPvE.Cooldown.ElapsedAfterGCD(1) && !DeliriumPvE.Cooldown.ElapsedAfterGCD(3) 
                 && BloodWeaponPvE.CanUse(out act)) return true;
             if (LivingShadowPvE.CanUse(out act, skipAoeCheck: true)) return true;
         }
