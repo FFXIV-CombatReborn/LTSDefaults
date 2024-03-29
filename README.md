@@ -3,13 +3,13 @@
 
 Download the latest version of DefaultRotations:
 
-- [`DefaultRotations.dll`](https://github.com/LTS-FFXIV/LTSDefaults/releases/latest/download/BasicRotations.dll)
+- [`DefaultRotations.dll`](https://github.com/FFXIV-CombatReborn/RotationSolverReborn/releases/latest/download/BasicRotations.dll)
 
 ```
-https://github.com/LTS-FFXIV/LTSDefaults/releases/latest/download/DefaultRotations.dll
+https://github.com/FFXIV-CombatReborn/RotationSolverReborn/releases/latest/download/BasicRotations.dll
 ```
-- [`DefaultRotations.pdb`](https://github.com/LTS-FFXIV/LTSDefaults/releases/latest/download/BasicRotations.pdb)
+- [`DefaultRotations.pdb`](https://github.com/FFXIV-CombatReborn/RotationSolverReborn/releases/latest/download/BasicRotations.pdb)
 
 ```
-https://github.com/LTS-FFXIV/LTSDefaults/releases/latest/download/DefaultRotations.pdb
+https://github.com/FFXIV-CombatReborn/RotationSolverReborn/releases/latest/download/BasicRotations.pdb
 ```
