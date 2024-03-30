@@ -4,22 +4,18 @@ namespace DefaultRotations.Ranged;
 [SourceCode(Path = "main/DefaultRotations/Ranged/MCH_Default.cs")]
 public sealed class MCH_Default : MachinistRotation
 {
-    protected override IAction? CountDownAction(float remainTime)
-    {
-        if (remainTime < CountDownAhead)
-        {
-            if (AirAnchorPvE.CanUse(out var act1)) return act1;
-            else if (!AirAnchorPvE.EnoughLevel && HotShotPvE.CanUse(out act1)) return act1;
-        }
-        if (remainTime < 2 && UseBurstMedicine(out var act)) return act;
-        if (remainTime < 5 && ReassemblePvE.CanUse(out act)) return act;
-        return base.CountDownAction(remainTime);
-    }
-
     [RotationConfig(CombatType.PvE, Name = "Use Reassamble with ChainSaw")]
     public bool MCH_Reassemble { get; set; } = true;
 
+    #region Countdown logic
+    protected override IAction? CountDownAction(float remainTime)
+    {
+        if (remainTime < 2 && UseBurstMedicine(out var act)) return act;
+        return base.CountDownAction(remainTime);
+    }
+    #endregion
 
+    #region GCD Logic
     protected override bool GeneralGCD(out IAction? act)
     {
         //Overheated
@@ -49,35 +45,20 @@ public sealed class MCH_Default : MachinistRotation
 
         return base.GeneralGCD(out act);
     }
+    #endregion
 
-    protected override bool EmergencyAbility(IAction nextGCD, out IAction? act)
-    {
-        if (MCH_Reassemble && ChainSawPvE.EnoughLevel && nextGCD.IsTheSameTo(true, ChainSawPvE))
-        {
-            if (ReassemblePvE.CanUse(out act)) return true;
-        }
-        if (RicochetPvE.CanUse(out act, skipAoeCheck: true)) return true;
-        if (GaussRoundPvE.CanUse(out act, skipAoeCheck: true)) return true;
-
-        if (!DrillPvE.EnoughLevel && nextGCD.IsTheSameTo(true, CleanShotPvE)
-            || nextGCD.IsTheSameTo(false, AirAnchorPvE, ChainSawPvE, DrillPvE))
-        {
-            if (ReassemblePvE.CanUse(out act)) return true;
-        }
-        return base.EmergencyAbility(nextGCD, out act);
-    }
-
-    protected override bool AttackAbility(out IAction? act)
+    #region oGCD Logic
+    protected override bool AttackAbility(out IAction act)
     {
         if (IsBurst)
         {
             if (UseBurstMedicine(out act)) return true;
             if ((IsLastAbility(false, HyperchargePvE) || Heat >= 50) && !CombatElapsedLess(10)
-                && WildfirePvE.CanUse(out act, onLastAbility: true)) return true;
+                && WildfirePvE.CanUse(out act, CanUseOption.OnLastAbility)) return true;
         }
 
-        if (!CombatElapsedLess(12) && CanUseHypercharge(out act)) return true;
-        if (CanUseRookAutoturret(out act)) return true;
+        if (!CombatElapsedLess(12) && CanUseHyperchargePvE(out act)) return true;
+        if (CanUseRookAutoturretPvE(out act)) return true;
 
         if (BarrelStabilizerPvE.CanUse(out act)) return true;
 
@@ -85,14 +66,33 @@ public sealed class MCH_Default : MachinistRotation
 
         if (GaussRoundPvE.Cooldown.CurrentCharges <= RicochetPvE.Cooldown.CurrentCharges)
         {
-            if (RicochetPvE.CanUse(out act, skipAoeCheck: true)) return true;
+            if (RicochetPvE.CanUse(out act, skipClippingCheck:true, skipAoeCheck: true, usedUp: true)) return true;
         }
-        if (GaussRoundPvE.CanUse(out act, skipAoeCheck: true)) return true;
+        if (GaussRoundPvE.CanUse(out act, skipClippingCheck: true, skipAoeCheck: true, usedUp: true)) return true;
 
         return base.AttackAbility(out act);
     }
 
-    private bool CanUseRookAutoturret(out IAction? act)
+    protected override bool EmergencyAbility(IAction nextGCD, out IAction? act)
+    {
+        if (MCH_Reassemble && ChainSawPvE.EnoughLevel && nextGCD.IsTheSameTo(true, ChainSawPvE))
+        {
+            if (ReassemblePvE.CanUse(out act, skipComboCheck: true)) return true;
+        }
+        if (RicochetPvE.CanUse(out act, skipClippingCheck: true, usedUp: true, skipAoeCheck: true)) return true;
+        if (GaussRoundPvE.CanUse(out act, skipClippingCheck: true, usedUp: true, skipAoeCheck: true)) return true;
+
+        if (!DrillPvE.EnoughLevel && nextGCD.IsTheSameTo(true, CleanShotPvE)
+            || nextGCD.IsTheSameTo(false, AirAnchorPvE, ChainSawPvE, DrillPvE))
+        {
+            if (ReassemblePvE.CanUse(out act, skipComboCheck: true)) return true;
+        }
+        return base.EmergencyAbility(nextGCD, out act);
+    }
+    #endregion
+
+    #region Extra Methods
+    private bool CanUseRookAutoturretPvE(out IAction? act)
     {
         act = null;
         if (AirAnchorPvE.EnoughLevel)
@@ -108,10 +108,9 @@ public sealed class MCH_Default : MachinistRotation
     }
 
     const float REST_TIME = 6f;
-    private bool CanUseHypercharge(out IAction? act)
+    private bool CanUseHyperchargePvE(out IAction? act)
     {
         act = null;
-
         //Check recast.
         if (!SpreadShotPvE.CanUse(out _))
         {
@@ -129,4 +128,6 @@ public sealed class MCH_Default : MachinistRotation
 
         return HyperchargePvE.CanUse(out act);
     }
+
+    #endregion
 }
