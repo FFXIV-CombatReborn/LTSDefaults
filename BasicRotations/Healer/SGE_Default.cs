@@ -61,8 +61,9 @@ public sealed class SGE_Default : SageRotation
     {
         if (EukrasianDiagnosisPvE.CanUse(out act))
         {
-            if (EukrasianDiagnosisPvE.Target.Target?.HasStatus(false,
+            if (EukrasianDiagnosisPvE.Target.Target?.HasStatus(true,
                 StatusID.EukrasianDiagnosis,
+                StatusID.DifferentialDiagnosis,
                 StatusID.EukrasianPrognosis,
                 StatusID.Galvanize
             ) ?? false) return false;
