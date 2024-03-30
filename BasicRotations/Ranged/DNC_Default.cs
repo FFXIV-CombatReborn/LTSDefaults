@@ -47,7 +47,7 @@ public sealed class DNC_Default : DancerRotation
         if (Player.HasStatus(true, StatusID.Devilment) || Feathers > 3 || !TechnicalStepPvE.EnoughLevel)
         {
             if (FanDanceIiPvE.CanUse(out act)) return true;
-            if (FanDancePvE.CanUse(out act)) return true;
+            if (FanDancePvE.CanUse(out act, skipAoeCheck: true)) return true;
         }
 
         if (FanDanceIvPvE.CanUse(out act, skipAoeCheck: true))
