@@ -4,16 +4,20 @@ namespace DefaultRotations.Tank;
 [SourceCode(Path = "main/DefaultRotations/Tank/DRK_Balance.cs")]
 public sealed class DRK_Default : DarkKnightRotation
 {
+    // Indicates whether the Dark Knight can heal using a single ability.
     public override bool CanHealSingleAbility => false;
-
+    
+    // Determines if currently in a burst phase based on cooldowns of key abilities.
     private bool InTwoMIsBurst()
     {
         if ((BloodWeaponPvE.Cooldown.IsCoolingDown && DeliriumPvE.Cooldown.IsCoolingDown && ((LivingShadowPvE.Cooldown.IsCoolingDown && !(LivingShadowPvE.Cooldown.ElapsedAfter(15))) || !LivingShadowPvE.EnoughLevel))) return true;
         else return false;
     }
-
+    
+    // Checks if combat time is less than 3 seconds.
     private static bool CombatLess => CombatElapsedLess(3);
 
+    // Manages DarkSide ability based on several conditions.
     private bool CheckDarkSide
     {
         get
@@ -31,15 +35,15 @@ public sealed class DRK_Default : DarkKnightRotation
             return CurrentMp >= 8500;
         }
     }
-
+    
+    // Logic to determine when to use blood-based abilities.
     private bool UseBlood
     {
         get
         {
+            // Conditions based on player statuses and ability cooldowns.
             if (!DeliriumPvE.EnoughLevel) return true;
-
             if (Player.HasStatus(true, StatusID.Delirium) && LivingShadowPvE.Cooldown.IsCoolingDown) return true;
-
             if ((DeliriumPvE.Cooldown.WillHaveOneChargeGCD(1) && !LivingShadowPvE.Cooldown.WillHaveOneChargeGCD(3)) || Blood >= 90 && !LivingShadowPvE.Cooldown.WillHaveOneChargeGCD(1)) return true;
 
             return false;
@@ -49,6 +53,8 @@ public sealed class DRK_Default : DarkKnightRotation
     [RotationConfig(CombatType.PvE, Name = "Keep at least 3000 MP")]
     public bool TheBlackestNight { get; set; } = true;
 
+    // Countdown logic to prepare for combat.
+    // Includes logic for using Provoke, tank stances, and burst medicines.
     protected override IAction? CountDownAction(float remainTime)
     {
         //Provoke when has Shield.
@@ -68,7 +74,8 @@ public sealed class DRK_Default : DarkKnightRotation
         if (remainTime <= 4 && BloodWeaponPvE.CanUse(out act)) return act;
         return base.CountDownAction(remainTime);
     }
-
+    
+    // Decision-making for emergency abilities, focusing on Blood Weapon usage.
     protected override bool EmergencyAbility(IAction nextGCD, out IAction? act)
     {
         if (base.EmergencyAbility(nextGCD, out act)) return true;
@@ -93,7 +100,8 @@ public sealed class DRK_Default : DarkKnightRotation
 
         return base.EmergencyAbility(nextGCD, out act);
     }
-
+    
+    // Determines healing actions based on The Blackest Night ability.
     [RotationDesc(ActionID.TheBlackestNightPvE)]
     protected override bool HealSingleAbility(out IAction? act)
     {
@@ -173,6 +181,7 @@ public sealed class DRK_Default : DarkKnightRotation
             if (DeliriumPvE.Cooldown.ElapsedAfterGCD(1) && !DeliriumPvE.Cooldown.ElapsedAfterGCD(3) 
                 && BloodWeaponPvE.CanUse(out act)) return true;
             if (LivingShadowPvE.CanUse(out act, skipAoeCheck: true)) return true;
+            if (BloodspillerPvE.CanUse(out act, usedUp: true)) return true;
         }
 
         if (CombatLess)
