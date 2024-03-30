@@ -41,6 +41,8 @@ public sealed class DRK_Default : DarkKnightRotation
     {
         get
         {
+            // Always use Bloodspiller/Quietus if Delirium is active to not waste stacks
+            if (Player.HasStatus(true, StatusID.Delirium) && DeliriumStacks > 0) return true;
             // Conditions based on player statuses and ability cooldowns.
             if (!DeliriumPvE.EnoughLevel) return true;
             if (Player.HasStatus(true, StatusID.Delirium) && LivingShadowPvE.Cooldown.IsCoolingDown) return true;
