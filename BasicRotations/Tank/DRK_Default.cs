@@ -41,13 +41,23 @@ public sealed class DRK_Default : DarkKnightRotation
     {
         get
         {
-            // Always use Bloodspiller/Quietus if Delirium is active to not waste stacks
-            if (Player.HasStatus(true, StatusID.Delirium) && DeliriumStacks > 0) return true;
-            // Conditions based on player statuses and ability cooldowns.
+            // Always prioritize Bloodspiller/Quietus during Delirium's active window.
+            // Assuming Delirium provides a significant enough window to utilize its benefits fully.
+            if (Player.HasStatus(true, StatusID.Delirium))
+            {
+                // Delirium is active, prioritize using Bloodspiller/Quietus.
+                return true;
+            }
+    
+            // Additional logic for when Delirium is not active or not applicable.
+            // This includes checking if the Delirium cooldown is almost ready and Blood is nearing cap.
+            if (Blood >= 90) return true;
+    
+            // Your existing conditions can remain as fallback logic when Delirium isn't a factor.
             if (!DeliriumPvE.EnoughLevel) return true;
-            if (Player.HasStatus(true, StatusID.Delirium) && LivingShadowPvE.Cooldown.IsCoolingDown) return true;
-            if ((DeliriumPvE.Cooldown.WillHaveOneChargeGCD(1) && !LivingShadowPvE.Cooldown.WillHaveOneChargeGCD(3)) || Blood >= 90 && !LivingShadowPvE.Cooldown.WillHaveOneChargeGCD(1)) return true;
-
+            if (LivingShadowPvE.Cooldown.IsCoolingDown) return true;
+            if (DeliriumPvE.Cooldown.WillHaveOneChargeGCD(3) && !LivingShadowPvE.Cooldown.WillHaveOneChargeGCD(3)) return true;
+    
             return false;
         }
     }
@@ -145,11 +155,17 @@ public sealed class DRK_Default : DarkKnightRotation
 
     protected override bool GeneralGCD(out IAction? act)
     {
-        //Use Blood
+        // Prioritize Bloodspiller/Quietus if conditions meet
         if (UseBlood)
         {
-            if (QuietusPvE.CanUse(out act)) return true;
-            if (BloodspillerPvE.CanUse(out act)) return true;
+            if (NumberOfHostilesInRange >= 3 && QuietusPvE.CanUse(out act))
+            {
+                return true; // Use Quietus for AoE
+            }
+            else if (BloodspillerPvE.CanUse(out act))
+            {
+                return true; // Use Bloodspiller for single-target
+            }
         }
 
         //AOE
