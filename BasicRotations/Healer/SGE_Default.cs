@@ -62,8 +62,8 @@ public sealed class SGE_Default : SageRotation
         if (EukrasianDiagnosisPvE.CanUse(out act))
         {
             if (EukrasianDiagnosisPvE.Target.Target?.HasStatus(false,
-                StatusID.EukrasianDiagnosis_2865,
-                StatusID.EukrasianPrognosis_2866,
+                StatusID.EukrasianDiagnosis,
+                StatusID.EukrasianPrognosis,
                 StatusID.Galvanize
             ) ?? false) return false;
 
@@ -97,8 +97,8 @@ public sealed class SGE_Default : SageRotation
         if (EukrasianPrognosisPvE.CanUse(out act))
         {
             if (EukrasianDiagnosisPvE.Target.Target?.HasStatus(false,
-                StatusID.EukrasianDiagnosis_2865,
-                StatusID.EukrasianPrognosis_2866,
+                StatusID.EukrasianDiagnosis,
+                StatusID.EukrasianPrognosis,
                 StatusID.Galvanize
             ) ?? false) return false;
 
