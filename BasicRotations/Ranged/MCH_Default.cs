@@ -12,7 +12,7 @@ public sealed class MCH_Default : MachinistRotation
             else if (!AirAnchorPvE.EnoughLevel && HotShotPvE.CanUse(out act1)) return act1;
         }
         if (remainTime < 2 && UseBurstMedicine(out var act)) return act;
-        if (remainTime < 5 && ReassemblePvE.CanUse(out act, usedUp: true)) return act;
+        if (remainTime < 5 && ReassemblePvE.CanUse(out act)) return act;
         return base.CountDownAction(remainTime);
     }
 
@@ -54,7 +54,7 @@ public sealed class MCH_Default : MachinistRotation
     {
         if (MCH_Reassemble && ChainSawPvE.EnoughLevel && nextGCD.IsTheSameTo(true, ChainSawPvE))
         {
-            if (ReassemblePvE.CanUse(out act, usedUp: true)) return true;
+            if (ReassemblePvE.CanUse(out act)) return true;
         }
         if (RicochetPvE.CanUse(out act, skipAoeCheck: true)) return true;
         if (GaussRoundPvE.CanUse(out act, skipAoeCheck: true)) return true;
@@ -62,7 +62,7 @@ public sealed class MCH_Default : MachinistRotation
         if (!DrillPvE.EnoughLevel && nextGCD.IsTheSameTo(true, CleanShotPvE)
             || nextGCD.IsTheSameTo(false, AirAnchorPvE, ChainSawPvE, DrillPvE))
         {
-            if (ReassemblePvE.CanUse(out act, usedUp: true)) return true;
+            if (ReassemblePvE.CanUse(out act)) return true;
         }
         return base.EmergencyAbility(nextGCD, out act);
     }
@@ -85,9 +85,9 @@ public sealed class MCH_Default : MachinistRotation
 
         if (GaussRoundPvE.Cooldown.CurrentCharges <= RicochetPvE.Cooldown.CurrentCharges)
         {
-            if (RicochetPvE.CanUse(out act, usedUp: true, skipAoeCheck: true)) return true;
+            if (RicochetPvE.CanUse(out act, skipAoeCheck: true)) return true;
         }
-        if (GaussRoundPvE.CanUse(out act, usedUp: true, skipAoeCheck: true)) return true;
+        if (GaussRoundPvE.CanUse(out act, skipAoeCheck: true)) return true;
 
         return base.AttackAbility(out act);
     }
