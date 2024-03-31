@@ -38,6 +38,8 @@ public sealed class DNC_Default : DancerRotation
 
         if (IsDancing) return false;
 
+        if (FlourishPvE.CanUse(out act, skipClippingCheck: true)) return true;
+
         if (DevilmentPvE.CanUse(out act, skipClippingCheck: true, skipComboCheck: true))
         {
             if (IsBurst && !TechnicalStepPvE.EnoughLevel) return true;
@@ -45,17 +47,7 @@ public sealed class DNC_Default : DancerRotation
             if (Player.HasStatus(true, StatusID.TechnicalFinish)) return true;
         }
 
-        if (FlourishPvE.CanUse(out act, skipClippingCheck: true)) return true;
-
         if (UseClosedPosition(out act)) return true;
-
-
-        if (!CanExecuteBasedOnStatus())
-        {
-            return false; // Early return if the condition is not met
-        }
-
-        if (FanDanceIiiPvE.CanUse(out act, skipAoeCheck: true, skipClippingCheck: true)) return true;
 
         if (Player.HasStatus(true, StatusID.Devilment) || Feathers > 3 || !TechnicalStepPvE.EnoughLevel)
         {
@@ -63,6 +55,13 @@ public sealed class DNC_Default : DancerRotation
 
             if (FanDanceIiPvE.CanUse(out act, skipClippingCheck: true)) return true;
         }
+
+        if (!CanExecuteBasedOnStatus())
+        {
+            return false; // Early return if the condition is not met
+        }
+
+        if (FanDanceIiiPvE.CanUse(out act, skipAoeCheck: true, skipClippingCheck: true)) return true;
 
         if (FanDanceIvPvE.CanUse(out act, skipAoeCheck: true, skipClippingCheck: true))
         {
