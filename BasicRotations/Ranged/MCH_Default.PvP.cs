@@ -5,7 +5,7 @@ namespace DefaultRotations.Ranged;
 public sealed class MCH_DefaultPvP : MachinistRotation
 {
 
-    //public static IBaseAction MarksmansSpitePvP { get; } = new BaseAction((ActionID)29415);
+    public static IBaseAction MarksmansSpitePvP { get; } = new BaseAction((ActionID)29415);
 
     [RotationConfig(CombatType.PvP, Name = "Use Limit Break (Note: RSR cannot predict the future, and this has a cast time.")]
     public bool LBInPvP { get; set; } = false;
@@ -98,17 +98,8 @@ public sealed class MCH_DefaultPvP : MachinistRotation
 
             if (!Player.HasStatus(true, StatusID.Overheated_3149) && HostileTarget.DistanceToPlayer() <= 12 &&
                 ScattergunPvP.CanUse(out act, skipAoeCheck: true)) return true;
-            
-            if (!Player.HasStatus(true, StatusID.Overheated_3149) && Player.HasStatus(true, StatusID.BioblasterPrimed) && HostileTarget.DistanceToPlayer() <= 12 &&
-                BioblasterPvP.CanUse(out act, usedUp: true, skipAoeCheck: true)) return true;
 
-            if (!Player.HasStatus(true, StatusID.Overheated_3149) && Player.HasStatus(true, StatusID.AirAnchorPrimed) && 
-                AirAnchorPvP.CanUse(out act, usedUp: true, skipAoeCheck: true)) return true;
-
-            if (!Player.HasStatus(true, StatusID.Overheated_3149) && Player.HasStatus(true,StatusID.ChainSawPrimed) &&  
-                ChainSawPvP.CanUse(out act, usedUp: true, skipAoeCheck: true)) return true;
         }
-        if (!Player.HasStatus(true, StatusID.Overheated_3149) && Player.HasStatus(true, StatusID.DrillPrimed) && DrillPvP.CanUse(out act, usedUp: true, skipAoeCheck: true)) return true;
         if (!Player.HasStatus(true, StatusID.Overheated_3149) && BlastChargePvP.CanUse(out act, usedUp: true, skipAoeCheck: true)) return true;
         if (Player.HasStatus(true, StatusID.Overheated_3149) &&
             HeatBlastPvP.CanUse(out act)) return true;
@@ -141,6 +132,14 @@ public sealed class MCH_DefaultPvP : MachinistRotation
         if (InCombat &&
             (BioblasterPvP.CanUse(out act) || AirAnchorPvP.CanUse(out act) || ChainSawPvP.CanUse(out act)) &&
             AnalysisPvP.CanUse(out act)) return true;
+
+        if (Player.HasStatus(true, StatusID.Analysis)
+        { 
+            if (DrillPvP.CanUse(out act, skipAoeCheck: true) || BioblasterPvP.CanUse(out act) && HostileTarget.DistanceToPlayer() <= 12 || AirAnchorPvP.CanUse(out act, skipAoeCheck: true))
+            {
+                return true;
+            }
+        }
 
         #endregion
         return base.AttackAbility(out act);
