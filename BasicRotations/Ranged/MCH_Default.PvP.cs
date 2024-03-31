@@ -80,43 +80,36 @@ public sealed class MCH_DefaultPvP : MachinistRotation
 
     protected override bool GeneralGCD(out IAction? act)
     {
-        #region PvP
         act = null;
+
+        // Early exits for Guard status or Sprint usage
         if (GuardCancel && Player.HasStatus(true, StatusID.Guard)) return false;
+        if (!Player.HasStatus(true, StatusID.Guard) && UseSprintPvP && !Player.HasStatus(true, StatusID.Sprint) && !InCombat && SprintPvP.CanUse(out act)) return true;
 
-        if (Player.HasStatus(true, StatusID.Overheated_3149) &&
-            HeatBlastPvP.CanUse(out act)) return true;
-
-        if (!Player.HasStatus(true, StatusID.Overheated_3149) && !Target.HasStatus(true, StatusID.Guard))
-        {
-            act = null;
-            if (Player.HasStatus(true, StatusID.Overheated_3149)) return false;
-
-
-            if (LimitBreakLevel >= 1 && LBInPvP && Target.GetHealthRatio()*100 <= MSValue &&
-                MarksmansSpitePvP.CanUse(out act, usedUp: true, skipAoeCheck: true)) return true;
-
-            if (!Player.HasStatus(true, StatusID.Overheated_3149) && HostileTarget.DistanceToPlayer() <= 12 &&
-                ScattergunPvP.CanUse(out act, skipAoeCheck: true)) return true;
-
-        }
+        if (LBInPvP && LimitBreakLevel >= 1 && Target.GetHealthRatio() * 100 <= MSValue && MarksmansSpitePvP.CanUse(out act, usedUp: true, skipAoeCheck: true)) return true;
         if (!Player.HasStatus(true, StatusID.Overheated_3149) && BlastChargePvP.CanUse(out act, usedUp: true, skipAoeCheck: true)) return true;
-        if (Player.HasStatus(true, StatusID.Overheated_3149) && HeatBlastPvP.CanUse(out act)) return true;
-
-        if (!Player.HasStatus(true, StatusID.Guard) && UseSprintPvP && !Player.HasStatus(true, StatusID.Sprint) &&
-            SprintPvP.CanUse(out act)) return true;
-
-        if (Player.HasStatus(true, StatusID.Analysis))
+        // Specific action sequences based on Overheated status or other specific conditions
+        if (Player.HasStatus(true, StatusID.Overheated_3149))
         {
-            if (DrillPvP.CanUse(out act, skipAoeCheck: true) || BioblasterPvP.CanUse(out act) && HostileTarget.DistanceToPlayer() <= 12 || AirAnchorPvP.CanUse(out act, skipAoeCheck: true))
+            if (HeatBlastPvP.CanUse(out act)) return true;
+        }
+        else
+        {
+            if (!HostileTarget.HasStatus(true, StatusID.Guard))
             {
-                return true;
+                if (HostileTarget.DistanceToPlayer() <= 12 && ScattergunPvP.CanUse(out act, skipAoeCheck: true)) return true;
+            }
+
+            // Priority to Drill, Bioblaster, AirAnchor if Analysis is active
+            if (Player.HasStatus(true, StatusID.Analysis))
+            {
+                if (DrillPvP.CanUse(out act, skipAoeCheck: true) || (BioblasterPvP.CanUse(out act) && HostileTarget.DistanceToPlayer() <= 12) || AirAnchorPvP.CanUse(out act, skipAoeCheck: true)) return true;
             }
         }
-        #endregion
 
         return base.GeneralGCD(out act);
     }
+
 
     protected override bool EmergencyAbility(IAction nextGCD, out IAction? act)
     {
@@ -131,6 +124,7 @@ public sealed class MCH_DefaultPvP : MachinistRotation
     {
         #region PvP
         act = null;
+        if (GuardCancel && Player.HasStatus(true, StatusID.Guard)) return false;
 
         // Use WildfirePvP if Overheated
         if (Player.HasStatus(true, StatusID.Overheated_3149) && WildfirePvP.CanUse(out act, skipAoeCheck: true, skipComboCheck: true, skipClippingCheck: true)) return true;
