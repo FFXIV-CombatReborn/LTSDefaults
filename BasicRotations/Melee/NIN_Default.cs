@@ -4,24 +4,34 @@ namespace DefaultRotations.Melee;
 [SourceCode(Path = "main/DefaultRotations/Melee/NIN_Default.cs")]
 public sealed class NIN_Default : NinjaRotation
 {
-    private IBaseAction? _ninActionAim = null;
-    private bool InTrickAttack => TrickAttackPvE.Cooldown.IsCoolingDown && !TrickAttackPvE.Cooldown.ElapsedAfter(17);
-    private bool InMug => MugPvE.Cooldown.IsCoolingDown && !MugPvE.Cooldown.ElapsedAfter(19);
-    private static bool NoNinjutsu => AdjustId(ActionID.NinjutsuPvE) is ActionID.NinjutsuPvE or ActionID.RabbitMediumPvE;
+    private IBaseAction? _ninActionAim = null; // Holds the next ninjutsu action to perform.
 
+    // Determines if Trick Attack is in its effective period.
+    private bool InTrickAttack => TrickAttackPvE.Cooldown.IsCoolingDown && !TrickAttackPvE.Cooldown.ElapsedAfter(17);
+    
+     // Determines if Mug is in its effective period.
+    private bool InMug => MugPvE.Cooldown.IsCoolingDown && !MugPvE.Cooldown.ElapsedAfter(19);
+    
+    // Checks if no ninjutsu action is currently selected or if the Rabbit Medium has been invoked.
+    private static bool NoNinjutsu => AdjustId(ActionID.NinjutsuPvE) is ActionID.NinjutsuPvE or ActionID.RabbitMediumPvE;
+    
+    // Configuration properties for rotation behavior.
     [RotationConfig(CombatType.PvE, Name = "Use Hide")]
     public bool UseHide { get; set; } = true;
-
     [RotationConfig(CombatType.PvE, Name = "Use Unhide")]
     public bool AutoUnhide { get; set; } = true;
 
+    // Logic to determine the action to take during the countdown phase before combat starts.
+    #region CountDown
     protected override IAction? CountDownAction(float remainTime)
     {
+        
+        // Clears ninjutsu setup if countdown is more than 10 seconds or if Huton is the aim but shouldn't be.
         if (remainTime > 10) ClearNinjutsu();
-
         var realInHuton = !HutonEndAfterGCD() || IsLastAction(false, HutonPvE);
         if (realInHuton && _ninActionAim == HutonPvE) ClearNinjutsu();
-
+        
+        // Decision-making for ninjutsu actions based on remaining time until combat starts.
         if (DoNinjutsu(out var act))
         {
             if (act == SuitonPvE && remainTime > CountDownAhead) return null;
@@ -34,6 +44,7 @@ public sealed class NIN_Default : NinjaRotation
         }
         else if (remainTime < 10)
         {
+            // If within 10 seconds to start, consider using Hide or setting up Huton.
             if (_ninActionAim == null && TenPvE.Cooldown.IsCoolingDown && HidePvE.CanUse(out act)) return act;
             if (!realInHuton)
             {
@@ -42,10 +53,16 @@ public sealed class NIN_Default : NinjaRotation
         }
         return base.CountDownAction(remainTime);
     }
-
-    #region Ninjutsu
+    #endregion
+    
+    #region Ninjutsu Management
+    // Sets the target ninjutsu action to be performed next.
+    // If the action is null, or currently set to Rabbit Medium (indicating a failed Ninjutsu attempt), it exits early.
+    // If the current action aim is not null and the last action matches certain conditions, it exits early.
+    // Finally, updates the current ninjutsu action aim if it's different from the incoming action.
     private void SetNinjutsu(IBaseAction act)
     {
+        
         if (act == null || AdjustId(ActionID.NinjutsuPvE) == ActionID.RabbitMediumPvE) return;
 
         if (_ninActionAim != null && IsLastAction(false, TenPvE, JinPvE, ChiPvE, FumaShurikenPvE_18873, FumaShurikenPvE_18874, FumaShurikenPvE_18875)) return;
@@ -55,7 +72,8 @@ public sealed class NIN_Default : NinjaRotation
             _ninActionAim = act;
         }
     }
-
+    
+    // Clears the ninjutsu action aim, effectively resetting any planned ninjutsu action.
     private void ClearNinjutsu()
     {
         if (_ninActionAim != null)
@@ -63,17 +81,23 @@ public sealed class NIN_Default : NinjaRotation
             _ninActionAim = null;
         }
     }
-
+    
+    // Logic for choosing which ninjutsu action to set up next, based on various game state conditions.
     private bool ChoiceNinjutsu(out IAction? act)
     {
         act = null;
+        // Ensures that the action ID currently considered for Ninjutsu is actually valid for Ninjutsu execution.
         if (AdjustId(ActionID.NinjutsuPvE) != ActionID.NinjutsuPvE) return false;
+        // If more than 4.5 seconds have passed since the last action, it clears any pending Ninjutsu to avoid stale actions.
         if (TimeSinceLastAction.TotalSeconds > 4.5) ClearNinjutsu();
-        if (_ninActionAim != null && WeaponRemain < 0.2) return false;
+        // Prevents choosing a new Ninjutsu if the timing is too tight.
+        if (_ninActionAim != null && WeaponRemain < 0.1) return false;
 
-        //Kassatsu
+        // Checks for Kassatsu status to prioritize high-impact Ninjutsu due to its buff.
         if (Player.HasStatus(true, StatusID.Kassatsu))
         {
+            // Attempts to set high-damage AoE Ninjutsu if available under Kassatsu's effect.
+            // These are prioritized due to Kassatsu's enhancement of Ninjutsu abilities.
             if (GokaMekkyakuPvE.CanUse(out _))
             {
                 SetNinjutsu(GokaMekkyakuPvE);
@@ -99,13 +123,17 @@ public sealed class NIN_Default : NinjaRotation
         }
         else
         {
+            // If Suiton is active but no specific Ninjutsu is currently aimed, it clears the Ninjutsu aim.
+            // This check is relevant for managing Suiton's effect, particularly for enabling Trick Attack.
             if (Player.HasStatus(true, StatusID.Suiton)
                 && _ninActionAim == SuitonPvE && NoNinjutsu)
             {
                 ClearNinjutsu();
             }
 
-            //Buff
+            // Chooses buffs or AoE actions based on combat conditions and cooldowns.
+            // For instance, setting Huton for speed buff or choosing AoE Ninjutsu like Katon or Doton based on enemy positioning.
+            // Also considers using Suiton for vulnerability debuff on the enemy if conditions are optimal.
             if (HuraijinPvE.CanUse(out act)) return true;
             if (!HutonEndAfterGCD() && _ninActionAim?.ID == HutonPvE.ID)
             {
@@ -154,15 +182,18 @@ public sealed class NIN_Default : NinjaRotation
             }
         }
 
+        // If the last action performed matches any of a list of specific actions, it clears the Ninjutsu aim.
+        // This serves as a reset/cleanup mechanism to ensure the decision logic starts fresh for the next cycle.
         if (IsLastAction(false, DotonPvE, SuitonPvE,
             RabbitMediumPvE, FumaShurikenPvE, KatonPvE, RaitonPvE,
             HyotonPvE, HutonPvE, DotonPvE, SuitonPvE, GokaMekkyakuPvE, HyoshoRanryuPvE))
         {
             ClearNinjutsu();
         }
-        return false;
+        return false; // Indicates that no specific Ninjutsu action was chosen in this cycle.
     }
-
+    
+    // Attempts to perform a ninjutsu action, based on the current game state and conditions.
     private bool DoNinjutsu(out IAction? act)
     {
         act = null;
@@ -268,6 +299,9 @@ public sealed class NIN_Default : NinjaRotation
     }
     #endregion
 
+
+    // Main method for determining the general action to take during the combat's global cooldown phase.
+    #region GeneralGCD
     protected override bool GeneralGCD(out IAction? act)
     {
         var hasRaijuReady = Player.HasStatus(true, StatusID.RaijuReady);
@@ -311,64 +345,109 @@ public sealed class NIN_Default : NinjaRotation
 
         return base.GeneralGCD(out act);
     }
-
+    #endregion
+    
+    // Defines logic for actions to take when moving forward during combat.
+    #region MoveForwardGCD
+    // This attribute associates the method with the Forked Raiju PvE action, 
+    // indicating it's a relevant ability when considering movement-based actions.
     [RotationDesc(ActionID.ForkedRaijuPvE)]
     protected override bool MoveForwardGCD(out IAction? act)
     {
+        // Initializes the action to null, indicating no action has been chosen yet.
+        act = null;
+    
+        // Checks if Forked Raiju, a movement-friendly ability, can be used. 
+        // If so, sets it as the action to perform, returning true to indicate an action has been selected.
         if (ForkedRaijuPvE.CanUse(out act)) return true;
+    
+        // If Forked Raiju is not available or not the best option, 
+        // falls back to the base class's logic for choosing a move-forward action.
         return base.MoveForwardGCD(out act);
     }
+    #endregion
 
+
+    #region EmergencyAbility
+    // Determines the emergency abilities to use, overriding the base class implementation.
     protected override bool EmergencyAbility(IAction nextGCD, out IAction? act)
     {
+        // Initializes the action to null, indicating no action has been chosen yet.
+        act = null;
+    
+        // If Ninjutsu is available or not in combat, defers to the base class's emergency ability logic.
         if (!NoNinjutsu || !InCombat) return base.EmergencyAbility(nextGCD, out act);
-
+    
+        // First priority is given to Kassatsu if it's available, allowing for an immediate powerful Ninjutsu.
         if (KassatsuPvE.CanUse(out act)) return true;
+    
+        // Next, checks if a burst medicine is available and appropriate to use.
         if (UseBurstMedicine(out act)) return true;
-
+    
+        // If in a burst phase and not just starting combat, checks if Mug is available to generate additional Ninki.
         if (IsBurst && !CombatElapsedLess(5) && MugPvE.CanUse(out act)) return true;
-
-        //Use Suiton
+    
+        // Prioritizes using Suiton and Trick Attack for maximizing damage, especially outside the initial combat phase.
         if (!CombatElapsedLess(6))
         {
+            // Attempts to use Trick Attack if it's available.
             if (TrickAttackPvE.CanUse(out act)) return true;
-            if (TrickAttackPvE.Cooldown.IsCoolingDown && !TrickAttackPvE.Cooldown.WillHaveOneCharge(19)
-                && MeisuiPvE.CanUse(out act)) return true;
+    
+            // If Trick Attack is on cooldown but will not be ready soon, considers using Meisui to recover Ninki.
+            if (TrickAttackPvE.Cooldown.IsCoolingDown && !TrickAttackPvE.Cooldown.WillHaveOneCharge(19) && MeisuiPvE.CanUse(out act)) return true;
         }
-
+    
+        // If none of the specific conditions are met, falls back to the base class's emergency ability logic.
         return base.EmergencyAbility(nextGCD, out act);
     }
-
+    #endregion
+    
+    // Defines attack abilities to use during combat, overriding the base class implementation.
+    #region AttackAbility
     protected override bool AttackAbility(out IAction? act)
     {
         act = null;
+        // If Ninjutsu is available or not in combat, it exits early, indicating no attack action to perform.
         if (!NoNinjutsu || !InCombat) return false;
-
+        
+        // If the player is not moving, is within Trick Attack's effective window, and Ten Chi Jin hasn't recently been used,
+        // then Ten Chi Jin is set as the next action to perform.
         if (!IsMoving && InTrickAttack && !TenPvE.Cooldown.ElapsedAfter(30) && TenChiJinPvE.CanUse(out act)) return true;
-
+        
+        // If more than 5 seconds have passed in combat, checks if Bunshin is available to use.
         if (!CombatElapsedLess(5) && BunshinPvE.CanUse(out act)) return true;
-
+        
+        // Special handling if within Trick Attack's effective window:
         if (InTrickAttack)
         {
+            // If Dream Within A Dream is not yet available, checks if Assassinate can be used.
             if (!DreamWithinADreamPvE.EnoughLevel)
             {
                 if (AssassinatePvE.CanUse(out act)) return true;
             }
             else
             {
+                // If Dream Within A Dream is available, it's set as the next action.
                 if (DreamWithinADreamPvE.CanUse(out act)) return true;
             }
         }
-
+        
+        // Checks for the use of Hellfrog Medium or Bhavacakra under certain conditions:
+        // - Not in the Mug's effective window or within Trick Attack's window
+        // - Certain cooldown conditions are met, or specific statuses are active.
         if ((!InMug || InTrickAttack)
             && (!BunshinPvE.Cooldown.WillHaveOneCharge(10) || Player.HasStatus(false, StatusID.PhantomKamaitachiReady) || MugPvE.Cooldown.WillHaveOneCharge(2)))
         {
             if (HellfrogMediumPvE.CanUse(out act)) return true;
             if (BhavacakraPvE.CanUse(out act)) return true;
         }
+        
+        // If none of the conditions are met, it falls back to the base class's implementation for attack ability.
         return base.AttackAbility(out act);
     }
+    #endregion
 
+    // Displays the current status of the rotation, including the aimed ninjutsu action, if any.
     public override void DisplayStatus()
     {
         if(_ninActionAim != null)
