@@ -4,6 +4,11 @@ namespace DefaultRotations.Ranged;
 [SourceCode(Path = "main/DefaultRotations/Ranged/DNC_Default.cs")]
 public sealed class DNC_Default : DancerRotation
 {
+    // Condition to force Devilment and Technical step execution together
+    private bool CanExecuteBasedOnStatus()
+    {
+        return (Player.HasStatus(true, StatusID.Devilment) && Player.HasStatus(true, StatusID.TechnicalFinish)) || (Player.HasStatus(false, StatusID.Devilment) && Player.HasStatus(false, StatusID.TechnicalFinish));
+    }
     protected override IAction? CountDownAction(float remainTime)
     {
         if (remainTime <= 15)
@@ -30,6 +35,7 @@ public sealed class DNC_Default : DancerRotation
     protected override bool AttackAbility(out IAction? act)
     {
         act = null;
+
         if (IsDancing) return false;
 
         if (DevilmentPvE.CanUse(out act, skipClippingCheck: true, skipComboCheck: true))
@@ -39,18 +45,26 @@ public sealed class DNC_Default : DancerRotation
             if (Player.HasStatus(true, StatusID.TechnicalFinish)) return true;
         }
 
+        if (FlourishPvE.CanUse(out act, skipClippingCheck: true)) return true;
+
         if (UseClosedPosition(out act)) return true;
 
-        if (FlourishPvE.CanUse(out act)) return true;
-        if (FanDanceIiiPvE.CanUse(out act, skipAoeCheck: true)) return true;
+
+        if (!CanExecuteBasedOnStatus())
+        {
+            return false; // Early return if the condition is not met
+        }
+
+        if (FanDanceIiiPvE.CanUse(out act, skipAoeCheck: true, skipClippingCheck: true)) return true;
 
         if (Player.HasStatus(true, StatusID.Devilment) || Feathers > 3 || !TechnicalStepPvE.EnoughLevel)
         {
-            if (FanDanceIiPvE.CanUse(out act, skipClippingCheck: true)) return true;
             if (FanDancePvE.CanUse(out act, skipAoeCheck: true, skipClippingCheck: true)) return true;
+
+            if (FanDanceIiPvE.CanUse(out act, skipClippingCheck: true)) return true;
         }
 
-        if (FanDanceIvPvE.CanUse(out act, skipAoeCheck: true))
+        if (FanDanceIvPvE.CanUse(out act, skipAoeCheck: true, skipClippingCheck: true))
         {
             if (TechnicalStepPvE.EnoughLevel && TechnicalStepPvE.Cooldown.IsCoolingDown && TechnicalStepPvE.Cooldown.WillHaveOneChargeGCD()) return false;
             return true;
