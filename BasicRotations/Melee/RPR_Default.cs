@@ -10,7 +10,7 @@ public sealed class RPR_Default : ReaperRotation
     protected override IAction? CountDownAction(float remainTime)
     {
         if (remainTime < HarpePvE.Info.CastTime + CountDownAhead
-            && HarpePvE.CanUse(out var act)) return act;
+            && HarpePvE.CanUse(out var act), ) return act;
 
         if (SoulsowPvE.CanUse(out act)) return act;
 
@@ -74,14 +74,14 @@ public sealed class RPR_Default : ReaperRotation
 
         if (HasSoulReaver)
         {
-            if (GuillotinePvE.CanUse(out act)) return true;
+            if (GuillotinePvE.CanUse(out act), skipClippingCheck: true) return true;
             if (Player.HasStatus(true, StatusID.EnhancedGibbet))
             {
-                if (GibbetPvE.CanUse(out act)) return true;
+                if (GibbetPvE.CanUse(out act), skipClippingCheck: true, skipComboCheck: true) return true;
             }
             else
             {
-                if (GallowsPvE.CanUse(out act)) return true;
+                if (GallowsPvE.CanUse(out act), skipClippingCheck: true, skipComboCheck: true) return true;
             }
         }
 
@@ -97,7 +97,7 @@ public sealed class RPR_Default : ReaperRotation
         if (WaxingSlicePvE.CanUse(out act)) return true;
         if (SlicePvE.CanUse(out act)) return true;
 
-        if (InCombat && HarvestMoonPvE.CanUse(out act, skipAoeCheck: true)) return true;
+        if (InCombat && !HasSoulReaver && HarvestMoonPvE.CanUse(out act, skipAoeCheck: true)) return true;
         if (HarpePvE.CanUse(out act)) return true;
 
         return base.GeneralGCD(out act);
