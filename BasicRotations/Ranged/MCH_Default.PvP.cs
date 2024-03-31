@@ -130,9 +130,9 @@ public sealed class MCH_DefaultPvP : MachinistRotation
         if (Player.HasStatus(true, StatusID.Overheated_3149) && WildfirePvP.CanUse(out act, skipAoeCheck: true, skipComboCheck: true, skipClippingCheck: true)) return true;
 
         // Check if BioblasterPvP, AirAnchorPvP, or ChainSawPvP can be used
-        if (InCombat &&
+        if (InCombat && !Player.HasStatus(true,StatusID.Analysis) &&
             (BioblasterPvP.CanUse(out act) && HostileTarget.DistanceToPlayer() <= 12 || AirAnchorPvP.CanUse(out act) || ChainSawPvP.CanUse(out act)) &&
-            AnalysisPvP.CanUse(out act)) return true;
+            AnalysisPvP.CanUse(out act, usedUp: true)) return true;
 
         #endregion
         return base.AttackAbility(out act);
