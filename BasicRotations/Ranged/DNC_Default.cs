@@ -32,7 +32,7 @@ public sealed class DNC_Default : DancerRotation
         act = null;
         if (IsDancing) return false;
 
-        if (DevilmentPvE.CanUse(out act))
+        if (DevilmentPvE.CanUse(out act, skipClippingCheck: true, skipComboCheck: true))
         {
             if (IsBurst && !TechnicalStepPvE.EnoughLevel) return true;
 
@@ -82,7 +82,10 @@ public sealed class DNC_Default : DancerRotation
 
         if (StarfallDancePvE.CanUse(out act, skipAoeCheck: true)) return true;
 
-        if (TillanaPvE.CanUse(out act, skipAoeCheck: true)) return true;
+        if (!DevilmentPvE.CanUse(out act, skipClippingCheck: true, skipComboCheck: true))
+        {
+            if (TillanaPvE.CanUse(out act, skipAoeCheck: true)) return true;
+        }
 
         if (UseStandardStep(out act)) return true;
 
