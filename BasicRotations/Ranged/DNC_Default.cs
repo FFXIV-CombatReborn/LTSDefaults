@@ -38,9 +38,9 @@ public sealed class DNC_Default : DancerRotation
 
         if (IsDancing) return false;
 
-        if (FlourishPvE.CanUse(out act, skipClippingCheck: true)) return true;
+        if (FlourishPvE.CanUse(out act) return true;
 
-        if (DevilmentPvE.CanUse(out act, skipClippingCheck: true, skipComboCheck: true))
+        if (DevilmentPvE.CanUse(out act, skipComboCheck: true))
         {
             if (IsBurst && !TechnicalStepPvE.EnoughLevel) return true;
 
@@ -51,9 +51,9 @@ public sealed class DNC_Default : DancerRotation
 
         if (Player.HasStatus(true, StatusID.Devilment) || Feathers > 3 || !TechnicalStepPvE.EnoughLevel)
         {
-            if (FanDancePvE.CanUse(out act, skipAoeCheck: true, skipClippingCheck: true)) return true;
+            if (FanDancePvE.CanUse(out act, skipAoeCheck: true) return true;
 
-            if (FanDanceIiPvE.CanUse(out act, skipClippingCheck: true)) return true;
+            if (FanDanceIiPvE.CanUse(out act) return true;
         }
 
         if (!CanExecuteBasedOnStatus())
@@ -61,9 +61,9 @@ public sealed class DNC_Default : DancerRotation
             return false; // Early return if the condition is not met
         }
 
-        if (FanDanceIiiPvE.CanUse(out act, skipAoeCheck: true, skipClippingCheck: true)) return true;
+        if (FanDanceIiiPvE.CanUse(out act, skipAoeCheck: true) return true;
 
-        if (FanDanceIvPvE.CanUse(out act, skipAoeCheck: true, skipClippingCheck: true))
+        if (FanDanceIvPvE.CanUse(out act, skipAoeCheck: true)
         {
             if (TechnicalStepPvE.EnoughLevel && TechnicalStepPvE.Cooldown.IsCoolingDown && TechnicalStepPvE.Cooldown.WillHaveOneChargeGCD()) return false;
             return true;
@@ -95,7 +95,7 @@ public sealed class DNC_Default : DancerRotation
 
         if (StarfallDancePvE.CanUse(out act, skipAoeCheck: true)) return true;
 
-        if (!DevilmentPvE.CanUse(out act, skipClippingCheck: true, skipComboCheck: true))
+        if (!DevilmentPvE.CanUse(out act, skipComboCheck: true))
         {
             if (TillanaPvE.CanUse(out act, skipAoeCheck: true)) return true;
         }
