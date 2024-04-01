@@ -115,13 +115,14 @@ public sealed class DNC_Default : DancerRotation
 
         // Logic for using Saber Dance and Starfall Dance based on burst mode or Esprit levels
         if ((burst || Esprit >= 85) && SaberDancePvE.CanUse(out act, skipAoeCheck: true)) return true;
-        if (StarfallDancePvE.CanUse(out act, skipAoeCheck: true)) return true;
-        
+
         // Additional logic for using Tillana and Standard Step based on various checks
         if (!DevilmentPvE.CanUse(out act, skipComboCheck: true))
-        {
-            if (TillanaPvE.CanUse(out act, skipAoeCheck: true)) return true;
-        }
+            {
+                if (TillanaPvE.CanUse(out act, skipAoeCheck: true)) return true;
+            }
+
+        if (StarfallDancePvE.CanUse(out act, skipAoeCheck: true)) return true;
 
         if (UseStandardStep(out act)) return true;
 
@@ -147,7 +148,7 @@ public sealed class DNC_Default : DancerRotation
         
         // Check for hostiles in range and technical step conditions
         if (!HasHostilesInRange) return false;
-        if (TechnicalStepPvE.Cooldown.IsCoolingDown && TechnicalStepPvE.Cooldown.WillHaveOneCharge(5)) return false;
+        if (Player.HasStatus(true, StatusID.TechnicalFinish) && Player.WillStatusEndGCD(2, 0, true, StatusID.TechnicalFinish) || TechnicalStepPvE.Cooldown.IsCoolingDown && TechnicalStepPvE.Cooldown.WillHaveOneChargeGCD(2)) return false;
 
         return true;
     }
