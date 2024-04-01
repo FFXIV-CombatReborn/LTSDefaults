@@ -147,7 +147,7 @@ public sealed class DNC_Default : DancerRotation
         
         // Check for hostiles in range and technical step conditions
         if (!HasHostilesInRange) return false;
-        if (TechnicalStepPvE.EnoughLevel && (Player.HasStatus(true, StatusID.TechnicalFinish) || TechnicalStepPvE.Cooldown.IsCoolingDown && TechnicalStepPvE.Cooldown.WillHaveOneCharge(5))) return false;
+        if (TechnicalStepPvE.Cooldown.IsCoolingDown && TechnicalStepPvE.Cooldown.WillHaveOneCharge(5)) return false;
 
         return true;
     }
