@@ -1,13 +1,12 @@
+using RotationSolver.Basic.Data;
+
 namespace DefaultRotations.Ranged;
 
 [Rotation("LTS's Default", CombatType.PvE, GameVersion = "6.58")]
 [SourceCode(Path = "main/DefaultRotations/Ranged/MCH_Default.cs")]
 public sealed class MCH_Default : MachinistRotation
 {
-    // A configuration property to toggle the use of Reassemble with ChainSaw in the rotation.
-    [RotationConfig(CombatType.PvE, Name = "Use Reassamble with ChainSaw")]
-    public bool MCH_Reassemble { get; set; } = true;
-    
+  
     // Defines logic for actions to take during the countdown before combat starts.
     #region Countdown logic
     protected override IAction? CountDownAction(float remainTime)
@@ -83,21 +82,24 @@ public sealed class MCH_Default : MachinistRotation
     // Determines emergency actions to take based on the next planned GCD action.
     protected override bool EmergencyAbility(IAction nextGCD, out IAction? act)
     {
-        if (MCH_Reassemble && ChainSawPvE.EnoughLevel && nextGCD.IsTheSameTo(true, ChainSawPvE))
+        // Check next GCD action and conditions for Reassemble.
+        bool isReassembleUsable =
+            ReassemblePvE.Cooldown.CurrentCharges > 0 && !Player.HasStatus(true, StatusID.Reassembled) &&
+            ((ChainSawPvE.EnoughLevel && nextGCD.IsTheSameTo(true, ChainSawPvE)) ||
+            (AirAnchorPvE.EnoughLevel && nextGCD.IsTheSameTo(true, AirAnchorPvE)) ||
+            (DrillPvE.EnoughLevel && nextGCD.IsTheSameTo(true, DrillPvE)) ||
+            (!DrillPvE.EnoughLevel && nextGCD.IsTheSameTo(true, CleanShotPvE)));
+
+        // Attempt to use Reassemble if it's ready
+        if (isReassembleUsable)
         {
-            if (ReassemblePvE.CanUse(out act, skipComboCheck: true)) return true;
+            if (ReassemblePvE.CanUse(out act, onLastAbility: true, skipClippingCheck: true, skipComboCheck: true, usedUp:true)) return true; 
         }
-        
+
         // Attempts to use Ricochet and Gauss Round based on their conditions.
         if (RicochetPvE.CanUse(out act, skipClippingCheck: true, usedUp: true, skipAoeCheck: true)) return true;
         if (GaussRoundPvE.CanUse(out act, skipClippingCheck: true, usedUp: true, skipAoeCheck: true)) return true;
         
-        // Uses Reassemble for if Drill is not of sufficient level.
-        if (!DrillPvE.EnoughLevel && nextGCD.IsTheSameTo(true, CleanShotPvE)
-            || nextGCD.IsTheSameTo(false, AirAnchorPvE, ChainSawPvE, DrillPvE))
-        {
-            if (ReassemblePvE.CanUse(out act, skipComboCheck: true)) return true;
-        }
         return base.EmergencyAbility(nextGCD, out act);
     }
     #endregion
