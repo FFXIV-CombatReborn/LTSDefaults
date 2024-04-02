@@ -68,13 +68,6 @@ public sealed class MCH_Default : MachinistRotation
         
         // Skips further actions if the combat elapsed time is less than 8 seconds.
         if (CombatElapsedLess(8)) return false;
-        
-        // Prioritizes Ricochet and Gauss Round based on their current charges.
-        if (GaussRoundPvE.Cooldown.CurrentCharges <= RicochetPvE.Cooldown.CurrentCharges)
-        {
-            if (RicochetPvE.CanUse(out act, skipClippingCheck:true, skipAoeCheck: true, usedUp: true)) return true;
-        }
-        if (GaussRoundPvE.CanUse(out act, skipClippingCheck: true, skipAoeCheck: true, usedUp: true)) return true;
 
         return base.AttackAbility(out act);
     }
@@ -96,10 +89,13 @@ public sealed class MCH_Default : MachinistRotation
             if (ReassemblePvE.CanUse(out act, onLastAbility: true, skipClippingCheck: true, skipComboCheck: true, usedUp:true)) return true; 
         }
 
-        // Attempts to use Ricochet and Gauss Round based on their conditions.
-        if (RicochetPvE.CanUse(out act, skipClippingCheck: true, usedUp: true, skipAoeCheck: true)) return true;
-        if (GaussRoundPvE.CanUse(out act, skipClippingCheck: true, usedUp: true, skipAoeCheck: true)) return true;
-        
+        // Prioritizes Ricochet and Gauss Round based on their current charges.
+        if (GaussRoundPvE.Cooldown.CurrentCharges <= RicochetPvE.Cooldown.CurrentCharges)
+        {
+            if (RicochetPvE.CanUse(out act, skipClippingCheck: true, skipAoeCheck: true, usedUp: true)) return true;
+        }
+        if (GaussRoundPvE.CanUse(out act, skipClippingCheck: true, skipAoeCheck: true, usedUp: true)) return true;
+
         return base.EmergencyAbility(nextGCD, out act);
     }
     #endregion
