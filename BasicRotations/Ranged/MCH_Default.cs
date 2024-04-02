@@ -6,9 +6,8 @@ namespace DefaultRotations.Ranged;
 [SourceCode(Path = "main/DefaultRotations/Ranged/MCH_Default.cs")]
 public sealed class MCH_Default : MachinistRotation
 {
-  
-    // Defines logic for actions to take during the countdown before combat starts.
     #region Countdown logic
+    // Defines logic for actions to take during the countdown before combat starts.
     protected override IAction? CountDownAction(float remainTime)
     {
         if (remainTime < 2 && UseBurstMedicine(out var act)) return act;
@@ -16,8 +15,73 @@ public sealed class MCH_Default : MachinistRotation
     }
     #endregion
 
-    // Defines the general logic for determining which global cooldown (GCD) action to take.
+    #region Emergency Logic
+    // Determines emergency actions to take based on the next planned GCD action.
+    protected override bool EmergencyAbility(IAction nextGCD, out IAction? act)
+    {
+        // Reassemble Logic
+        // Check next GCD action and conditions for Reassemble.
+        bool isReassembleUsable =
+            //Reassemble current # of charges and double proc protection
+            ReassemblePvE.Cooldown.CurrentCharges > 0 && !Player.HasStatus(true, StatusID.Reassembled) &&
+            //Chainsaw Logic
+            ((ChainSawPvE.EnoughLevel && nextGCD.IsTheSameTo(true, ChainSawPvE)) ||
+            //AirAnchor Logic
+            (AirAnchorPvE.EnoughLevel && nextGCD.IsTheSameTo(true, AirAnchorPvE)) ||
+            //Drill Logic
+            (DrillPvE.EnoughLevel && !ChainSawPvE.EnoughLevel && nextGCD.IsTheSameTo(true, DrillPvE)) ||
+            //Cleanshot Logic
+            (!DrillPvE.EnoughLevel && CleanShotPvE.EnoughLevel && nextGCD.IsTheSameTo(true, CleanShotPvE)) ||
+            //HotShot Logic
+            (!CleanShotPvE.EnoughLevel && nextGCD.IsTheSameTo(true, HotShotPvE)));
+        // Attempt to use Reassemble if it's ready
+        if (isReassembleUsable)
+        {
+            if (ReassemblePvE.CanUse(out act, onLastAbility: true, skipClippingCheck: true, skipComboCheck: true, usedUp: true)) return true;
+        }
+
+        // Prioritizes Ricochet and Gauss Round based on their current charges.
+        if (GaussRoundPvE.Cooldown.CurrentCharges <= RicochetPvE.Cooldown.CurrentCharges && RicochetPvE.CanUse(out act, skipClippingCheck: true, skipAoeCheck: true, usedUp: true))
+        {
+            return true;
+        }
+        // Use GaussRound if it's available, regardless of Ricochet's status.
+        else if (GaussRoundPvE.CanUse(out act, skipClippingCheck: true, skipAoeCheck: true, usedUp: true))
+        {
+            return true;
+        }
+
+        // Fallback to the base emergency ability if neither Ricochet nor GaussRound can be used.
+        return base.EmergencyAbility(nextGCD, out act);
+
+    }
+    #endregion
+
+    #region oGCD Logic
+    // Logic for using attack abilities outside of GCD, focusing on burst windows and cooldown management.
+    protected override bool AttackAbility(out IAction? act)
+    {
+        if (IsBurst)
+        {
+            if (UseBurstMedicine(out act)) return true;
+            if ((IsLastAbility(false, HyperchargePvE) || Heat >= 50) && !CombatElapsedLess(10)
+                && WildfirePvE.CanUse(out act, CanUseOption.OnLastAbility)) return true;
+        }
+
+        if (!CombatElapsedLess(12) && CanUseHyperchargePvE(out act)) return true;
+        if (CanUseRookAutoturretPvE(out act)) return true;
+
+        if (BarrelStabilizerPvE.CanUse(out act)) return true;
+
+        // Skips further actions if the combat elapsed time is less than 8 seconds.
+        if (CombatElapsedLess(8)) return false;
+
+        return base.AttackAbility(out act);
+    }
+    #endregion
+
     #region GCD Logic
+    // Defines the general logic for determining which global cooldown (GCD) action to take.
     protected override bool GeneralGCD(out IAction? act)
     {
         // Checks and executes AutoCrossbow or HeatBlast if conditions are met (overheated state).
@@ -33,7 +97,7 @@ public sealed class MCH_Default : MachinistRotation
 
             if (DrillPvE.CanUse(out act)) return true;
         }
-        
+
         // Special condition for using ChainSaw outside of AoE checks if no action is chosen within 4 GCDs.
         if (!CombatElapsedLessGCD(4) && ChainSawPvE.CanUse(out act, skipAoeCheck: true)) return true;
 
@@ -50,93 +114,46 @@ public sealed class MCH_Default : MachinistRotation
     }
     #endregion
 
-    // Logic for using attack abilities outside of GCD, focusing on burst windows and cooldown management.
-    #region oGCD Logic
-    protected override bool AttackAbility(out IAction act)
-    {
-        if (IsBurst)
-        {
-            if (UseBurstMedicine(out act)) return true;
-            if ((IsLastAbility(false, HyperchargePvE) || Heat >= 50) && !CombatElapsedLess(10)
-                && WildfirePvE.CanUse(out act, CanUseOption.OnLastAbility)) return true;
-        }
-
-        if (!CombatElapsedLess(12) && CanUseHyperchargePvE(out act)) return true;
-        if (CanUseRookAutoturretPvE(out act)) return true;
-
-        if (BarrelStabilizerPvE.CanUse(out act)) return true;
-        
-        // Skips further actions if the combat elapsed time is less than 8 seconds.
-        if (CombatElapsedLess(8)) return false;
-
-        return base.AttackAbility(out act);
-    }
-
-    // Determines emergency actions to take based on the next planned GCD action.
-    protected override bool EmergencyAbility(IAction nextGCD, out IAction? act)
-    {
-        // Check next GCD action and conditions for Reassemble.
-        bool isReassembleUsable =
-            ReassemblePvE.Cooldown.CurrentCharges > 0 && !Player.HasStatus(true, StatusID.Reassembled) &&
-            ((ChainSawPvE.EnoughLevel && nextGCD.IsTheSameTo(true, ChainSawPvE)) ||
-            (AirAnchorPvE.EnoughLevel && nextGCD.IsTheSameTo(true, AirAnchorPvE)) ||
-            (DrillPvE.EnoughLevel && nextGCD.IsTheSameTo(true, DrillPvE)) ||
-            (!DrillPvE.EnoughLevel && nextGCD.IsTheSameTo(true, CleanShotPvE)));
-
-        // Attempt to use Reassemble if it's ready
-        if (isReassembleUsable)
-        {
-            if (ReassemblePvE.CanUse(out act, onLastAbility: true, skipClippingCheck: true, skipComboCheck: true, usedUp:true)) return true; 
-        }
-
-        // Prioritizes Ricochet and Gauss Round based on their current charges.
-        if (GaussRoundPvE.Cooldown.CurrentCharges <= RicochetPvE.Cooldown.CurrentCharges)
-        {
-            if (RicochetPvE.CanUse(out act, skipClippingCheck: true, skipAoeCheck: true, usedUp: true)) return true;
-        }
-        if (GaussRoundPvE.CanUse(out act, skipClippingCheck: true, skipAoeCheck: true, usedUp: true)) return true;
-
-        return base.EmergencyAbility(nextGCD, out act);
-    }
-    #endregion
-    
+    #region Extra Methods
     // Extra private helper methods for determining the usability of specific abilities under certain conditions.
     // These methods simplify the main logic by encapsulating specific checks related to abilities' cooldowns and prerequisites.
-    #region Extra Methods
     private bool CanUseRookAutoturretPvE(out IAction? act)
     {
         act = null;
-        if (AirAnchorPvE.EnoughLevel)
+
+        // 
+        if ((AirAnchorPvE.EnoughLevel && (!AirAnchorPvE.Cooldown.IsCoolingDown || AirAnchorPvE.Cooldown.ElapsedAfter(18))) ||
+           (!AirAnchorPvE.EnoughLevel && (!HotShotPvE.Cooldown.IsCoolingDown || HotShotPvE.Cooldown.ElapsedAfter(18))))
         {
-            if (!AirAnchorPvE.Cooldown.IsCoolingDown || AirAnchorPvE.Cooldown.ElapsedAfter(18)) return false;
-        }
-        else
-        {
-            if (!HotShotPvE.Cooldown.IsCoolingDown || HotShotPvE.Cooldown.ElapsedAfter(18)) return false;
+            return false;
         }
 
+        // Use Rook Auto Turret
         return RookAutoturretPvE.CanUse(out act);
     }
 
+
+    // Logic for Hypercharge
     const float REST_TIME = 6f;
     private bool CanUseHyperchargePvE(out IAction? act)
     {
         act = null;
-        //Check recast.
-        if (!SpreadShotPvE.CanUse(out _))
-        {
-            if (AirAnchorPvE.EnoughLevel)
-            {
-                if (AirAnchorPvE.Cooldown.WillHaveOneCharge(REST_TIME)) return false;
-            }
-            else
-            {
-                if (HotShotPvE.EnoughLevel && HotShotPvE.Cooldown.WillHaveOneCharge(REST_TIME)) return false;
-            }
-        }
-        if (DrillPvE.EnoughLevel && DrillPvE.Cooldown.WillHaveOneCharge(REST_TIME)) return false;
-        if (ChainSawPvE.EnoughLevel && ChainSawPvE.Cooldown.WillHaveOneCharge(REST_TIME)) return false;
 
+        // Checks if AOE is false and at least 12 seconds of combat has passed
+        if (!SpreadShotPvE.CanUse(out _) && !CombatElapsedLess(12) &&
+            //AirAnchor Charge Detection
+            ((AirAnchorPvE.EnoughLevel && AirAnchorPvE.Cooldown.WillHaveOneCharge(REST_TIME)) ||
+            //HotShot Charge Detection
+            (!AirAnchorPvE.EnoughLevel && HotShotPvE.EnoughLevel && HotShotPvE.Cooldown.WillHaveOneCharge(REST_TIME))) ||
+            //Drill Charge Detection
+            DrillPvE.EnoughLevel && DrillPvE.Cooldown.WillHaveOneCharge(REST_TIME) ||
+            //Chainsaw Charge Detection
+            ChainSawPvE.EnoughLevel && ChainSawPvE.Cooldown.WillHaveOneCharge(REST_TIME))
+        {
+            return false;
+        }
+
+        // Use Hypercharge
         return HyperchargePvE.CanUse(out act);
     }
 
