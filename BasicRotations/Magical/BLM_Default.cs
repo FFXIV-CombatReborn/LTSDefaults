@@ -4,31 +4,23 @@
 [SourceCode(Path = "main/DefaultRotations/Magical/BLM_Default.cs")]
 public class BLM_Default : BlackMageRotation
 {
-    private bool NeedToGoIce
-    {
-        get
-        {
-            //Can use Despair.
-            if (DespairPvE.EnoughLevel && CurrentMp >= DespairPvE.Info.MPNeed) return false;
-
-            //Can use Fire1
-            if (FirePvE.EnoughLevel && CurrentMp >= FirePvE.Info.MPNeed) return false;
-
-            return true;
-        }
-    }
+    private bool NeedToGoIce =>
+        !(DespairPvE.EnoughLevel && CurrentMp >= DespairPvE.Info.MPNeed) &&
+        !(FirePvE.EnoughLevel && CurrentMp >= FirePvE.Info.MPNeed);
 
     private bool NeedToTransposeGoIce(bool usedOne)
     {
-        if (!NeedToGoIce) return false;
-        if (!ParadoxPvE.EnoughLevel) return false;
+        if (!NeedToGoIce || !ParadoxPvE.EnoughLevel) return false;
+
         var compare = usedOne ? -1 : 0;
         var count = PolyglotStacks;
-        if (count == compare++) return false;
-        if (count == compare++ && !EnchinaEndAfterGCD(2)) return false;
-        if (count >= compare && (HasFire || SwiftcastPvE.Cooldown.WillHaveOneChargeGCD(2) || TriplecastPvE.Cooldown.WillHaveOneChargeGCD(2))) return true;
-        if (!HasFire && !SwiftcastPvE.Cooldown.WillHaveOneChargeGCD(2) && !TriplecastPvE.CanUse(out _, gcdCountForAbility: 8)) return false;
-        return true;
+
+        if (count == compare++ ||
+            (count == compare++ && !EnchinaEndAfterGCD(2)) ||
+            (!HasFire && !SwiftcastPvE.Cooldown.WillHaveOneChargeGCD(2) && !TriplecastPvE.CanUse(out _, gcdCountForAbility: 8)))
+            return false;
+
+        return count >= compare || (HasFire || SwiftcastPvE.Cooldown.WillHaveOneChargeGCD(2) || TriplecastPvE.Cooldown.WillHaveOneChargeGCD(2));
     }
 
     [RotationConfig(CombatType.PvE, Name = "Use Transpose to Astral Fire before Paradox")]
@@ -42,12 +34,12 @@ public class BLM_Default : BlackMageRotation
 
     protected override IAction? CountDownAction(float remainTime)
     {
-        IAction act;
-        if (remainTime < FireIiiPvE.Info.CastTime + CountDownAhead)
-        {
-            if (FireIiiPvE.CanUse(out act)) return act;
-        }
-        if (remainTime <= 12 && SharpcastPvE.CanUse(out act, usedUp: true)) return act;
+        if (remainTime < FireIiiPvE.Info.CastTime + CountDownAhead && FireIiiPvE.CanUse(out var act))
+            return act;
+
+        if (remainTime <= 12 && SharpcastPvE.CanUse(out act, usedUp: true))
+            return act;
+
         return base.CountDownAction(remainTime);
     }
 
@@ -116,18 +108,13 @@ public class BLM_Default : BlackMageRotation
     {
         act = null;
         mustGo = false;
-        if (InUmbralIce)
-        {
-            if (GoFire(out act)) return true;
-            if (MaintainIce(out act)) return true;
-            if (DoIce(out act)) return true;
-        }
-        if (InAstralFire)
-        {
-            if (GoIce(out act)) return true;
-            if (MaintainFire(out act)) return true;
-            if (DoFire(out act)) return true;
-        }
+
+        if (InUmbralIce && (GoFire(out act) || MaintainIce(out act) || DoIce(out act)))
+            return true;
+
+        if (InAstralFire && (GoIce(out act) || MaintainFire(out act) || DoFire(out act)))
+            return true;
+
         return false;
     }
 
@@ -137,15 +124,9 @@ public class BLM_Default : BlackMageRotation
 
         if (!NeedToGoIce) return false;
 
-        //Use Manafont or transpose.
-        if ((!ManafontPvE.Cooldown.IsCoolingDown || NeedToTransposeGoIce(false))
-            && UseInstanceSpell(out act)) return true;
+        if (BlizzardIiPvE.CanUse(out act) || BlizzardIiiPvE.CanUse(out act) || TransposePvE.CanUse(out act) || BlizzardPvE.CanUse(out act))
+            return true;
 
-        //Go to Ice.
-        if (BlizzardIiPvE.CanUse(out act)) return true;
-        if (BlizzardIiiPvE.CanUse(out act)) return true;
-        if (TransposePvE.CanUse(out act)) return true;
-        if (BlizzardPvE.CanUse(out act)) return true;
         return false;
     }
 
@@ -167,33 +148,34 @@ public class BLM_Default : BlackMageRotation
         return false;
     }
 
-    private bool DoIce(out IAction act)
+    private bool DoIce(out IAction? act)
     {
-        if (IsLastAction(ActionID.UmbralSoulPvE, ActionID.TransposePvE)
-            && IsParadoxActive && BlizzardPvE.CanUse(out act)) return true;
+        act = null; // Initialize act with null to handle cases where no action is determined
 
-        if (UmbralIceStacks == 3 && UsePolyglot(out act)) return true;
+        if (IsLastAction(ActionID.UmbralSoulPvE, ActionID.TransposePvE) && IsParadoxActive && BlizzardPvE.CanUse(out act))
+            return true;
 
-        //Add Hearts
-        if (UmbralIceStacks == 3 &&
-            BlizzardIvPvE.EnoughLevel && UmbralHearts < 3 && !IsLastGCD
-            (ActionID.BlizzardIvPvE, ActionID.FreezePvE))
+        if (UmbralIceStacks == 3 && UsePolyglot(out act))
+            return true;
+
+        if (UmbralIceStacks == 3 && BlizzardIvPvE.EnoughLevel && UmbralHearts < 3 && !IsLastGCD(ActionID.BlizzardIvPvE, ActionID.FreezePvE))
         {
-            if (FreezePvE.CanUse(out act)) return true;
-            if (BlizzardIvPvE.CanUse(out act)) return true;
+            if (FreezePvE.CanUse(out act) || BlizzardIvPvE.CanUse(out act))
+                return true;
         }
 
-        if (AddThunder(out act, 5)) return true;
-        if (UmbralIceStacks == 2 && UsePolyglot(out act, 0)) return true;
+        if (AddThunder(out act, 5))
+            return true;
 
-        if (IsParadoxActive)
-        {
-            if (BlizzardPvE.CanUse(out act)) return true;
-        }
+        if (UmbralIceStacks == 2 && UsePolyglot(out act, 0))
+            return true;
 
-        if (BlizzardIiPvE.CanUse(out act)) return true;
-        if (BlizzardIvPvE.CanUse(out act)) return true;
-        if (BlizzardPvE.CanUse(out act)) return true;
+        if (IsParadoxActive && BlizzardPvE.CanUse(out act))
+            return true;
+
+        if (BlizzardIiPvE.CanUse(out act) || BlizzardIvPvE.CanUse(out act) || BlizzardPvE.CanUse(out act))
+            return true;
+
         return false;
     }
 
@@ -287,27 +269,25 @@ public class BLM_Default : BlackMageRotation
         return false;
     }
 
-    private bool UseInstanceSpell(out IAction act)
+    private bool UseInstanceSpell(out IAction? act)
     {
-        if (UsePolyglot(out act)) return true;
-        if (HasThunder && AddThunder(out act, 1)) return true;
-        if (UsePolyglot(out act, 0)) return true;
+        act = null; // Ensure act is nullable and initialized with null
+
+        if (UsePolyglot(out act) || (HasThunder && AddThunder(out act, 1)) || UsePolyglot(out act, 0))
+            return true;
+
         return false;
     }
 
     private bool AddThunder(out IAction? act, uint gcdCount = 3)
     {
         act = null;
-        //Return if just used.
-        if (IsLastGCD(ActionID.ThunderPvE, ActionID.ThunderIiPvE, ActionID.ThunderIiiPvE, ActionID.ThunderIvPvE)) return false;
 
-        //So long for thunder.
-        if (ThunderPvE.CanUse(out _) && (!ThunderPvE.Target.Target?.WillStatusEndGCD(gcdCount, 0, true,
-            StatusID.Thunder, StatusID.ThunderIi, StatusID.ThunderIii, StatusID.ThunderIv) ?? false))
+        if (IsLastGCD(ActionID.ThunderPvE, ActionID.ThunderIiPvE, ActionID.ThunderIiiPvE, ActionID.ThunderIvPvE))
             return false;
 
-        if (ThunderIiPvE.CanUse(out act)) return true;
-        if (ThunderPvE.CanUse(out act)) return true;
+        if (ThunderIiPvE.CanUse(out act) || ThunderPvE.CanUse(out act))
+            return true;
 
         return false;
     }
@@ -344,12 +324,12 @@ public class BLM_Default : BlackMageRotation
     private bool MaintainStatus(out IAction? act)
     {
         act = null;
+
         if (CombatElapsedLess(6)) return false;
-        if (UmbralSoulPvE.CanUse(out act)) return true;
-        if (InAstralFire && TransposePvE.CanUse(out act)) return true;
-        if (UseTransposeForParadox &&
-            InUmbralIce && !IsParadoxActive && UmbralIceStacks == 3
-            && TransposePvE.CanUse(out act)) return true;
+
+        if (UmbralSoulPvE.CanUse(out act) || (InAstralFire && TransposePvE.CanUse(out act)) || 
+            (UseTransposeForParadox && InUmbralIce && !IsParadoxActive && UmbralIceStacks == 3 && TransposePvE.CanUse(out act)))
+            return true;
 
         return false;
     }

@@ -40,11 +40,14 @@ public sealed class RDM_Default : RedMageRotation
             VerthunderStartUp.CanUse(out var act))
             return act;
 
-        // Preemptively remove statuses not needed for countdown
-        StatusHelper.StatusOff(StatusID.Dualcast, StatusID.Acceleration, StatusID.Swiftcast);
+        // Remove Swift, Acceleration, and Dualcast statuses individually
+        StatusHelper.StatusOff(StatusID.Dualcast);
+        StatusHelper.StatusOff(StatusID.Acceleration);
+        StatusHelper.StatusOff(StatusID.Swiftcast);
 
         return base.CountDownAction(remainTime);
     }
+
 
     protected override bool GeneralGCD(out IAction? act)
     {
