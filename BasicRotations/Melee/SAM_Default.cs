@@ -12,13 +12,13 @@ public sealed class SAM_Default : SamuraiRotation
 
     protected override bool GeneralGCD(out IAction? act)
     {
-        if (KaeshiNamikiriPvE.CanUse(out act, skipAoeCheck: true)) return true;
+        if (KaeshiNamikiriPvE.CanUse(out act, skipAoeCheck: true, usedUp: true)) return true;
 
         var IsTargetBoss = HostileTarget?.IsBossFromTTK() ?? false;
         var IsTargetDying = HostileTarget?.IsDying() ?? false;
 
-        if (KaeshiGokenPvE.CanUse(out act, skipAoeCheck: true)) return true;
-        if (KaeshiSetsugekkaPvE.CanUse(out act, skipAoeCheck: true)) return true;
+        if (KaeshiGokenPvE.CanUse(out act, skipAoeCheck: true, usedUp: true)) return true;
+        if (KaeshiSetsugekkaPvE.CanUse(out act, skipAoeCheck: true, usedUp: true)) return true;
 
         if ((!IsTargetBoss || (HostileTarget?.HasStatus(true, StatusID.Higanbana) ?? false)) && HasMoon && HasFlower
             && OgiNamikiriPvE.CanUse(out act, skipAoeCheck: true)) return true;
@@ -39,7 +39,7 @@ public sealed class SAM_Default : SamuraiRotation
         if ((!HasMoon || IsMoonTimeLessThanFlower || !OkaPvE.EnoughLevel) && MangetsuPvE.CanUse(out act, skipAoeCheck : HaveMeikyoShisui && !HasGetsu)) return true;
         if ((!HasFlower || !IsMoonTimeLessThanFlower) && OkaPvE.CanUse(out act, skipAoeCheck: HaveMeikyoShisui && !HasKa)) return true;
 
-        if (!HasSetsu && YukikazePvE.CanUse(out act, skipAoeCheck: HaveMeikyoShisui && HasGetsu && HasKa && !HasSetsu)) return true;
+        if (!HasSetsu && YukikazePvE.CanUse(out act, skipComboCheck: HaveMeikyoShisui && HasGetsu && HasKa)) return true;
 
         if (GekkoPvE.CanUse(out act, skipComboCheck: HaveMeikyoShisui && !HasGetsu)) return true;
         if (KashaPvE.CanUse(out act, skipComboCheck: HaveMeikyoShisui && !HasKa)) return true;
