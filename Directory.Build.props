@@ -3,7 +3,7 @@
 		<TargetFramework>net8.0-windows</TargetFramework>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Authors>LTS</Authors>
-		<Version>6.5.8.17</Version>
+		<Version>6.5.8.18</Version>
 		<PlatformTarget>x64</PlatformTarget>
 		<Platforms>AnyCPU</Platforms>
 		<Nullable>enable</Nullable>

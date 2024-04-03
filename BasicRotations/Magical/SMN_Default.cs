@@ -26,7 +26,6 @@ public sealed class SMN_Default : SummonerRotation
         [Description("Emerald-Topaz-Ruby")]
         EmeraldTopazRuby,
     }
-
     [RotationConfig(CombatType.PvE, Name = "Use Crimson Cyclone")]
     public bool AddCrimsonCyclone { get; set; } = true;
 
@@ -38,33 +37,31 @@ public sealed class SMN_Default : SummonerRotation
 
     public override bool CanHealSingleSpell => false;
 
-    [RotationDesc(ActionID.CrimsonCyclonePvE)]
-    protected override bool MoveForwardGCD(out IAction? act)
-    {
-        return CrimsonCyclonePvE.CanUse(out act, skipAoeCheck: true) || base.MoveForwardGCD(out act);
-    }
-
     protected override bool GeneralGCD(out IAction? act)
     {
-        act = null;
-
         if (SummonCarbunclePvE.CanUse(out act)) return true;
-        if (SlipstreamPvE.CanUse(out act, true)) return true;
-        if (CrimsonStrikePvE.CanUse(out act, true)) return true;
+
+        if (SlipstreamPvE.CanUse(out act, skipAoeCheck: true)) return true;
+        if (CrimsonStrikePvE.CanUse(out act, skipAoeCheck: true)) return true;
+
+        //AOE
         if (PreciousBrilliancePvE.CanUse(out act)) return true;
+        //Single
         if (GemshinePvE.CanUse(out act)) return true;
-        if (!IsMoving && AddCrimsonCyclone && CrimsonCyclonePvE.CanUse(out act, true)) return true;
+
+        if (!IsMoving && AddCrimsonCyclone && CrimsonCyclonePvE.CanUse(out act, skipAoeCheck: true)) return true;
+
         if ((Player.HasStatus(false, StatusID.SearingLight) || SearingLightPvE.Cooldown.IsCoolingDown) && SummonBahamutPvE.CanUse(out act)) return true;
         if (!SummonBahamutPvE.EnoughLevel && HasHostilesInRange && AetherchargePvE.CanUse(out act)) return true;
-        if (IsMoving && (Player.HasStatus(true, StatusID.GarudasFavor) || InIfrit) && !Player.HasStatus(true, StatusID.Swiftcast) && !InBahamut && !InPhoenix && RuinIvPvE.CanUse(out act, true)) return true;
-        if (SummonTimeEndAfterGCD() && AttunmentTimeEndAfterGCD() && !Player.HasStatus(true, StatusID.Swiftcast) && !InBahamut && !InPhoenix && RuinIvPvE.CanUse(out act, true)) return true;
-        if (OutburstPvE.CanUse(out act)) return true;
-        if (RuinPvE.CanUse(out act)) return true;
 
-        // Summon order handling corrected
+        if (IsMoving && (Player.HasStatus(true, StatusID.GarudasFavor) || InIfrit)
+            && !Player.HasStatus(true, StatusID.Swiftcast) && !InBahamut && !InPhoenix
+            && RuinIvPvE.CanUse(out act, skipAoeCheck: true)) return true;
+
         switch (SummonOrder)
         {
             case SummonOrderType.TopazEmeraldRuby:
+            default:
                 if (SummonTopazPvE.CanUse(out act)) return true;
                 if (SummonEmeraldPvE.CanUse(out act)) return true;
                 if (SummonRubyPvE.CanUse(out act)) return true;
@@ -83,62 +80,74 @@ public sealed class SMN_Default : SummonerRotation
                 break;
         }
 
+
+        if (SummonTimeEndAfterGCD() && AttunmentTimeEndAfterGCD() &&
+            !Player.HasStatus(true, StatusID.Swiftcast) && !InBahamut && !InPhoenix &&
+            RuinIvPvE.CanUse(out act, skipAoeCheck: true)) return true;
+
+        if (OutburstPvE.CanUse(out act)) return true;
+
+        //毁123
+        if (RuinPvE.CanUse(out act)) return true;
         return base.GeneralGCD(out act);
     }
 
     protected override bool AttackAbility(out IAction? act)
     {
-        act = null;
-        var isTargetBoss = HostileTarget?.IsBossFromTTK() ?? false;
-        var isTargetDying = HostileTarget?.IsDying() ?? false;
-
-        // Check for Burst phase without Searing Light status
         if (IsBurst && !Player.HasStatus(false, StatusID.SearingLight))
         {
-            if (SearingLightPvE.CanUse(out act, true)) return true;
+            if (SearingLightPvE.CanUse(out act, skipAoeCheck: true)) return true;
         }
 
-        // Handling abilities in Bahamut phase
-        if (InBahamut)
-        {
-            if (SummonBahamutPvE.Cooldown.ElapsedOneChargeAfterGCD(3))
-            {
-                if (EnkindleBahamutPvE.CanUse(out act, true)) return true;
-            }
-        }
+        var IsTargetBoss = HostileTarget?.IsBossFromTTK() ?? false;
+        var IsTargetDying = HostileTarget?.IsDying() ?? false;
 
-        // Handling abilities in Phoenix phase
-        if (InPhoenix)
-        {
-            if (DeathflarePvE.CanUse(out act, true) || RekindlePvE.CanUse(out act, true))
-                return true;
-        }
+        if ((InBahamut && SummonBahamutPvE.Cooldown.ElapsedOneChargeAfterGCD(3) || InPhoenix ||
+            IsTargetBoss && IsTargetDying) && EnkindleBahamutPvE.CanUse(out act, skipAoeCheck: true)) return true;
 
-        // Handling when the target is a boss and is dying
-        if (isTargetBoss && isTargetDying)
-        {
-            if (EnkindleBahamutPvE.CanUse(out act, true)) return true;
-        }
+        if ((SummonBahamutPvE.Cooldown.ElapsedOneChargeAfterGCD(3) || IsTargetBoss && IsTargetDying) && DeathflarePvE.CanUse(out act, skipAoeCheck: true)) return true;
+        if (RekindlePvE.CanUse(out act, skipAoeCheck: true)) return true;
+        if (MountainBusterPvE.CanUse(out act, skipAoeCheck: true)) return true;
 
-        // Handling other abilities
-        if (MountainBusterPvE.CanUse(out act, true) ||
-            EnergySiphonPvE.CanUse(out act) ||
-            EnergyDrainPvE.CanUse(out act))
-            return true;
+        if ((Player.HasStatus(false, StatusID.SearingLight) && InBahamut && (SummonBahamutPvE.Cooldown.ElapsedOneChargeAfterGCD(3) || !EnergyDrainPvE.Cooldown.IsCoolingDown) ||
+            !SearingLightPvE.EnoughLevel || IsTargetBoss && IsTargetDying) && PainflarePvE.CanUse(out act)) return true;
+
+        if ((Player.HasStatus(false, StatusID.SearingLight) && InBahamut && (SummonBahamutPvE.Cooldown.ElapsedOneChargeAfterGCD(3) || !EnergyDrainPvE.Cooldown.IsCoolingDown) ||
+            !SearingLightPvE.EnoughLevel || IsTargetBoss && IsTargetDying) && FesterPvE.CanUse(out act)) return true;
+
+        if (EnergySiphonPvE.CanUse(out act)) return true;
+        if (EnergyDrainPvE.CanUse(out act)) return true;
 
         return base.AttackAbility(out act);
     }
-
     protected override bool EmergencyAbility(IAction nextGCD, out IAction? act)
     {
-        act = null;
+        switch (AddSwiftcast)
+        {
+            case SwiftType.No:
+            default:
+                break;
+            case SwiftType.Emerald:
+                if (nextGCD.IsTheSameTo(true, SlipstreamPvE) || Attunement == 0 && Player.HasStatus(true, StatusID.GarudasFavor))
+                {
+                    if (SwiftcastPvE.CanUse(out act)) return true;
+                }
+                break;
+            case SwiftType.Ruby:
+                if (InIfrit && (nextGCD.IsTheSameTo(true, GemshinePvE, PreciousBrilliancePvE) || IsMoving))
+                {
+                    if (SwiftcastPvE.CanUse(out act)) return true;
+                }
+                break;
 
-        if (AddSwiftcast != SwiftType.No && SwiftcastPvE.CanUse(out act) &&
-            (AddSwiftcast == SwiftType.All ||
-             AddSwiftcast == SwiftType.Emerald && (nextGCD.IsTheSameTo(true, SlipstreamPvE) || Attunement == 0 && Player.HasStatus(true, StatusID.GarudasFavor)) ||
-             AddSwiftcast == SwiftType.Ruby && InIfrit && (nextGCD.IsTheSameTo(true, GemshinePvE, PreciousBrilliancePvE) || IsMoving)))
-            return true;
-
+            case SwiftType.All:
+                if (nextGCD.IsTheSameTo(true, SlipstreamPvE) || Attunement == 0 && Player.HasStatus(true, StatusID.GarudasFavor) ||
+                   InIfrit && (nextGCD.IsTheSameTo(true, GemshinePvE, PreciousBrilliancePvE) || IsMoving))
+                {
+                    if (SwiftcastPvE.CanUse(out act)) return true;
+                }
+                break;
+        }
         return base.EmergencyAbility(nextGCD, out act);
     }
 
@@ -146,8 +155,8 @@ public sealed class SMN_Default : SummonerRotation
     {
         if (SummonCarbunclePvE.CanUse(out var act)) return act;
 
-        if (remainTime <= RuinPvE.Info.CastTime + CountDownAhead && RuinPvE.CanUse(out act)) return act;
-
+        if (remainTime <= RuinPvE.Info.CastTime + CountDownAhead
+            && RuinPvE.CanUse(out act)) return act;
         return base.CountDownAction(remainTime);
     }
 }
