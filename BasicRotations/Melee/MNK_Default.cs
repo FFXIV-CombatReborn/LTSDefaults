@@ -1,6 +1,6 @@
 namespace DefaultRotations.Melee;
 
-[Rotation("LTS's Default", CombatType.PvE, GameVersion = "6.58")]
+[Rotation("LTS's Default", CombatType.PvE, GameVersion = "6.58", Description = "Uses Lunar Solar Opener from The Balance")]
 [SourceCode(Path = "main/DefaultRotations/Melee/MNK_Default.cs")]
 public sealed class MNK_Default : MonkRotation
 {
@@ -11,12 +11,11 @@ public sealed class MNK_Default : MonkRotation
     {
         if (remainTime < 0.2)
         {
-            if (ThunderclapPvE.CanUse(out var act)) return act;
+            if (ThunderclapPvE.CanUse(out var act)) return act; // Gap closer at the end of countdown
         }
         if (remainTime < 15)
         {
-            if (Chakra < 5 && MeditationPvE.CanUse(out var act)) return act;
-            if (FormShiftPvE.CanUse(out act)) return act;
+            if (FormShiftPvE.CanUse(out var act)) return act; // FormShift to prep opening
         }
 
         return base.CountDownAction(remainTime);
@@ -24,9 +23,9 @@ public sealed class MNK_Default : MonkRotation
 
     private bool OpoOpoForm(out IAction? act)
     {
-        if (ArmOfTheDestroyerPvE.CanUse(out act)) return true;
-        if (DragonKickPvE.CanUse(out act)) return true;
-        if (BootshinePvE.CanUse(out act)) return true;
+        if (ArmOfTheDestroyerPvE.CanUse(out act)) return true; // Arm Of The Destoryer
+        if (DragonKickPvE.CanUse(out act)) return true; // Dragon Kick
+        if (BootshinePvE.CanUse(out act)) return true; //Bootshine
         return false;
     }
 
@@ -35,21 +34,21 @@ public sealed class MNK_Default : MonkRotation
 
     private bool RaptorForm(out IAction? act)
     {
-        if (FourpointFuryPvE.CanUse(out act)) return true;
+        if (FourpointFuryPvE.CanUse(out act)) return true; //Fourpoint Fury
         if ((Player.WillStatusEndGCD(3, 0, true, StatusID.DisciplinedFist)
             || Player.WillStatusEndGCD(7, 0, true, StatusID.DisciplinedFist)
-            && UseLunarPerfectBalance) && TwinSnakesPvE.CanUse(out act)) return true;
-        if (TrueStrikePvE.CanUse(out act)) return true;
+            && UseLunarPerfectBalance) && TwinSnakesPvE.CanUse(out act)) return true; //Twin Snakes
+        if (TrueStrikePvE.CanUse(out act)) return true; //True Strike
         return false;
     }
 
     private bool CoerlForm(out IAction? act)
     {
-        if (RockbreakerPvE.CanUse(out act)) return true;
+        if (RockbreakerPvE.CanUse(out act)) return true; // Rockbreaker
         if (UseLunarPerfectBalance && DemolishPvE.CanUse(out act, skipStatusProvideCheck: true)
             && (DemolishPvE.Target.Target?.WillStatusEndGCD(7, 0, true, StatusID.Demolish) ?? false)) return true;
-        if (DemolishPvE.CanUse(out act)) return true;
-        if (SnapPunchPvE.CanUse(out act)) return true;
+        if (DemolishPvE.CanUse(out act)) return true; // Demolish
+        if (SnapPunchPvE.CanUse(out act)) return true; // Snap Punch
         return false;
     }
 
@@ -59,7 +58,7 @@ public sealed class MNK_Default : MonkRotation
 
         if (Player.HasStatus(true, StatusID.CoeurlForm))
         {
-            if (CoerlForm(out act)) return true;
+            if (CoerlForm(out act)) return true; // Use Coeurl Form GCDs if in Coeurl Form
         }
 
         if (Player.HasStatus(true, StatusID.RiddleOfFire)
@@ -67,20 +66,23 @@ public sealed class MNK_Default : MonkRotation
         {
             if (OpoOpoForm(out act)) return true;
         }
+
         if (Player.HasStatus(true, StatusID.RaptorForm))
         {
-            if (RaptorForm(out act)) return true;
+            if (RaptorForm(out act)) return true; // Use Raptor Form GCDs if in Raptor Form
         }
-        if (OpoOpoForm(out act)) return true;
+
+        if (OpoOpoForm(out act)) return true; // Fallback to Use OpoOpo Form GCDs 
 
         if (MergedStatus.HasFlag(AutoStatus.MoveForward) && MoveForwardAbility(out act)) return true;
         if (Chakra < 5 && MeditationPvE.CanUse(out act)) return true;
-        if (AutoFormShift && FormShiftPvE.CanUse(out act)) return true;
+
+        if (AutoFormShift && FormShiftPvE.CanUse(out act)) return true; // Form Shift GCD use
 
         return base.GeneralGCD(out act);
     }
 
-    private bool PerfectBalanceActions(out IAction? act)
+    private bool PerfectBalanceActions(out IAction? act) // Controls actions during Perfect Balance buff
     {
         if (!BeastChakras.Contains(BeastChakra.NONE))
         {
@@ -179,22 +181,22 @@ public sealed class MNK_Default : MonkRotation
     {
         act = null;
 
-        if (CombatElapsedLessGCD(3)) return false;
+        if (CombatElapsedLessGCD(3)) return false; // Prevents the use of abilities if 3 GCDs have not been used
 
         if (BeastChakras.Contains(BeastChakra.NONE) && Player.HasStatus(true, StatusID.RaptorForm)
             && (!RiddleOfFirePvE.EnoughLevel || Player.HasStatus(false, StatusID.RiddleOfFire) && !Player.WillStatusEndGCD(3, 0, false, StatusID.RiddleOfFire)
             || RiddleOfFirePvE.Cooldown.WillHaveOneChargeGCD(1) && (PerfectBalancePvE.Cooldown.ElapsedAfter(60) || !PerfectBalancePvE.Cooldown.IsCoolingDown)))
         {
-            if (PerfectBalancePvE.CanUse(out act, usedUp: true)) return true;
+            if (PerfectBalancePvE.CanUse(out act, usedUp: true)) return true; // Perfect Balance
         }
 
-        if (BrotherhoodPvE.CanUse(out act, skipAoeCheck: true)) return true;
+        if (BrotherhoodPvE.CanUse(out act, skipAoeCheck: true)) return true; // Brotherhood
 
-        if (HowlingFistPvE.CanUse(out act)) return true;
-        if (SteelPeakPvE.CanUse(out act)) return true;
-        if (HowlingFistPvE.CanUse(out act, skipAoeCheck: true)) return true;
+        if (HowlingFistPvE.CanUse(out act)) return true; // Howling Fist
+        if (SteelPeakPvE.CanUse(out act)) return true; // Steel Peak
+        if (HowlingFistPvE.CanUse(out act, skipAoeCheck: true)) return true; // Howling Fist AOE
 
-        if (RiddleOfWindPvE.CanUse(out act)) return true;
+        if (RiddleOfWindPvE.CanUse(out act)) return true; // Riddle Of Wind
 
         return base.AttackAbility(out act);
     }
