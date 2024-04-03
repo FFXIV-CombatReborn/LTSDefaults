@@ -39,13 +39,6 @@ public sealed class SMN_Default : SummonerRotation
 
     public override bool CanHealSingleSpell => false;
 
-    [RotationDesc(ActionID.CrimsonCyclonePvE)]
-    protected override bool MoveForwardGCD(out IAction? act)
-    {
-        if (CrimsonCyclonePvE.CanUse(out act, skipAoeCheck: true)) return true;
-        return base.MoveForwardGCD(out act);
-    }
-
     protected override bool GeneralGCD(out IAction? act)
     {
         if (SummonCarbunclePvE.CanUse(out act)) return true;
