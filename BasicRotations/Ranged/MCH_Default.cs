@@ -64,8 +64,11 @@ public sealed class MCH_Default : MachinistRotation
         if (IsBurst)
         {
             if (UseBurstMedicine(out act)) return true;
-            if ((IsLastAbility(false, HyperchargePvE) || Heat >= 50) && !CombatElapsedLess(10)
-                && WildfirePvE.CanUse(out act, CanUseOption.OnLastAbility)) return true;
+            
+            {
+                if ((IsLastAbility(false, HyperchargePvE) || Heat >= 50) && !CombatElapsedLess(10)
+                && WildfirePvE.CanUse(out act, onLastAbility: true, skipClippingCheck: true, skipComboCheck: true)) return true;
+            }
         }
 
         if (!CombatElapsedLess(12) && CanUseHyperchargePvE(out act)) return true;
