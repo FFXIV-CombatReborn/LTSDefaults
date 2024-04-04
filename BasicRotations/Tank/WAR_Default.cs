@@ -1,6 +1,6 @@
 namespace DefaultRotations.Tank;
 
-[Rotation("LTS's Default", CombatType.PvE, GameVersion = "6.58")]
+[Rotation("Testing Rotation", CombatType.PvE, GameVersion = "6.58")]
 [SourceCode(Path = "main/DefaultRotations/Tank/WAR_Default.cs")]
 public sealed class WAR_Default : WarriorRotation
 {

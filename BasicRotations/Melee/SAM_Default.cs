@@ -1,6 +1,6 @@
 ﻿namespace DefaultRotations.Melee;
 
-[Rotation("LTS's Default", CombatType.PvE, GameVersion = "6.58")]
+[Rotation("Testing Rotation", CombatType.PvE, GameVersion = "6.58")]
 [SourceCode(Path = "main/DefaultRotations/Melee/SAM_Default.cs")]
 public sealed class SAM_Default : SamuraiRotation
 {
@@ -35,10 +35,11 @@ public sealed class SAM_Default : SamuraiRotation
         {
             if (MidareSetsugekkaPvE.CanUse(out act)) return true;
         }
-
+        
+        // Aoe Logic
         if ((!HasMoon || IsMoonTimeLessThanFlower || !OkaPvE.EnoughLevel) && MangetsuPvE.CanUse(out act, skipAoeCheck : HaveMeikyoShisui && !HasGetsu)) return true;
         if ((!HasFlower || !IsMoonTimeLessThanFlower) && OkaPvE.CanUse(out act, skipAoeCheck: HaveMeikyoShisui && !HasKa)) return true;
-
+        // Yukikaze
         if (!HasSetsu && YukikazePvE.CanUse(out act, skipComboCheck: HaveMeikyoShisui && HasGetsu && HasKa)) return true;
 
         if (GekkoPvE.CanUse(out act, skipComboCheck: HaveMeikyoShisui && !HasGetsu)) return true;
@@ -47,8 +48,8 @@ public sealed class SAM_Default : SamuraiRotation
         if ((!HasMoon || IsMoonTimeLessThanFlower || !ShifuPvE.EnoughLevel) && JinpuPvE.CanUse(out act)) return true;
         if ((!HasFlower || !IsMoonTimeLessThanFlower) && ShifuPvE.CanUse(out act)) return true;
 
-        if (FukoPvE.CanUse(out act)) return true;
-        if (!FukoPvE.EnoughLevel && FugaPvE.CanUse(out act)) return true;
+        if (FukoPvE.CanUse(out act, skipComboCheck: true)) return true;
+        if (!FukoPvE.EnoughLevel && FugaPvE.CanUse(out act, skipComboCheck: true)) return true;
 
         if (!HaveMeikyoShisui)
         {

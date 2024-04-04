@@ -2,7 +2,7 @@ using RotationSolver.Basic.Data;
 
 namespace DefaultRotations.Ranged;
 
-[Rotation("LTS's Default", CombatType.PvE, GameVersion = "6.58", Description = "Additonal contributions to this rotation thanks to Toshi!")]
+[Rotation("Testing Rotation", CombatType.PvE, GameVersion = "6.58", Description = "Additonal contributions to this rotation thanks to Toshi!")]
 [SourceCode(Path = "main/DefaultRotations/Ranged/MCH_Default.cs")]
 public sealed class MCH_Default : MachinistRotation
 {
@@ -24,7 +24,7 @@ public sealed class MCH_Default : MachinistRotation
         bool isReassembleUsable =
             //Reassemble current # of charges and double proc protection
             ReassemblePvE.Cooldown.CurrentCharges > 0 && !Player.HasStatus(true, StatusID.Reassembled) &&
-            //Chainsaw Logic
+            //Chainsaw Level Check and NextGCD Check
             ((ChainSawPvE.EnoughLevel && nextGCD.IsTheSameTo(true, ChainSawPvE)) ||
             //AirAnchor Logic
             (AirAnchorPvE.EnoughLevel && nextGCD.IsTheSameTo(true, AirAnchorPvE)) ||
@@ -34,6 +34,7 @@ public sealed class MCH_Default : MachinistRotation
             (!DrillPvE.EnoughLevel && CleanShotPvE.EnoughLevel && nextGCD.IsTheSameTo(true, CleanShotPvE)) ||
             //HotShot Logic
             (!CleanShotPvE.EnoughLevel && nextGCD.IsTheSameTo(true, HotShotPvE)));
+
         // Attempt to use Reassemble if it's ready
         if (isReassembleUsable)
         {
@@ -45,13 +46,13 @@ public sealed class MCH_Default : MachinistRotation
         {
             return true;
         }
+
         // Use GaussRound if it's available, regardless of Ricochet's status.
         else if (GaussRoundPvE.CanUse(out act, skipClippingCheck: true, skipAoeCheck: true, usedUp: true))
         {
             return true;
         }
 
-        // Fallback to the base emergency ability if neither Ricochet nor GaussRound can be used.
         return base.EmergencyAbility(nextGCD, out act);
 
     }
@@ -66,7 +67,7 @@ public sealed class MCH_Default : MachinistRotation
             if (UseBurstMedicine(out act)) return true;
             
             {
-                if ((IsLastAbility(false, HyperchargePvE) || Heat >= 50) && !CombatElapsedLess(10)
+                if ((IsLastAbility(false, HyperchargePvE) || Heat >= 50) && !CombatElapsedLess(10) && CanUseHyperchargePvE(out _)
                 && WildfirePvE.CanUse(out act, onLastAbility: true, skipClippingCheck: true, skipComboCheck: true)) return true;
             }
         }
@@ -142,16 +143,23 @@ public sealed class MCH_Default : MachinistRotation
     {
         act = null;
 
-        // Checks if AOE is false and at least 12 seconds of combat has passed
+        // Assuming a simulated "WillHaveOneCharge" concept for Wildfire based on its cooldown
+        const float WILDFIRE_READY_SOON_THRESHOLD = 25f; // Time in seconds before Wildfire is considered "almost ready"
+        bool isWildfireAlmostReady = WildfirePvE.Cooldown.WillHaveOneCharge(WILDFIRE_READY_SOON_THRESHOLD);
+
+        // If Wildfire is almost ready, hold off on using Hypercharge
+        if (isWildfireAlmostReady) return false;
+
+        // Checks if AOE is false and at least 12 seconds of combat has elapsed
         if (!SpreadShotPvE.CanUse(out _) && !CombatElapsedLess(12) &&
-            //AirAnchor Charge Detection
+            // AirAnchor Charge Detection
             ((AirAnchorPvE.EnoughLevel && AirAnchorPvE.Cooldown.WillHaveOneCharge(REST_TIME)) ||
-            //HotShot Charge Detection
-            (!AirAnchorPvE.EnoughLevel && HotShotPvE.EnoughLevel && HotShotPvE.Cooldown.WillHaveOneCharge(REST_TIME))) ||
-            //Drill Charge Detection
-            DrillPvE.EnoughLevel && DrillPvE.Cooldown.WillHaveOneCharge(REST_TIME) ||
-            //Chainsaw Charge Detection
-            ChainSawPvE.EnoughLevel && ChainSawPvE.Cooldown.WillHaveOneCharge(REST_TIME))
+             // HotShot Charge Detection
+             (!AirAnchorPvE.EnoughLevel && HotShotPvE.EnoughLevel && HotShotPvE.Cooldown.WillHaveOneCharge(REST_TIME))) ||
+             // Drill Charge Detection
+             (DrillPvE.EnoughLevel && DrillPvE.Cooldown.WillHaveOneCharge(REST_TIME)) ||
+             // Chainsaw Charge Detection
+             (ChainSawPvE.EnoughLevel && ChainSawPvE.Cooldown.WillHaveOneCharge(REST_TIME)))
         {
             return false;
         }
@@ -162,3 +170,4 @@ public sealed class MCH_Default : MachinistRotation
 
     #endregion
 }
+

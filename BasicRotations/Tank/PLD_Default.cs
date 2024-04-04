@@ -1,6 +1,6 @@
 ﻿namespace DefaultRotations.Tank;
 
-[Rotation("LTS's Default", CombatType.PvE, GameVersion = "6.58")]
+[Rotation("Testing Rotation", CombatType.PvE, GameVersion = "6.58")]
 [SourceCode(Path = "main/DefaultRotations/Tank/PLD_Default.cs")]
 public class PLD_Default : PaladinRotation
 {

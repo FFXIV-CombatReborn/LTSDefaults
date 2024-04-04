@@ -1,6 +1,6 @@
 namespace DefaultRotations.Magical;
 
-[Rotation("LTS's Default", CombatType.PvE, GameVersion = "6.58")]
+[Rotation("Testing Rotation", CombatType.PvE, GameVersion = "6.58")]
 [SourceCode(Path = "main/DefaultRotations/Magical/RDM_Default.cs")]
 public sealed class RDM_Default : RedMageRotation
 {

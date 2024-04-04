@@ -1,6 +1,6 @@
 namespace DefaultRotations.Melee;
 
-[Rotation("LTS's Default", CombatType.PvE, GameVersion = "6.58")]
+[Rotation("Testing Rotation", CombatType.PvE, GameVersion = "6.58")]
 [SourceCode(Path = "main/DefaultRotations/Melee/NIN_Default.cs")]
 public sealed class NIN_Default : NinjaRotation
 {

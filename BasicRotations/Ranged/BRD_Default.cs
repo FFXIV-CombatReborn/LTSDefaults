@@ -2,7 +2,7 @@ using Lumina.Excel.GeneratedSheets2;
 
 namespace DefaultRotations.Ranged;
 
-[Rotation("LTS's Default", CombatType.PvE | CombatType.PvP, GameVersion = "6.58",
+[Rotation("Testing Rotation", CombatType.PvE | CombatType.PvP, GameVersion = "6.58",
     Description = "Please make sure that the three song times add up to 120 seconds!")]
 [SourceCode(Path = "main/DefaultRotations/Ranged/BRD_Default.cs")]
 public sealed class BRD_Default : BardRotation
