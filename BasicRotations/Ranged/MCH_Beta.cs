@@ -2,9 +2,9 @@
 
 namespace DefaultRotations.Ranged;
 
-[Rotation("Testing Rotation", CombatType.PvE, GameVersion = "6.58", Description = "Additonal contributions to this rotation thanks to Toshi!")]
+[Rotation("Testing Rotations", CombatType.PvE, GameVersion = "6.58", Description = "Additonal contributions to this rotation thanks to Toshi!")]
 [SourceCode(Path = "main/DefaultRotations/Ranged/MCH_Beta.cs")]
-public sealed class MCH_Default : MachinistRotation
+public sealed class MCH_Beta : MachinistRotation
 {
     #region Countdown logic
     // Defines logic for actions to take during the countdown before combat starts.
@@ -142,13 +142,6 @@ public sealed class MCH_Default : MachinistRotation
     private bool CanUseHyperchargePvE(out IAction? act)
     {
         act = null;
-
-        // Assuming a simulated "WillHaveOneCharge" concept for Wildfire based on its cooldown
-        const float WILDFIRE_READY_SOON_THRESHOLD = 25f; // Time in seconds before Wildfire is considered "almost ready"
-        bool isWildfireAlmostReady = WildfirePvE.Cooldown.WillHaveOneCharge(WILDFIRE_READY_SOON_THRESHOLD);
-
-        // If Wildfire is almost ready, hold off on using Hypercharge
-        if (isWildfireAlmostReady) return false;
 
         // Checks if AOE is false and at least 12 seconds of combat has elapsed
         if (!SpreadShotPvE.CanUse(out _) && !CombatElapsedLess(12) &&
