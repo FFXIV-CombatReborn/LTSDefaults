@@ -22,7 +22,8 @@ public sealed class DNC_Default : DancerRotation
     // Override the method for handling emergency abilities
     protected override bool EmergencyAbility(IAction nextGCD, out IAction? act)
     {
-       // Special handling if the last action was Quadruple Technical Finish and level requirement is met
+        act = null;
+        // Special handling if the last action was Quadruple Technical Finish and level requirement is met
         if (IsLastAction(ActionID.QuadrupleTechnicalFinishPvE) && TechnicalStepPvE.EnoughLevel)
         {
             // Attempt to use Devilment ignoring clipping checks
@@ -88,7 +89,8 @@ public sealed class DNC_Default : DancerRotation
     // Override the method for handling general Global Cooldown (GCD) actions
     protected override bool GeneralGCD(out IAction? act)
     {
-         // If not in combat and lacking the Closed Position status, attempt to use Closed Position
+        act = null;
+        // If not in combat and lacking the Closed Position status, attempt to use Closed Position
         if (!InCombat && !Player.HasStatus(true, StatusID.ClosedPosition) && ClosedPositionPvE.CanUse(out act)) return true;
         
         // Attempt to execute Dance Finish GCD or Step GCD actions
