@@ -39,6 +39,6 @@ jobs:
       - name: Publish Rotations
         uses: softprops/action-gh-release@v2
         with:
-          files: ./build/DefaultRotations.dll
+          files: ./build/BasicRotations.dll
           token: ${{ secrets.GITHUB_TOKEN }}
 
