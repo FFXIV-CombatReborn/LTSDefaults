@@ -115,6 +115,8 @@ public sealed class WAR_Default : WarriorRotation
             //10
             if (RawIntuitionPvE.CanUse(out act, onLastAbility: true)) return true;
         }
+        
+        if (NascentFlashPvE.CanUse(out act, onLastAbility: true) && NascentFlashPvE.Target.Target?.GetHealthRatio() < 0.6) return true;
 
         return false;
     }
