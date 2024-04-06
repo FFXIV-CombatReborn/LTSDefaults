@@ -90,8 +90,6 @@ public sealed class WAR_Default : WarriorRotation
             if (EquilibriumPvE.CanUse(out act)) return true;
         }
 
-        if (!HasTankStance && NascentFlashPvE.CanUse(out act)) return true;
-
         return base.GeneralAbility(out act);
     }
 
@@ -115,8 +113,6 @@ public sealed class WAR_Default : WarriorRotation
             //10
             if (RawIntuitionPvE.CanUse(out act, onLastAbility: true)) return true;
         }
-        
-        if (NascentFlashPvE.CanUse(out act, onLastAbility: true)) return true;
 
         return false;
     }
@@ -143,5 +139,15 @@ public sealed class WAR_Default : WarriorRotation
         if (ShakeItOffPvE.CanUse(out act, skipAoeCheck: true)) return true;
         if (ReprisalPvE.CanUse(out act, skipAoeCheck: true)) return true;
         return base.DefenseAreaAbility(out act);
+    }
+
+    [RotationDesc(ActionID.NascentFlashPvE)]
+    protected override bool HealSingleGCD(out IAction? act)
+    {
+
+        if (NascentFlashPvE.CanUse(out act)
+            && (InCombat || NascentFlashPvE.Target.Target?.GetHealthRatio() > 0.6)) return true;
+
+        return base.HealSingleGCD(out act);
     }
 }
