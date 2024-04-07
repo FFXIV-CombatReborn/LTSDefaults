@@ -82,8 +82,7 @@ public sealed class WHM_Default :WhiteMageRotation
     {
         if (AfflatusSolacePvE.CanUse(out act)) return true;
 
-        if (RegenPvE.CanUse(out act)
-            && (IsMoving || RegenPvE.Target.Target?.GetHealthRatio() > 0.4)) return true;
+        if (RegenPvE.CanUse(out act) && (RegenPvE.Target.Target?.GetHealthRatio() > 0.3)) return true;
 
         if (CureIiPvE.CanUse(out act)) return true;
 
