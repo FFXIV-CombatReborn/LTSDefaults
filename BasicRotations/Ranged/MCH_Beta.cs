@@ -10,7 +10,14 @@ public sealed class MCH_Beta : MachinistRotation
     // Defines logic for actions to take during the countdown before combat starts.
     protected override IAction? CountDownAction(float remainTime)
     {
-        if (remainTime < 2 && UseBurstMedicine(out var act)) return act;
+        if (remainTime < 2)
+        {
+            if (UseBurstMedicine(out var act)) return act;
+        }
+        if (remainTime < 5)
+        {
+            if (ReassemblePvE.CanUse(out var act)) return act;
+        }
         return base.CountDownAction(remainTime);
     }
     #endregion
@@ -72,9 +79,9 @@ public sealed class MCH_Beta : MachinistRotation
             }
         }
 
-        if (!WildfirePvE.Cooldown.WillHaveOneCharge(30) || (Heat == 100))
+        if (!CombatElapsedLess(12) && (!WildfirePvE.Cooldown.WillHaveOneCharge(30) || (Heat == 100)))
         {
-            return (CanUseHyperchargePvE(out act));
+            if (!CombatElapsedLess(12) && CanUseHyperchargePvE(out act)) return true;
         }
         if (CanUseRookAutoturretPvE(out act)) return true;
 
@@ -148,9 +155,9 @@ public sealed class MCH_Beta : MachinistRotation
                      //Cannot AOE
                      ((!SpreadShotPvE.CanUse(out _))
                      &&
-                     //Combat elapsed 12 seconds
-                     (!CombatElapsedLess(12))
-                     &&
+                     ////Combat elapsed 12 seconds
+                     //(!CombatElapsedLess(12))
+                     //&&
                      // AirAnchor Enough Level % AirAnchor 
                      ((AirAnchorPvE.EnoughLevel && AirAnchorPvE.Cooldown.WillHaveOneCharge(REST_TIME))
                      ||
