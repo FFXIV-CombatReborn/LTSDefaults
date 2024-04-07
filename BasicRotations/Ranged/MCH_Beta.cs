@@ -72,7 +72,7 @@ public sealed class MCH_Beta : MachinistRotation
             }
         }
 
-        if (!WildfirePvE.Cooldown.WillHaveOneCharge(30))
+        if (!WildfirePvE.Cooldown.WillHaveOneCharge(30) || (Heat == 100))
         {
             return (CanUseHyperchargePvE(out act));
         }
