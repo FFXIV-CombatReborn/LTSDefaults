@@ -72,7 +72,10 @@ public sealed class MCH_Beta : MachinistRotation
             }
         }
 
-        if (!CombatElapsedLess(12) && CanUseHyperchargePvE(out act)) return true;
+        if (!WildfirePvE.Cooldown.WillHaveOneCharge(30))
+        {
+            return (CanUseHyperchargePvE(out act));
+        }
         if (CanUseRookAutoturretPvE(out act)) return true;
 
         if (BarrelStabilizerPvE.CanUse(out act)) return true;
@@ -138,27 +141,36 @@ public sealed class MCH_Beta : MachinistRotation
 
 
     // Logic for Hypercharge
-    const float REST_TIME = 6f;
     private bool CanUseHyperchargePvE(out IAction? act)
     {
-        act = null;
-
-        // Checks if AOE is false and at least 12 seconds of combat has elapsed
-        if (!SpreadShotPvE.CanUse(out _) && !CombatElapsedLess(12) &&
-            // AirAnchor Charge Detection
-            ((AirAnchorPvE.EnoughLevel && AirAnchorPvE.Cooldown.WillHaveOneCharge(REST_TIME)) ||
-             // HotShot Charge Detection
-             (!AirAnchorPvE.EnoughLevel && HotShotPvE.EnoughLevel && HotShotPvE.Cooldown.WillHaveOneCharge(REST_TIME))) ||
-             // Drill Charge Detection
-             (DrillPvE.EnoughLevel && DrillPvE.Cooldown.WillHaveOneCharge(REST_TIME)) ||
-             // Chainsaw Charge Detection
-             (ChainSawPvE.EnoughLevel && ChainSawPvE.Cooldown.WillHaveOneCharge(REST_TIME)))
+        float REST_TIME = 6f;
+        if
+                     //Cannot AOE
+                     ((!SpreadShotPvE.CanUse(out _))
+                     &&
+                     //Combat elapsed 12 seconds
+                     (!CombatElapsedLess(12))
+                     &&
+                     // AirAnchor Enough Level % AirAnchor 
+                     ((AirAnchorPvE.EnoughLevel && AirAnchorPvE.Cooldown.WillHaveOneCharge(REST_TIME))
+                     ||
+                     // HotShot Charge Detection
+                     (!AirAnchorPvE.EnoughLevel && HotShotPvE.EnoughLevel && HotShotPvE.Cooldown.WillHaveOneCharge(REST_TIME))
+                     ||
+                     // Drill Charge Detection
+                     (DrillPvE.EnoughLevel && DrillPvE.Cooldown.WillHaveOneCharge(REST_TIME))
+                     ||
+                     // Chainsaw Charge Detection
+                     (ChainSawPvE.EnoughLevel && ChainSawPvE.Cooldown.WillHaveOneCharge(REST_TIME))))
         {
+            act = null;
             return false;
         }
-
-        // Use Hypercharge
-        return HyperchargePvE.CanUse(out act);
+        else
+        {
+            // Use Hypercharge
+            return HyperchargePvE.CanUse(out act);
+        }
     }
 
     #endregion
