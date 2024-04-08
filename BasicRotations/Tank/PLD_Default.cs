@@ -96,15 +96,17 @@ public class PLD_Default : PaladinRotation
     [RotationDesc(ActionID.ReprisalPvE, ActionID.DivineVeilPvE)]
     protected override bool DefenseAreaAbility(out IAction? act)
     {
+
         if (ReprisalPvE.CanUse(out act, skipAoeCheck: true)) return true;
         if (DivineVeilPvE.CanUse(out act)) return true;
+        if (PassageOfArmsPvE.CanUse(out act)) return true;
         return base.DefenseAreaAbility(out act);
     }
 
     [RotationDesc(ActionID.PassageOfArmsPvE)]
     protected override bool HealAreaAbility(out IAction? act)
     {
-        if (PassageOfArmsPvE.CanUse(out act)) return true;
+        //if (PassageOfArmsPvE.CanUse(out act)) return true;
         return base.HealAreaAbility(out act);
     }
 
@@ -118,9 +120,7 @@ public class PLD_Default : PaladinRotation
         if ((!RampartPvE.Cooldown.IsCoolingDown || RampartPvE.Cooldown.ElapsedAfter(60)) && SentinelPvE.CanUse(out act)) return true;
 
         //20
-        if (SentinelPvE.Cooldown.IsCoolingDown && SentinelPvE.Cooldown.ElapsedAfter(60) && RampartPvE.CanUse(out act)) return true;
-
-        if (ReprisalPvE.CanUse(out act)) return true;
+        if ((SentinelPvE.EnoughLevel && SentinelPvE.Cooldown.IsCoolingDown && SentinelPvE.Cooldown.ElapsedAfter(60) || !SentinelPvE.EnoughLevel) && RampartPvE.CanUse(out act)) return true;
 
         return base.DefenseSingleAbility(out act);
     }

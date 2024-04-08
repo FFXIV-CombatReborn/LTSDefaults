@@ -119,11 +119,11 @@ public sealed class WAR_Default : WarriorRotation
 
     private bool HighDefense(out IAction? act)
     {
-        //30
+        //Vengence use
         if ((!RampartPvE.Cooldown.IsCoolingDown || RampartPvE.Cooldown.ElapsedAfter(60)) && VengeancePvE.CanUse(out act)) return true;
 
-        //20
-        if (VengeancePvE.Cooldown.IsCoolingDown && VengeancePvE.Cooldown.ElapsedAfter(60) && RampartPvE.CanUse(out act)) return true;
+        //Rampart use
+        if ((VengeancePvE.EnoughLevel && VengeancePvE.Cooldown.IsCoolingDown && VengeancePvE.Cooldown.ElapsedAfter(60) || !VengeancePvE.EnoughLevel) && RampartPvE.CanUse(out act)) return true;
 
         act = null;
         return false;
