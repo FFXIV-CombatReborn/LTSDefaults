@@ -106,7 +106,7 @@ public sealed class GNB_Default : GunbreakerRotation
     {
         //10
         if (CamouflagePvE.CanUse(out act, onLastAbility: true)) return true;
-        //10
+        //15
         if (HeartOfStonePvE.CanUse(out act, onLastAbility: true)) return true;
 
         //30
