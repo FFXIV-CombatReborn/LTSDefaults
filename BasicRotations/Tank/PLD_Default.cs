@@ -96,9 +96,10 @@ public class PLD_Default : PaladinRotation
     [RotationDesc(ActionID.ReprisalPvE, ActionID.DivineVeilPvE)]
     protected override bool DefenseAreaAbility(out IAction? act)
     {
+        act = null;
 
-        if (ReprisalPvE.CanUse(out act, skipAoeCheck: true)) return true;
         if (DivineVeilPvE.CanUse(out act)) return true;
+
         if (PassageOfArmsPvE.CanUse(out act)) return true;
         return base.DefenseAreaAbility(out act);
     }
@@ -106,6 +107,8 @@ public class PLD_Default : PaladinRotation
     [RotationDesc(ActionID.PassageOfArmsPvE)]
     protected override bool HealAreaAbility(out IAction? act)
     {
+        act = null;
+
         //if (PassageOfArmsPvE.CanUse(out act)) return true;
         return base.HealAreaAbility(out act);
     }
@@ -113,20 +116,31 @@ public class PLD_Default : PaladinRotation
     [RotationDesc(ActionID.SentinelPvE, ActionID.RampartPvE, ActionID.BulwarkPvE, ActionID.SheltronPvE, ActionID.ReprisalPvE)]
     protected override bool DefenseSingleAbility(out IAction? act)
     {
-        //10
-        if (BulwarkPvE.CanUse(out act, true)) return true;
+        act = null;
+
+        // If the player has the Hallowed Ground status, don't use any abilities.
+        if (Player.HasStatus(true, StatusID.HallowedGround)) return false;
+
+        // If Bulwark can be used and there are more than 2 hostiles in range, use it and return true.
+        if (BulwarkPvE.CanUse(out act, true) && NumberOfHostilesInRange > 2) return true;
+
+        // If Oath can be used, use it and return true.
         if (UseOath(out act, true)) return true;
-        //30
+
+        // If Rampart is not cooling down or has been cooling down for more than 60 seconds, and Sentinel can be used, use Sentinel and return true.
         if ((!RampartPvE.Cooldown.IsCoolingDown || RampartPvE.Cooldown.ElapsedAfter(60)) && SentinelPvE.CanUse(out act)) return true;
 
-        //20
+        // If Sentinel is at an enough level and is cooling down for more than 60 seconds, or if Sentinel is not at an enough level, and Rampart can be used, use Rampart and return true.
         if ((SentinelPvE.EnoughLevel && SentinelPvE.Cooldown.IsCoolingDown && SentinelPvE.Cooldown.ElapsedAfter(60) || !SentinelPvE.EnoughLevel) && RampartPvE.CanUse(out act)) return true;
+
+        // If Reprisal can be used, use it and return true.
+        if (ReprisalPvE.CanUse(out act, skipAoeCheck: true)) return true;
 
         return base.DefenseSingleAbility(out act);
     }
 
     private bool UseOath(out IAction act, bool onLast = false)
-    {
+    {       
         if (SheltronPvE.CanUse(out act, onLastAbility: onLast)) return true;
         if (InterventionPvE.CanUse(out act, onLastAbility: onLast)) return true;
 

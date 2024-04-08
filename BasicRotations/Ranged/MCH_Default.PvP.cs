@@ -86,7 +86,6 @@ public sealed class MCH_DefaultPvP : MachinistRotation
         if (GuardCancel && Player.HasStatus(true, StatusID.Guard)) return false;
         if (!Player.HasStatus(true, StatusID.Guard) && UseSprintPvP && !Player.HasStatus(true, StatusID.Sprint) && !InCombat && SprintPvP.CanUse(out act)) return true;
 
-        if (LBInPvP && LimitBreakLevel >= 1 && Target.GetHealthRatio() * 100 <= MSValue && MarksmansSpitePvP.CanUse(out act, usedUp: true, skipAoeCheck: true)) return true;
         if (!Player.HasStatus(true, StatusID.Overheated_3149) && BlastChargePvP.CanUse(out act, usedUp: true, skipAoeCheck: true)) return true;
         // Specific action sequences based on Overheated status or other specific conditions
         if (Player.HasStatus(true, StatusID.Overheated_3149))
@@ -95,7 +94,7 @@ public sealed class MCH_DefaultPvP : MachinistRotation
         }
         else
         {
-            if (!HostileTarget.HasStatus(true, StatusID.Guard))
+            if (HostileTarget != null && !HostileTarget.HasStatus(true, StatusID.Guard))
             {
                 if (HostileTarget.DistanceToPlayer() <= 12 && ScattergunPvP.CanUse(out act, skipAoeCheck: true)) return true;
             }
