@@ -155,9 +155,6 @@ public sealed class MCH_Beta : MachinistRotation
                      //Cannot AOE
                      ((!SpreadShotPvE.CanUse(out _))
                      &&
-                     ////Combat elapsed 12 seconds
-                     //(!CombatElapsedLess(12))
-                     //&&
                      // AirAnchor Enough Level % AirAnchor 
                      ((AirAnchorPvE.EnoughLevel && AirAnchorPvE.Cooldown.WillHaveOneCharge(REST_TIME))
                      ||
