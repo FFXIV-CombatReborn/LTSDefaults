@@ -178,7 +178,7 @@ public sealed class DNC_Beta : DancerRotation
     }
     private bool FinishTheDance(out IAction? act)
     {
-        bool areDanceTargetsInRange = AllHostileTargets.Any(hostile => hostile.DistanceToPlayer() < 15);
+        bool areDanceTargetsInRange = AllHostileTargets.Any(hostile => hostile.DistanceToPlayer() < 14);
 
         // Check for Standard Step if targets are in range or status is about to end.
         if (Player.HasStatus(true, StatusID.StandardStep) && CompletedSteps == 2 &&
