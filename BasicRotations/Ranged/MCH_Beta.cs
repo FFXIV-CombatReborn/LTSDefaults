@@ -69,6 +69,11 @@ public sealed class MCH_Beta : MachinistRotation
     // Logic for using attack abilities outside of GCD, focusing on burst windows and cooldown management.
     protected override bool AttackAbility(out IAction? act)
     {
+        if (Player.HasStatus(true, StatusID.Wildfire_1946))
+        {
+            return HyperchargePvE.CanUse(out act, skipClippingCheck: true);
+        }
+
         if (IsBurst)
         {
             if (UseBurstMedicine(out act)) return true;
@@ -133,12 +138,11 @@ public sealed class MCH_Beta : MachinistRotation
     // These methods simplify the main logic by encapsulating specific checks related to abilities' cooldowns and prerequisites.
     private bool CanUseRookAutoturretPvE(out IAction? act)
     {
-        act = null;
-
-        // 
-        if ((AirAnchorPvE.EnoughLevel && (!AirAnchorPvE.Cooldown.IsCoolingDown || AirAnchorPvE.Cooldown.ElapsedAfter(18))) ||
-           (!AirAnchorPvE.EnoughLevel && (!HotShotPvE.Cooldown.IsCoolingDown || HotShotPvE.Cooldown.ElapsedAfter(18))))
+        
+        if (!AirAnchorPvE.Cooldown.IsCoolingDown || AirAnchorPvE.Cooldown.ElapsedAfter(18) ||
+           (!AirAnchorPvE.EnoughLevel && !HotShotPvE.Cooldown.IsCoolingDown || HotShotPvE.Cooldown.ElapsedAfter(18)))
         {
+            act = null;
             return false;
         }
 
