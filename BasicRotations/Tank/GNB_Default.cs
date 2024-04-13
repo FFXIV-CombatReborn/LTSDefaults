@@ -1,3 +1,5 @@
+using RotationSolver.Basic.Data;
+
 namespace DefaultRotations.Tank;
 
 [Rotation("LTS's Default", CombatType.PvE, GameVersion = "6.58")]
@@ -49,14 +51,14 @@ public sealed class GNB_Default : GunbreakerRotation
         if (BrutalShellPvE.CanUse(out act)) return true;
         if (KeenEdgePvE.CanUse(out act)) return true;
 
-        if (MergedStatus.HasFlag(AutoStatus.MoveForward) && MoveForwardAbility(out act)) return true;
+
 
         if (LightningShotPvE.CanUse(out act)) return true;
 
         return base.GeneralGCD(out act);
     }
 
-    protected override bool AttackAbility(out IAction? act)
+    protected override bool AttackAbility(IAction nextGCD, out IAction? act)
     {
         //if (IsBurst && CanUseNoMercy(out act)) return true;
 
@@ -89,20 +91,20 @@ public sealed class GNB_Default : GunbreakerRotation
 
         if (EyeGougePvE.CanUse(out act)) return true;
         if (HypervelocityPvE.CanUse(out act)) return true;
-
-        return base.AttackAbility(out act);
+        if (MergedStatus.HasFlag(AutoStatus.MoveForward) && MoveForwardAbility(nextGCD, out act)) return true;
+        return base.AttackAbility(nextGCD, out act);
     }
 
     [RotationDesc(ActionID.HeartOfLightPvE, ActionID.ReprisalPvE)]
-    protected override bool DefenseAreaAbility(out IAction? act)
+    protected override bool DefenseAreaAbility(IAction nextGCD, out IAction? act)
     {
         if (!Player.HasStatus(true, StatusID.NoMercy) && HeartOfLightPvE.CanUse(out act, skipAoeCheck: true)) return true;
         if (!Player.HasStatus(true, StatusID.NoMercy) && ReprisalPvE.CanUse(out act, skipAoeCheck: true)) return true;
-        return base.DefenseAreaAbility(out act);
+        return base.DefenseAreaAbility(nextGCD, out act);
     }
 
     [RotationDesc(ActionID.HeartOfStonePvE, ActionID.NebulaPvE, ActionID.RampartPvE, ActionID.CamouflagePvE, ActionID.ReprisalPvE)]
-    protected override bool DefenseSingleAbility(out IAction? act)
+    protected override bool DefenseSingleAbility(IAction nextGCD, out IAction? act)
     {
         //10
         if (CamouflagePvE.CanUse(out act, onLastAbility: true)) return true;
@@ -116,14 +118,14 @@ public sealed class GNB_Default : GunbreakerRotation
 
         if (ReprisalPvE.CanUse(out act)) return true;
 
-        return base.DefenseSingleAbility(out act);
+        return base.DefenseSingleAbility(nextGCD, out act);
     }
 
     [RotationDesc(ActionID.AuroraPvE)]
-    protected override bool HealSingleAbility(out IAction? act)
+    protected override bool HealSingleAbility(IAction nextGCD, out IAction? act)
     {
         if (AuroraPvE.CanUse(out act, usedUp: true, onLastAbility: true)) return true;
-        return base.HealSingleAbility(out act);
+        return base.HealSingleAbility(nextGCD, out act);
     }
 
     //private bool CanUseNoMercy(out IAction act)

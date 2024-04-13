@@ -51,7 +51,7 @@ public class BLM_Default : BlackMageRotation
         return base.CountDownAction(remainTime);
     }
 
-    protected override bool AttackAbility(out IAction? act)
+    protected override bool AttackAbility(IAction nextGCD, out IAction? act)
     {
         if (IsBurst && UseBurstMedicine(out act)) return true;
         if (InUmbralIce)
@@ -72,7 +72,7 @@ public class BLM_Default : BlackMageRotation
             if (TriplecastPvE.CanUse(out act, gcdCountForAbility: 5)) return true;
         }
         if (AmplifierPvE.CanUse(out act)) return true;
-        return base.AttackAbility(out act);
+        return base.AttackAbility(nextGCD, out act);
     }
 
     protected override bool EmergencyAbility(IAction nextGCD, out IAction? act)
@@ -360,11 +360,11 @@ public class BLM_Default : BlackMageRotation
     }
 
     [RotationDesc(ActionID.BetweenTheLinesPvE, ActionID.LeyLinesPvE)]
-    protected override bool HealSingleAbility(out IAction? act)
+    protected override bool HealSingleAbility(IAction nextGCD, out IAction? act)
     {
         if (BetweenTheLinesPvE.CanUse(out act)) return true;
         if (LeyLinesPvE.CanUse(out act)) return true;
 
-        return base.HealSingleAbility(out act);
+        return base.HealSingleAbility(nextGCD, out act);
     }
 }

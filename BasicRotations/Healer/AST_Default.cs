@@ -22,11 +22,11 @@ public sealed class AST_Default : AstrologianRotation
     }
 
     [RotationDesc(ActionID.CelestialIntersectionPvE, ActionID.ExaltationPvE)]
-    protected override bool DefenseSingleAbility(out IAction? act)
+    protected override bool DefenseSingleAbility(IAction nextGCD, out IAction? act)
     {
         if (CelestialIntersectionPvE.CanUse(out act, usedUp:true)) return true;
         if (ExaltationPvE.CanUse(out act)) return true;
-        return base.DefenseSingleAbility(out act);
+        return base.DefenseSingleAbility(nextGCD, out act);
     }
 
     [RotationDesc(ActionID.MacrocosmosPvE)]
@@ -41,14 +41,14 @@ public sealed class AST_Default : AstrologianRotation
     }
 
     [RotationDesc(ActionID.CollectiveUnconsciousPvE)]
-    protected override bool DefenseAreaAbility(out IAction? act)
+    protected override bool DefenseAreaAbility(IAction nextGCD, out IAction? act)
     {
         act = null;
         if (MacrocosmosPvE.Cooldown.IsCoolingDown && !MacrocosmosPvE.Cooldown.WillHaveOneCharge(150)
             || CollectiveUnconsciousPvE.Cooldown.IsCoolingDown && !CollectiveUnconsciousPvE.Cooldown.WillHaveOneCharge(40)) return false;
 
         if (CollectiveUnconsciousPvE.CanUse(out act)) return true;
-        return base.DefenseAreaAbility(out act);
+        return base.DefenseAreaAbility(nextGCD, out act);
     }
 
     protected override bool GeneralGCD(out IAction? act)
@@ -92,11 +92,11 @@ public sealed class AST_Default : AstrologianRotation
         return base.EmergencyAbility(nextGCD, out act);
     }
 
-    protected override bool GeneralAbility(out IAction? act)
+    protected override bool GeneralAbility(IAction nextGCD, out IAction? act)
     {
         if (DrawPvE.CanUse(out act)) return true;
         if (RedrawPvE.CanUse(out act)) return true;
-        return base.GeneralAbility(out act);
+        return base.GeneralAbility(nextGCD, out act);
     }
 
     [RotationDesc(ActionID.AspectedBeneficPvE, ActionID.BeneficIiPvE, ActionID.BeneficPvE)]
@@ -112,7 +112,7 @@ public sealed class AST_Default : AstrologianRotation
         return base.HealSingleGCD(out act);
     }
 
-    protected override bool AttackAbility(out IAction? act)
+    protected override bool AttackAbility(IAction nextGCD, out IAction? act)
     {
         if (IsBurst && !IsMoving
             && DivinationPvE.CanUse(out act)) return true;
@@ -143,12 +143,12 @@ public sealed class AST_Default : AstrologianRotation
         if (RedrawPvE.CanUse(out act)) return true;
         if (InCombat && PlayCard(out act)) return true;
 
-        return base.AttackAbility(out act);
+        return base.AttackAbility(nextGCD, out act);
     }
 
     [RotationDesc(ActionID.EssentialDignityPvE, ActionID.CelestialIntersectionPvE, ActionID.CelestialOppositionPvE,
         ActionID.EarthlyStarPvE, ActionID.HoroscopePvE)]
-    protected override bool HealSingleAbility(out IAction? act)
+    protected override bool HealSingleAbility(IAction nextGCD, out IAction? act)
     {
         if (EssentialDignityPvE.CanUse(out act)) return true;
         if (CelestialIntersectionPvE.CanUse(out act, usedUp:true)) return true;
@@ -170,11 +170,11 @@ public sealed class AST_Default : AstrologianRotation
             || PartyMembersMinHP < 0.3)
             && HoroscopePvE.CanUse(out act)) return true;
 
-        return base.HealSingleAbility(out act);
+        return base.HealSingleAbility(nextGCD, out act);
     }
 
     [RotationDesc(ActionID.CelestialOppositionPvE, ActionID.EarthlyStarPvE, ActionID.HoroscopePvE)]
-    protected override bool HealAreaAbility(out IAction? act)
+    protected override bool HealAreaAbility(IAction nextGCD, out IAction? act)
     {
         if (CelestialOppositionPvE.CanUse(out act)) return true;
 
@@ -188,6 +188,6 @@ public sealed class AST_Default : AstrologianRotation
 
         if (DrawnCrownCard == CardType.LADY && MinorArcanaPvE.CanUse(out act)) return true;
 
-        return base.HealAreaAbility(out act);
+        return base.HealAreaAbility(nextGCD, out act);
     }
 }

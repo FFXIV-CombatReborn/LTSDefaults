@@ -100,7 +100,7 @@ public sealed class SMN_Default : SummonerRotation
         return base.GeneralGCD(out act);
     }
 
-    protected override bool AttackAbility(out IAction? act)
+    protected override bool AttackAbility(IAction nextGCD, out IAction? act)
     {
         if (IsBurst && !Player.HasStatus(false, StatusID.SearingLight))
         {
@@ -126,7 +126,7 @@ public sealed class SMN_Default : SummonerRotation
         if (EnergySiphonPvE.CanUse(out act)) return true;
         if (EnergyDrainPvE.CanUse(out act)) return true;
 
-        return base.AttackAbility(out act);
+        return base.AttackAbility(nextGCD, out act);
     }
     protected override bool EmergencyAbility(IAction nextGCD, out IAction? act)
     {

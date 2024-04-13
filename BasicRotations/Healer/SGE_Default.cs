@@ -35,7 +35,7 @@ public sealed class SGE_Default : SageRotation
     }
 
     [RotationDesc(ActionID.HaimaPvE, ActionID.TaurocholePvE, ActionID.PanhaimaPvE, ActionID.KeracholePvE, ActionID.HolosPvE)]
-    protected override bool DefenseSingleAbility(out IAction? act)
+    protected override bool DefenseSingleAbility(IAction nextGCD, out IAction? act)
     {
         if (Addersgall <= 1)
         {
@@ -53,7 +53,7 @@ public sealed class SGE_Default : SageRotation
 
         if (HolosPvE.CanUse(out act, onLastAbility: true)) return true;
 
-        return base.DefenseSingleAbility(out act);
+        return base.DefenseSingleAbility(nextGCD, out act);
     }
 
     [RotationDesc(ActionID.EukrasianDiagnosisPvE)]
@@ -78,7 +78,7 @@ public sealed class SGE_Default : SageRotation
     }
 
     [RotationDesc(ActionID.PanhaimaPvE, ActionID.KeracholePvE, ActionID.HolosPvE)]
-    protected override bool DefenseAreaAbility(out IAction? act)
+    protected override bool DefenseAreaAbility(IAction nextGCD, out IAction? act)
     {
         if (Addersgall <= 1)
         {
@@ -89,7 +89,7 @@ public sealed class SGE_Default : SageRotation
 
         if (HolosPvE.CanUse(out act, onLastAbility: true)) return true;
 
-        return base.DefenseAreaAbility(out act);
+        return base.DefenseAreaAbility(nextGCD, out act);
     }
 
     [RotationDesc(ActionID.EukrasianPrognosisPvE)]
@@ -112,7 +112,7 @@ public sealed class SGE_Default : SageRotation
         return base.DefenseAreaGCD(out act);
     }
 
-    protected override bool GeneralAbility(out IAction? act)
+    protected override bool GeneralAbility(IAction nextGCD, out IAction? act)
     {
         if (KardiaPvE.CanUse(out act)) return true;
 
@@ -122,7 +122,7 @@ public sealed class SGE_Default : SageRotation
 
         if (PepsisPvE.CanUse(out act)) return true;
 
-        return base.GeneralAbility(out act);
+        return base.GeneralAbility(nextGCD, out act);
     }
 
     protected override bool GeneralGCD(out IAction? act)
@@ -176,7 +176,7 @@ public sealed class SGE_Default : SageRotation
     }
 
     [RotationDesc(ActionID.TaurocholePvE, ActionID.KeracholePvE, ActionID.DruocholePvE, ActionID.HolosPvE, ActionID.PhysisPvE, ActionID.PanhaimaPvE)]
-    protected override bool HealSingleAbility(out IAction? act)
+    protected override bool HealSingleAbility(IAction nextGCD, out IAction? act)
     {
         if (TaurocholePvE.CanUse(out act)) return true;
 
@@ -212,7 +212,7 @@ public sealed class SGE_Default : SageRotation
 
         if (KeracholePvE.CanUse(out act)) return true;
 
-        return base.HealSingleAbility(out act);
+        return base.HealSingleAbility(nextGCD, out act);
     }
 
     [RotationDesc(ActionID.DiagnosisPvE)]
@@ -246,7 +246,7 @@ public sealed class SGE_Default : SageRotation
     }
 
     [RotationDesc(ActionID.KeracholePvE, ActionID.PhysisPvE, ActionID.HolosPvE, ActionID.IxocholePvE)]
-    protected override bool HealAreaAbility(out IAction? act)
+    protected override bool HealAreaAbility(IAction nextGCD, out IAction? act)
     {
         if (PhysisIiPvE.CanUse(out act)) return true;
         if (!PhysisIiPvE.EnoughLevel && PhysisPvE.CanUse(out act)) return true;
@@ -259,6 +259,6 @@ public sealed class SGE_Default : SageRotation
 
         if (KeracholePvE.CanUse(out act, onLastAbility: true)) return true;
 
-        return base.HealAreaAbility(out act);
+        return base.HealAreaAbility(nextGCD, out act);
     }
 }

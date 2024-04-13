@@ -333,7 +333,7 @@ public sealed class NIN_Default : NinjaRotation
         if (SpinningEdgePvE.CanUse(out act)) return true;
 
         //Range
-        if (MergedStatus.HasFlag(AutoStatus.MoveForward) && MoveForwardAbility(out act)) return true;
+
         if (ThrowingDaggerPvE.CanUse(out act)) return true;
 
         if (AutoUnhide)
@@ -404,7 +404,7 @@ public sealed class NIN_Default : NinjaRotation
     
     // Defines attack abilities to use during combat, overriding the base class implementation.
     #region AttackAbility
-    protected override bool AttackAbility(out IAction? act)
+    protected override bool AttackAbility(IAction nextGCD, out IAction? act)
     {
         act = null;
         // If Ninjutsu is available or not in combat, it exits early, indicating no attack action to perform.
@@ -441,9 +441,9 @@ public sealed class NIN_Default : NinjaRotation
             if (HellfrogMediumPvE.CanUse(out act)) return true;
             if (BhavacakraPvE.CanUse(out act)) return true;
         }
-        
+        if (MergedStatus.HasFlag(AutoStatus.MoveForward) && MoveForwardAbility(nextGCD, out act)) return true;
         // If none of the conditions are met, it falls back to the base class's implementation for attack ability.
-        return base.AttackAbility(out act);
+        return base.AttackAbility(nextGCD, out act);
     }
     #endregion
 

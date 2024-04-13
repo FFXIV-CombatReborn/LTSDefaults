@@ -41,7 +41,7 @@ public class PLD_Default : PaladinRotation
         return base.EmergencyAbility(nextGCD, out act);
     }
 
-    protected override bool AttackAbility(out IAction? act)
+    protected override bool AttackAbility(IAction nextGCD, out IAction? act)
     {
         act = null;
 
@@ -60,7 +60,7 @@ public class PLD_Default : PaladinRotation
 
         if (!IsMoving && IntervenePvE.CanUse(out act, skipAoeCheck: true, usedUp: HasFightOrFlight)) return true;
 
-        return base.AttackAbility(out act);
+        return base.AttackAbility(nextGCD, out act);
     }
 
     protected override bool GeneralGCD(out IAction? act)
@@ -109,17 +109,17 @@ public class PLD_Default : PaladinRotation
     }
 
     [RotationDesc(ActionID.ReprisalPvE, ActionID.DivineVeilPvE)]
-    protected override bool DefenseAreaAbility(out IAction? act)
+    protected override bool DefenseAreaAbility(IAction nextGCD, out IAction? act)
     {
 
         if (DivineVeilPvE.CanUse(out act)) return true;
 
         if (PassageOfArmsPvE.CanUse(out act)) return true;
-        return base.DefenseAreaAbility(out act);
+        return base.DefenseAreaAbility(nextGCD, out act);
     }
 
     [RotationDesc(ActionID.SentinelPvE, ActionID.RampartPvE, ActionID.BulwarkPvE, ActionID.SheltronPvE, ActionID.ReprisalPvE)]
-    protected override bool DefenseSingleAbility(out IAction? act)
+    protected override bool DefenseSingleAbility(IAction nextGCD, out IAction? act)
     {
 
         // If the player has the Hallowed Ground status, don't use any abilities.
@@ -142,7 +142,7 @@ public class PLD_Default : PaladinRotation
 
         }
 
-        return base.DefenseSingleAbility(out act);
+        return base.DefenseSingleAbility(nextGCD, out act);
     }
 
     private bool UseOath(out IAction act, bool onLast = false)

@@ -53,7 +53,7 @@ public sealed class DNC_Beta : DancerRotation
     }
 
     // Override the method for handling attack abilities
-    protected override bool AttackAbility(out IAction? act)
+    protected override bool AttackAbility(IAction nextGCD, out IAction? act)
     {
         act = null;
 
@@ -83,7 +83,7 @@ public sealed class DNC_Beta : DancerRotation
         if (UseClosedPosition(out act)) return true;
 
         // Fallback to base class attack ability method if none of the above conditions are met
-        return base.AttackAbility(out act);
+        return base.AttackAbility(nextGCD, out act);
     }
 
     // Override the method for handling general Global Cooldown (GCD) actions

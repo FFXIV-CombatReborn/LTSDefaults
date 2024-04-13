@@ -74,7 +74,6 @@ public sealed class MNK_Default : MonkRotation
 
         if (OpoOpoForm(out act)) return true; // Fallback to Use OpoOpo Form GCDs 
 
-        if (MergedStatus.HasFlag(AutoStatus.MoveForward) && MoveForwardAbility(out act)) return true;
         if (Chakra < 5 && MeditationPvE.CanUse(out act)) return true;
 
         if (AutoFormShift && FormShiftPvE.CanUse(out act)) return true; // Form Shift GCD use
@@ -177,7 +176,7 @@ public sealed class MNK_Default : MonkRotation
         return base.EmergencyAbility(nextGCD, out act);
     }
 
-    protected override bool AttackAbility(out IAction? act)
+    protected override bool AttackAbility(IAction nextGCD, out IAction? act)
     {
         act = null;
 
@@ -198,6 +197,8 @@ public sealed class MNK_Default : MonkRotation
 
         if (RiddleOfWindPvE.CanUse(out act)) return true; // Riddle Of Wind
 
-        return base.AttackAbility(out act);
+        if (MergedStatus.HasFlag(AutoStatus.MoveForward) && MoveForwardAbility(nextGCD, out act)) return true;
+
+        return base.AttackAbility(nextGCD, out act);
     }
 }

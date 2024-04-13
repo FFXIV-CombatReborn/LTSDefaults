@@ -65,7 +65,7 @@ public sealed class SCH_Default : ScholarRotation
     }
 
     [RotationDesc(ActionID.AetherpactPvE, ActionID.ProtractionPvE, ActionID.SacredSoilPvE, ActionID.ExcogitationPvE, ActionID.LustratePvE, ActionID.AetherpactPvE)]
-    protected override bool HealSingleAbility(out IAction? act)
+    protected override bool HealSingleAbility(IAction nextGCD, out IAction? act)
     {
         var haveLink = PartyMembers.Any(p => p.HasStatus(true, StatusID.FeyUnion_1223));
 
@@ -76,14 +76,14 @@ public sealed class SCH_Default : ScholarRotation
         if (LustratePvE.CanUse(out act)) return true;
         if (AetherpactPvE.CanUse(out act) && !haveLink) return true;
 
-        return base.HealSingleAbility(out act);
+        return base.HealSingleAbility(nextGCD, out act);
     }
 
     [RotationDesc(ActionID.ExcogitationPvE)]
-    protected override bool DefenseSingleAbility(out IAction? act)
+    protected override bool DefenseSingleAbility(IAction nextGCD, out IAction? act)
     {
         if (ExcogitationPvE.CanUse(out act)) return true;
-        return base.DefenseSingleAbility(out act);
+        return base.DefenseSingleAbility(nextGCD, out act);
     }
 
     [RotationDesc(ActionID.SuccorPvE)]
@@ -96,7 +96,7 @@ public sealed class SCH_Default : ScholarRotation
 
 
     [RotationDesc(ActionID.SummonSeraphPvE, ActionID.ConsolationPvE, ActionID.WhisperingDawnPvE, ActionID.SacredSoilPvE, ActionID.IndomitabilityPvE)]
-    protected override bool HealAreaAbility(out IAction? act)
+    protected override bool HealAreaAbility(IAction nextGCD, out IAction? act)
     {
         //慰藉
         if (WhisperingDawnPvE.Cooldown.ElapsedOneChargeAfterGCD(1) || FeyIlluminationPvE.Cooldown.ElapsedOneChargeAfterGCD(1) || FeyBlessingPvE.Cooldown.ElapsedOneChargeAfterGCD(1))
@@ -110,7 +110,7 @@ public sealed class SCH_Default : ScholarRotation
         if (SacredSoilPvE.CanUse(out act)) return true;
         if (IndomitabilityPvE.CanUse(out act)) return true;
 
-        return base.HealAreaAbility(out act);
+        return base.HealAreaAbility(nextGCD, out act);
     }
 
     [RotationDesc(ActionID.SuccorPvE)]
@@ -121,7 +121,7 @@ public sealed class SCH_Default : ScholarRotation
     }
 
     [RotationDesc(ActionID.FeyIlluminationPvE, ActionID.ExpedientPvE, ActionID.SummonSeraphPvE, ActionID.ConsolationPvE, ActionID.SacredSoilPvE)]
-    protected override bool DefenseAreaAbility(out IAction? act)
+    protected override bool DefenseAreaAbility(IAction nextGCD, out IAction? act)
     {
         if (FeyIlluminationPvE.CanUse(out act)) return true;
         if (ExpedientPvE.CanUse(out act)) return true;
@@ -133,11 +133,11 @@ public sealed class SCH_Default : ScholarRotation
         if (ConsolationPvE.CanUse(out act, usedUp: true)) return true;
         if (SacredSoilPvE.CanUse(out act)) return true;
 
-        return base.DefenseAreaAbility(out act);
+        return base.DefenseAreaAbility(nextGCD, out act);
     }
 
 
-    protected override bool AttackAbility(out IAction? act)
+    protected override bool AttackAbility(IAction nextGCD, out IAction? act)
     {
         if (IsBurst)
         {
@@ -152,7 +152,7 @@ public sealed class SCH_Default : ScholarRotation
         if (DissipationPvE.CanUse(out act)) return true;
         if (AetherflowPvE.CanUse(out act)) return true;
 
-        return base.AttackAbility(out act);
+        return base.AttackAbility(nextGCD, out act);
     }
 
     protected override IAction? CountDownAction(float remainTime)

@@ -52,7 +52,7 @@ public sealed class WHM_Default :WhiteMageRotation
         return false;
     }
 
-    protected override bool AttackAbility(out IAction? act)
+    protected override bool AttackAbility(IAction nextGCD, out IAction? act)
     {
         if (InCombat)
         {
@@ -60,7 +60,7 @@ public sealed class WHM_Default :WhiteMageRotation
             if (AssizePvE.CanUse(out act, skipAoeCheck: true)) return true;
         }
 
-        return base.AttackAbility(out act);
+        return base.AttackAbility(nextGCD, out act);
     }
 
     protected override bool EmergencyAbility(IAction nextGCD, out IAction? act)
@@ -92,7 +92,7 @@ public sealed class WHM_Default :WhiteMageRotation
     }
 
     [RotationDesc(ActionID.BenedictionPvE, ActionID.AsylumPvE, ActionID.DivineBenisonPvE, ActionID.TetragrammatonPvE)]
-    protected override bool HealSingleAbility(out IAction? act)
+    protected override bool HealSingleAbility(IAction nextGCD, out IAction? act)
     {
         if (BenedictionPvE.CanUse(out act) &&
             RegenPvE.Target.Target?.GetHealthRatio() < 0.3) return true;
@@ -102,7 +102,7 @@ public sealed class WHM_Default :WhiteMageRotation
         if (DivineBenisonPvE.CanUse(out act)) return true;
 
         if (TetragrammatonPvE.CanUse(out act)) return true;
-        return base.HealSingleAbility(out act);
+        return base.HealSingleAbility(nextGCD, out act);
     }
 
     [RotationDesc(ActionID.AfflatusRapturePvE, ActionID.MedicaIiPvE, ActionID.CureIiiPvE, ActionID.MedicaPvE)]
@@ -122,14 +122,14 @@ public sealed class WHM_Default :WhiteMageRotation
     }
 
     [RotationDesc(ActionID.AsylumPvE)]
-    protected override bool HealAreaAbility(out IAction? act)
+    protected override bool HealAreaAbility(IAction nextGCD, out IAction? act)
     {
         if (AsylumPvE.CanUse(out act)) return true;
-        return base.HealAreaAbility(out act);
+        return base.HealAreaAbility(nextGCD, out act);
     }
 
     [RotationDesc(ActionID.DivineBenisonPvE, ActionID.AquaveilPvE)]
-    protected override bool DefenseSingleAbility(out IAction? act)
+    protected override bool DefenseSingleAbility(IAction nextGCD, out IAction? act)
     {
         act = null;
         if (DivineBenisonPvE.Cooldown.IsCoolingDown && !DivineBenisonPvE.Cooldown.WillHaveOneCharge(15)
@@ -138,11 +138,11 @@ public sealed class WHM_Default :WhiteMageRotation
         if (DivineBenisonPvE.CanUse(out act)) return true;
 
         if (AquaveilPvE.CanUse(out act)) return true;
-        return base.DefenseSingleAbility(out act);
+        return base.DefenseSingleAbility(nextGCD, out act);
     }
 
     [RotationDesc(ActionID.TemperancePvE, ActionID.LiturgyOfTheBellPvE)]
-    protected override bool DefenseAreaAbility(out IAction? act)
+    protected override bool DefenseAreaAbility(IAction nextGCD, out IAction? act)
     {
         act = null;
         if (TemperancePvE.Cooldown.IsCoolingDown && !TemperancePvE.Cooldown.WillHaveOneCharge(100)
@@ -151,7 +151,7 @@ public sealed class WHM_Default :WhiteMageRotation
         if (TemperancePvE.CanUse(out act)) return true;
 
         if (LiturgyOfTheBellPvE.CanUse(out act, skipAoeCheck: true)) return true;
-        return base.DefenseAreaAbility(out act);
+        return base.DefenseAreaAbility(nextGCD, out act);
     }
 
     protected override IAction? CountDownAction(float remainTime)

@@ -103,23 +103,23 @@ public sealed class DRK_Default : DarkKnightRotation
 
     // Determines healing actions based on The Blackest Night ability.
     [RotationDesc(ActionID.TheBlackestNightPvE)]
-    protected override bool HealSingleAbility(out IAction? act)
+    protected override bool HealSingleAbility(IAction nextGCD, out IAction? act)
     {
         if (TheBlackestNightPvE.CanUse(out act)) return true;
-        return base.HealSingleAbility(out act);
+        return base.HealSingleAbility(nextGCD, out act);
     }
 
     [RotationDesc(ActionID.DarkMissionaryPvE, ActionID.ReprisalPvE)]
-    protected override bool DefenseAreaAbility(out IAction? act)
+    protected override bool DefenseAreaAbility(IAction nextGCD, out IAction? act)
     {
         if (!InTwoMIsBurst() && DarkMissionaryPvE.CanUse(out act)) return true;
         if (!InTwoMIsBurst() && ReprisalPvE.CanUse(out act, skipAoeCheck: true)) return true;
 
-        return base.DefenseAreaAbility(out act);
+        return base.DefenseAreaAbility(nextGCD, out act);
     }
 
     [RotationDesc(ActionID.TheBlackestNightPvE, ActionID.OblationPvE, ActionID.ReprisalPvE, ActionID.ShadowWallPvE, ActionID.RampartPvE, ActionID.DarkMindPvE)]
-    protected override bool DefenseSingleAbility(out IAction? act)
+    protected override bool DefenseSingleAbility(IAction nextGCD, out IAction? act)
     {
         act = null;
 
@@ -138,7 +138,7 @@ public sealed class DRK_Default : DarkKnightRotation
         if (ShadowWallPvE.Cooldown.IsCoolingDown && ShadowWallPvE.Cooldown.ElapsedAfter(60) && RampartPvE.CanUse(out act)) return true;
         if (DarkMindPvE.CanUse(out act)) return true;
 
-        return base.DefenseAreaAbility(out act);
+        return base.DefenseAreaAbility(nextGCD, out act);
     }
 
     protected override bool GeneralGCD(out IAction? act)
@@ -159,13 +159,12 @@ public sealed class DRK_Default : DarkKnightRotation
         if (SyphonStrikePvE.CanUse(out act)) return true;
         if (HardSlashPvE.CanUse(out act)) return true;
 
-        if (MergedStatus.HasFlag(AutoStatus.MoveForward) && MoveForwardAbility(out act)) return true;
         if (BloodWeaponPvE.Cooldown.IsCoolingDown && !Player.HasStatus(true, StatusID.BloodWeapon) && UnmendPvE.CanUse(out act)) return true;
 
         return base.GeneralGCD(out act);
     }
 
-    protected override bool AttackAbility(out IAction? act)
+    protected override bool AttackAbility(IAction nextGCD, out IAction? act)
     {
         //if (InCombat && CombatElapsedLess(2) && BloodWeapon.CanUse(out act)) return true;
         if (CheckDarkSide)
@@ -211,7 +210,7 @@ public sealed class DRK_Default : DarkKnightRotation
         {
             if (PlungePvE.CanUse(out act, usedUp: true, skipAoeCheck: true) && !IsMoving) return true;
         }
-
-        return base.AttackAbility(out act);
+        if (MergedStatus.HasFlag(AutoStatus.MoveForward) && MoveForwardAbility(nextGCD, out act)) return true;
+        return base.AttackAbility(nextGCD, out act);
     }
 }

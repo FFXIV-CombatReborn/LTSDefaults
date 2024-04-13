@@ -60,7 +60,7 @@ public sealed class SAM_Beta : SamuraiRotation
         return base.GeneralGCD(out act);
     }
 
-    protected override bool AttackAbility(out IAction? act)
+    protected override bool AttackAbility(IAction nextGCD, out IAction? act)
     {
         var IsTargetBoss = HostileTarget?.IsBossFromTTK() ?? false;
         var IsTargetDying = HostileTarget?.IsDying() ?? false;
@@ -87,7 +87,7 @@ public sealed class SAM_Beta : SamuraiRotation
             if (HissatsuShintenPvE.CanUse(out act)) return true;
         }
 
-        return base.AttackAbility(out act);
+        return base.AttackAbility(nextGCD, out act);
     }
     protected override bool EmergencyAbility(IAction nextGCD, out IAction? act)
     {

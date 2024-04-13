@@ -124,7 +124,7 @@ public sealed class RDM_Default : RedMageRotation
         return base.EmergencyAbility(nextGCD, out act);
     }
 
-    protected override bool AttackAbility(out IAction? act)
+    protected override bool AttackAbility(IAction nextGCD, out IAction? act)
     {
         //Swift
         if (ManaStacks == 0 && (BlackMana < 50 || WhiteMana < 50)
@@ -146,6 +146,6 @@ public sealed class RDM_Default : RedMageRotation
         if (EngagementPvE.CanUse(out act, usedUp: true)) return true;
         if (CorpsacorpsPvE.CanUse(out act) && !IsMoving) return true;
 
-        return base.AttackAbility(out act);
+        return base.AttackAbility(nextGCD, out act);
     }
 }
