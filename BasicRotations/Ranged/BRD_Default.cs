@@ -86,7 +86,7 @@ public sealed class BRD_Default : BardRotation
         return base.EmergencyAbility(nextGCD, out act);
     }
 
-    protected override bool AttackAbility(out IAction? act)
+    protected override bool AttackAbility(IAction nextGCD, out IAction? act)
     {
         #region PvP
         //if (PvP_FinalFantasia.CanUse(out act, CanUseOption.MustUse)) return true;
@@ -191,7 +191,7 @@ public sealed class BRD_Default : BardRotation
             if (BloodletterPvE.CanUse(out act, usedUp: true)) return true;
         }
 
-        return base.AttackAbility(out act);
+        return base.AttackAbility(nextGCD, out act);
     }
 
     private bool CanUseApexArrow(out IAction act)

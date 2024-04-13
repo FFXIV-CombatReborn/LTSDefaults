@@ -6,10 +6,11 @@ namespace DefaultRotations.Melee;
 public sealed class DRG_Default : DragoonRotation
 {
     [RotationDesc(ActionID.SpineshatterDivePvE, ActionID.DragonfireDivePvE)]
-    protected override bool MoveForwardAbility(out IAction act)
+    protected override bool MoveForwardAbility(IAction nextGCD, out IAction act)
     {
         if (SpineshatterDivePvE.CanUse(out act)) return true;
         if (DragonfireDivePvE.CanUse(out act, skipAoeCheck: true)) return true;
+
         return false;
     }
     protected override bool EmergencyAbility(IAction nextGCD, out IAction? act)
@@ -23,7 +24,7 @@ public sealed class DRG_Default : DragoonRotation
         return base.EmergencyAbility(nextGCD, out act);
     }
 
-    protected override bool AttackAbility(out IAction? act)
+    protected override bool AttackAbility(IAction nextGCD, out IAction? act)
     {
         if (IsBurst && InCombat)
         {
@@ -62,8 +63,9 @@ public sealed class DRG_Default : DragoonRotation
         }
 
         if (WyrmwindThrustPvE.CanUse(out act, skipAoeCheck: true)) return true;
+        if (MergedStatus.HasFlag(AutoStatus.MoveForward) && MoveForwardAbility(nextGCD, out act)) return true;
 
-        return base.AttackAbility(out act);
+        return base.AttackAbility(nextGCD, out act);
     }
 
     protected override bool GeneralGCD(out IAction? act)
@@ -87,8 +89,6 @@ public sealed class DRG_Default : DragoonRotation
 
         if (VorpalThrustPvE.CanUse(out act)) return true;
         if (TrueThrustPvE.CanUse(out act)) return true;
-
-        if (MergedStatus.HasFlag(AutoStatus.MoveForward) && MoveForwardAbility(out act)) return true;
         if (PiercingTalonPvE.CanUse(out act)) return true;
 
         return base.GeneralGCD(out act);

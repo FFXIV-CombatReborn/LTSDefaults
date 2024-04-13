@@ -103,7 +103,7 @@ public sealed class RPR_Default : ReaperRotation
         return base.GeneralGCD(out act);
     }
 
-    protected override bool AttackAbility(out IAction? act)
+    protected override bool AttackAbility(IAction nextGCD, out IAction? act)
     {
         var IsTargetBoss = HostileTarget?.IsBossFromTTK() ?? false;
         var IsTargetDying = HostileTarget?.IsDying() ?? false;
@@ -154,6 +154,6 @@ public sealed class RPR_Default : ReaperRotation
             if (BloodStalkPvE.CanUse(out act)) return true;
         }
 
-        return base.AttackAbility(out act);
+        return base.AttackAbility(nextGCD, out act);
     }
 }

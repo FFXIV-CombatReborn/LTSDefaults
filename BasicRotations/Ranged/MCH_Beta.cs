@@ -6,17 +6,18 @@ namespace DefaultRotations.Ranged;
 [SourceCode(Path = "main/DefaultRotations/Ranged/MCH_Beta.cs")]
 public sealed class MCH_Beta : MachinistRotation
 {
+
     #region Countdown logic
     // Defines logic for actions to take during the countdown before combat starts.
     protected override IAction? CountDownAction(float remainTime)
     {
-        if (remainTime < 2)
-        {
-            if (UseBurstMedicine(out var act)) return act;
-        }
         if (remainTime < 5)
         {
             if (ReassemblePvE.CanUse(out var act)) return act;
+        }
+        if (remainTime < 2)
+        {
+            if (UseBurstMedicine(out var act)) return act;
         }
         return base.CountDownAction(remainTime);
     }
@@ -42,33 +43,42 @@ public sealed class MCH_Beta : MachinistRotation
             //HotShot Logic
             (!CleanShotPvE.EnoughLevel && nextGCD.IsTheSameTo(true, HotShotPvE)));
 
+        // Keeps Ricochet and Gauss cannon Even
+        bool isRicochetMore = (GaussRoundPvE.Cooldown.CurrentCharges <= RicochetPvE.Cooldown.CurrentCharges);
+        bool isGaussMore = (GaussRoundPvE.Cooldown.CurrentCharges > RicochetPvE.Cooldown.CurrentCharges);
+
         // Attempt to use Reassemble if it's ready
         if (isReassembleUsable)
         {
             if (ReassemblePvE.CanUse(out act, onLastAbility: true, skipClippingCheck: true, skipComboCheck: true, usedUp: true)) return true;
         }
-
-        // Prioritizes Ricochet and Gauss Round based on their current charges.
-        if (GaussRoundPvE.Cooldown.CurrentCharges <= RicochetPvE.Cooldown.CurrentCharges && RicochetPvE.CanUse(out act, skipClippingCheck: true, skipAoeCheck: true, usedUp: true))
+        // Use Ricochet
+        if (isRicochetMore)
         {
-            return true;
+            return RicochetPvE.CanUse(out act, skipAoeCheck: true, usedUp: true);
         }
-
-        // Use GaussRound if it's available, regardless of Ricochet's status.
-        else if (GaussRoundPvE.CanUse(out act, skipClippingCheck: true, skipAoeCheck: true, usedUp: true))
+        // Use Gause
+        if (isGaussMore)
         {
-            return true;
+            return GaussRoundPvE.CanUse(out act, usedUp: true);
         }
-
         return base.EmergencyAbility(nextGCD, out act);
-
     }
     #endregion
 
     #region oGCD Logic
     // Logic for using attack abilities outside of GCD, focusing on burst windows and cooldown management.
-    protected override bool AttackAbility(out IAction? act)
+    protected override bool AttackAbility(IAction nextGCD, out IAction? act)
     {
+        // Define conditions under which the Rook Autoturret can be used.
+        bool OpenerQueen = !CombatElapsedLess(20f) && CombatElapsedLess(25f);
+        bool CombatTimeQueen = CombatElapsedLess(60f) && !CombatElapsedLess(45f);
+        bool WildfireCooldownQueen = WildfirePvE.Cooldown.IsCoolingDown && WildfirePvE.Cooldown.ElapsedAfter(105f) && Battery == 100 &&
+                    (nextGCD.IsTheSameTo(true, AirAnchorPvE) || nextGCD.IsTheSameTo(true, CleanShotPvE));
+        bool BatteryCheckQueen = Battery >= 90 && !WildfirePvE.Cooldown.ElapsedAfter(70f);
+        bool LastGCDCheckQueen = Battery >= 80 && !WildfirePvE.Cooldown.ElapsedAfter(77.5f) && IsLastGCD(true, AirAnchorPvE);
+
+        // If Wildfire is active, use Hypercharge.....Period
         if (Player.HasStatus(true, StatusID.Wildfire_1946))
         {
             return HyperchargePvE.CanUse(out act, skipClippingCheck: true);
@@ -80,22 +90,23 @@ public sealed class MCH_Beta : MachinistRotation
 
             {
                 if ((IsLastAbility(false, HyperchargePvE) || Heat >= 50) && !CombatElapsedLess(10) && CanUseHyperchargePvE(out _)
-                && WildfirePvE.CanUse(out act, onLastAbility: true, skipClippingCheck: true, skipComboCheck: true)) return true;
+                && WildfirePvE.CanUse(out act, onLastAbility: true, skipComboCheck: true)) return true;
             }
         }
-
-        if (!CombatElapsedLess(12) && (!WildfirePvE.Cooldown.WillHaveOneCharge(30) || (Heat == 100)))
+        // Use Hypercharge if at least 12 seconds of combat and (if wildfire will not be up in 30 seconds or if you hit 100 heat)
+        if (!CombatElapsedLess(12) && !Player.HasStatus(true, StatusID.Reassembled) && (!WildfirePvE.Cooldown.WillHaveOneCharge(30) || (Heat == 100)))
         {
-            if (!CombatElapsedLess(12) && CanUseHyperchargePvE(out act)) return true;
+            if (CanUseHyperchargePvE(out act)) return true;
         }
-        if (CanUseRookAutoturretPvE(out act)) return true;
+
+        if (OpenerQueen || CombatTimeQueen || WildfireCooldownQueen || BatteryCheckQueen || LastGCDCheckQueen)
+        {
+            return RookAutoturretPvE.CanUse(out act, skipComboCheck: true);
+        }
 
         if (BarrelStabilizerPvE.CanUse(out act)) return true;
 
-        // Skips further actions if the combat elapsed time is less than 8 seconds.
-        if (CombatElapsedLess(8)) return false;
-
-        return base.AttackAbility(out act);
+        return base.AttackAbility(nextGCD, out act);
     }
     #endregion
 
@@ -109,11 +120,16 @@ public sealed class MCH_Beta : MachinistRotation
 
         // Executes Bioblaster, and then checks for AirAnchor or HotShot, and Drill based on availability and conditions.
         if (BioblasterPvE.CanUse(out act)) return true;
+        // Check if SpreadShot cannot be used
         if (!SpreadShotPvE.CanUse(out _))
         {
+            // Check if AirAnchor can be used
             if (AirAnchorPvE.CanUse(out act)) return true;
-            else if (!AirAnchorPvE.EnoughLevel && HotShotPvE.CanUse(out act)) return true;
 
+            // If not at the required level for AirAnchor and HotShot can be used
+            if (!AirAnchorPvE.EnoughLevel && HotShotPvE.CanUse(out act)) return true;
+
+            // Check if Drill can be used
             if (DrillPvE.CanUse(out act)) return true;
         }
 
@@ -136,21 +152,6 @@ public sealed class MCH_Beta : MachinistRotation
     #region Extra Methods
     // Extra private helper methods for determining the usability of specific abilities under certain conditions.
     // These methods simplify the main logic by encapsulating specific checks related to abilities' cooldowns and prerequisites.
-    private bool CanUseRookAutoturretPvE(out IAction? act)
-    {
-        
-        if (!AirAnchorPvE.Cooldown.IsCoolingDown || AirAnchorPvE.Cooldown.ElapsedAfter(18) ||
-           (!AirAnchorPvE.EnoughLevel && !HotShotPvE.Cooldown.IsCoolingDown || HotShotPvE.Cooldown.ElapsedAfter(18)))
-        {
-            act = null;
-            return false;
-        }
-
-        // Use Rook Auto Turret
-        return RookAutoturretPvE.CanUse(out act);
-    }
-
-
     // Logic for Hypercharge
     private bool CanUseHyperchargePvE(out IAction? act)
     {

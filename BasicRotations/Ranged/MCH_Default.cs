@@ -10,7 +10,14 @@ public sealed class MCH_Default : MachinistRotation
     // Defines logic for actions to take during the countdown before combat starts.
     protected override IAction? CountDownAction(float remainTime)
     {
-        if (remainTime < 2 && UseBurstMedicine(out var act)) return act;
+        if (remainTime < 2)
+        {
+            if (UseBurstMedicine(out var act)) return act;
+        }
+        if (remainTime < 5)
+        {
+            if (ReassemblePvE.CanUse(out var act)) return act;
+        }
         return base.CountDownAction(remainTime);
     }
     #endregion
@@ -24,7 +31,7 @@ public sealed class MCH_Default : MachinistRotation
         bool isReassembleUsable =
             //Reassemble current # of charges and double proc protection
             ReassemblePvE.Cooldown.CurrentCharges > 0 && !Player.HasStatus(true, StatusID.Reassembled) &&
-            //Chainsaw Logic
+            //Chainsaw Level Check and NextGCD Check
             ((ChainSawPvE.EnoughLevel && nextGCD.IsTheSameTo(true, ChainSawPvE)) ||
             //AirAnchor Logic
             (AirAnchorPvE.EnoughLevel && nextGCD.IsTheSameTo(true, AirAnchorPvE)) ||
@@ -34,6 +41,7 @@ public sealed class MCH_Default : MachinistRotation
             (!DrillPvE.EnoughLevel && CleanShotPvE.EnoughLevel && nextGCD.IsTheSameTo(true, CleanShotPvE)) ||
             //HotShot Logic
             (!CleanShotPvE.EnoughLevel && nextGCD.IsTheSameTo(true, HotShotPvE)));
+
         // Attempt to use Reassemble if it's ready
         if (isReassembleUsable)
         {
@@ -45,13 +53,13 @@ public sealed class MCH_Default : MachinistRotation
         {
             return true;
         }
+
         // Use GaussRound if it's available, regardless of Ricochet's status.
         else if (GaussRoundPvE.CanUse(out act, skipClippingCheck: true, skipAoeCheck: true, usedUp: true))
         {
             return true;
         }
 
-        // Fallback to the base emergency ability if neither Ricochet nor GaussRound can be used.
         return base.EmergencyAbility(nextGCD, out act);
 
     }
@@ -59,19 +67,27 @@ public sealed class MCH_Default : MachinistRotation
 
     #region oGCD Logic
     // Logic for using attack abilities outside of GCD, focusing on burst windows and cooldown management.
-    protected override bool AttackAbility(out IAction? act)
+    protected override bool AttackAbility(IAction nextGCD, out IAction? act)
     {
+        if (Player.HasStatus(true, StatusID.Wildfire_1946))
+        {
+            return HyperchargePvE.CanUse(out act, skipClippingCheck: true);
+        }
+
         if (IsBurst)
         {
             if (UseBurstMedicine(out act)) return true;
-            
+
             {
-                if ((IsLastAbility(false, HyperchargePvE) || Heat >= 50) && !CombatElapsedLess(10)
-                && WildfirePvE.CanUse(out act, onLastAbility: true, skipClippingCheck: true, skipComboCheck: true)) return true;
+                if ((IsLastAbility(false, HyperchargePvE) || Heat >= 50) && !CombatElapsedLess(10) && CanUseHyperchargePvE(out _)
+                && WildfirePvE.CanUse(out act, onLastAbility: true, skipComboCheck: true)) return true;
             }
         }
 
-        if (!CombatElapsedLess(12) && CanUseHyperchargePvE(out act)) return true;
+        if (!CombatElapsedLess(12) && (!WildfirePvE.Cooldown.WillHaveOneCharge(30) || (Heat == 100)))
+        {
+            if (!CombatElapsedLess(12) && (!Player.HasStatus(true, StatusID.Reassembled)) && CanUseHyperchargePvE(out act)) return true;
+        }
         if (CanUseRookAutoturretPvE(out act)) return true;
 
         if (BarrelStabilizerPvE.CanUse(out act)) return true;
@@ -79,7 +95,7 @@ public sealed class MCH_Default : MachinistRotation
         // Skips further actions if the combat elapsed time is less than 8 seconds.
         if (CombatElapsedLess(8)) return false;
 
-        return base.AttackAbility(out act);
+        return base.AttackAbility(nextGCD, out act);
     }
     #endregion
 
@@ -122,12 +138,11 @@ public sealed class MCH_Default : MachinistRotation
     // These methods simplify the main logic by encapsulating specific checks related to abilities' cooldowns and prerequisites.
     private bool CanUseRookAutoturretPvE(out IAction? act)
     {
-        act = null;
 
-        // 
-        if ((AirAnchorPvE.EnoughLevel && (!AirAnchorPvE.Cooldown.IsCoolingDown || AirAnchorPvE.Cooldown.ElapsedAfter(18))) ||
-           (!AirAnchorPvE.EnoughLevel && (!HotShotPvE.Cooldown.IsCoolingDown || HotShotPvE.Cooldown.ElapsedAfter(18))))
+        if (AirAnchorPvE.EnoughLevel && !AirAnchorPvE.Cooldown.IsCoolingDown || AirAnchorPvE.Cooldown.ElapsedAfter(18) ||
+           (!AirAnchorPvE.EnoughLevel && !HotShotPvE.Cooldown.IsCoolingDown || HotShotPvE.Cooldown.ElapsedAfter(18)))
         {
+            act = null;
             return false;
         }
 
@@ -137,27 +152,30 @@ public sealed class MCH_Default : MachinistRotation
 
 
     // Logic for Hypercharge
-    const float REST_TIME = 6f;
     private bool CanUseHyperchargePvE(out IAction? act)
     {
-        act = null;
+        float REST_TIME = 6f;
+        if
 
-        // Checks if AOE is false and at least 12 seconds of combat has passed
-        if (!SpreadShotPvE.CanUse(out _) && !CombatElapsedLess(12) &&
-            //AirAnchor Charge Detection
+            //Cannot AOE
+            ((!SpreadShotPvE.CanUse(out _)) &&
+            // AirAnchor Enough Level % AirAnchor 
             ((AirAnchorPvE.EnoughLevel && AirAnchorPvE.Cooldown.WillHaveOneCharge(REST_TIME)) ||
-            //HotShot Charge Detection
-            (!AirAnchorPvE.EnoughLevel && HotShotPvE.EnoughLevel && HotShotPvE.Cooldown.WillHaveOneCharge(REST_TIME))) ||
-            //Drill Charge Detection
-            DrillPvE.EnoughLevel && DrillPvE.Cooldown.WillHaveOneCharge(REST_TIME) ||
-            //Chainsaw Charge Detection
-            ChainSawPvE.EnoughLevel && ChainSawPvE.Cooldown.WillHaveOneCharge(REST_TIME))
+            // HotShot Charge Detection
+            (!AirAnchorPvE.EnoughLevel && HotShotPvE.EnoughLevel && HotShotPvE.Cooldown.WillHaveOneCharge(REST_TIME)) ||
+            // Drill Charge Detection
+            (DrillPvE.EnoughLevel && DrillPvE.Cooldown.WillHaveOneCharge(REST_TIME)) ||
+            // Chainsaw Charge Detection
+            (ChainSawPvE.EnoughLevel && ChainSawPvE.Cooldown.WillHaveOneCharge(REST_TIME))))
         {
+            act = null;
             return false;
         }
-
-        // Use Hypercharge
-        return HyperchargePvE.CanUse(out act);
+        else
+        {
+            // Use Hypercharge
+            return HyperchargePvE.CanUse(out act);
+        }
     }
 
     #endregion

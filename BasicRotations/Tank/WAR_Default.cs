@@ -48,9 +48,6 @@ public sealed class WAR_Default : WarriorRotation
         if (MaimPvE.CanUse(out act)) return true;
         if (HeavySwingPvE.CanUse(out act)) return true;
 
-        // If the player's status includes moving forward and a move forward ability can be used, use it and return true.
-        if (MergedStatus.HasFlag(AutoStatus.MoveForward) && MoveForwardAbility(out act)) return true;
-
         // If Tomahawk can be used, use it and return true.
         if (TomahawkPvE.CanUse(out act)) return true;
 
@@ -58,7 +55,7 @@ public sealed class WAR_Default : WarriorRotation
     }
 
 
-    protected override bool AttackAbility(out IAction? act)
+    protected override bool AttackAbility(IAction nextGCD, out IAction? act)
     {
         // If Infuriate can be used, use it and return true.
         if (InfuriatePvE.CanUse(out act, gcdCountForAbility: 3)) return true;
@@ -95,11 +92,13 @@ public sealed class WAR_Default : WarriorRotation
         // If Onslaught can be used and the player is not moving, use it and return true.
         if (OnslaughtPvE.CanUse(out act, usedUp: IsBurstStatus) && !IsMoving) return true;
 
-        return base.AttackAbility(out act);
+        // If the player's status includes moving forward and a move forward ability can be used, use it and return true.
+        if (MergedStatus.HasFlag(AutoStatus.MoveForward) && MoveForwardAbility(nextGCD, out act)) return true;
+        return base.AttackAbility(nextGCD, out act);
     }
 
 
-    protected override bool GeneralAbility(out IAction? act)
+    protected override bool GeneralAbility(IAction nextGCD, out IAction? act)
     {
         // Initialize the action to null.
         act = null;
@@ -113,12 +112,12 @@ public sealed class WAR_Default : WarriorRotation
             // If Equilibrium can be used, use it and return true.
             if (EquilibriumPvE.CanUse(out act)) return true;
         }
-        return base.GeneralAbility(out act);
+        return base.GeneralAbility(nextGCD, out act);
     }
 
     [RotationDesc(ActionID.RawIntuitionPvE, ActionID.VengeancePvE, ActionID.RampartPvE, ActionID.RawIntuitionPvE, ActionID.ReprisalPvE)]
     // This method is responsible for determining the defensive abilities to use in a single-target situation.
-    protected override bool DefenseSingleAbility(out IAction? act)
+    protected override bool DefenseSingleAbility(IAction nextGCD, out IAction? act)
     {
         act = null;
 
@@ -141,11 +140,11 @@ public sealed class WAR_Default : WarriorRotation
         if (((VengeancePvE.Cooldown.IsCoolingDown && VengeancePvE.Cooldown.ElapsedAfter(60)) || !VengeancePvE.EnoughLevel) && RampartPvE.CanUse(out act)) return true;
 
 
-        return base.DefenseAreaAbility(out act);
+        return base.DefenseAreaAbility(nextGCD, out act);
     }
 
     [RotationDesc(ActionID.ShakeItOffPvE, ActionID.ReprisalPvE)]
-    protected override bool DefenseAreaAbility(out IAction? act)
+    protected override bool DefenseAreaAbility(IAction nextGCD, out IAction? act)
     {
         // Initialize the action to null.
         act = null;
@@ -157,7 +156,7 @@ public sealed class WAR_Default : WarriorRotation
         // If Shake It Off can be used, use it.
         if (ShakeItOffPvE.CanUse(out act, skipAoeCheck: true)) return true;
 
-        return base.DefenseAreaAbility(out act);
+        return base.DefenseAreaAbility(nextGCD, out act);
     }
 
     [RotationDesc(ActionID.NascentFlashPvE)]
