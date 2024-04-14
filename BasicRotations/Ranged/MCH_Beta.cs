@@ -60,7 +60,7 @@ public sealed class MCH_Beta : MachinistRotation
             return RicochetPvE.CanUse(out act, skipAoeCheck: true, usedUp: true);
         }
         // Use Gause
-        if (isGaussMore && !IsLastAction(true, GaussRoundPvE) && !IsLastAction(true, RicochetPvE) && Player.HasStatus(true, StatusID.Overheated))
+        if (isGaussMore && ((!IsLastAction(true, GaussRoundPvE) && !IsLastAction(true, RicochetPvE) && Player.HasStatus(true, StatusID.Overheated)) || !Player.HasStatus(true, StatusID.Overheated)))
         {
             return GaussRoundPvE.CanUse(out act, usedUp: true);
         }
