@@ -1,7 +1,10 @@
-﻿namespace DefaultRotations.Ranged;
+﻿using RotationSolver.Basic.Attributes;
+
+namespace DefaultRotations.Ranged;
 
 [Rotation("Dancer Beta", CombatType.PvE, GameVersion = "6.58", Description = "Additonal contributions to this rotation thanks to Toshi!")]
 [SourceCode(Path = "main/DefaultRotations/Ranged/DNC_Beta.cs")]
+[Api(1)]
 public sealed class DNC_Beta : DancerRotation
 {
     [RotationConfig(CombatType.PvE, Name = "Holds Standard and Tech Step if no targets in range (Warning will drift)")]
@@ -25,7 +28,6 @@ public sealed class DNC_Beta : DancerRotation
     // Override the method for handling emergency abilities
     protected override bool EmergencyAbility(IAction nextGCD, out IAction? act)
     {
-        act = null;
         // Special handling if the last action was Quadruple Technical Finish and level requirement is met
         if (IsLastAction(ActionID.QuadrupleTechnicalFinishPvE) && TechnicalStepPvE.EnoughLevel)
         {
@@ -64,7 +66,7 @@ public sealed class DNC_Beta : DancerRotation
         if (IsDancing) return false;
 
         // Logic for using Fan Dance abilities based on certain conditions
-        if ((Player.HasStatus(true, StatusID.Devilment) || Feathers > 3 || !TechnicalStepPvE.EnoughLevel) && !FanDanceIiiPvE.CanUse(out act, skipAoeCheck: true))
+        if ((Player.HasStatus(true, StatusID.Devilment) || Feathers > 3 || !TechnicalStepPvE.EnoughLevel) && !FanDanceIiiPvE.CanUse(out _, skipAoeCheck: true))
         {
             if (FanDancePvE.CanUse(out act, skipAoeCheck: true)) return true;
             if (FanDanceIiPvE.CanUse(out act)) return true;
@@ -92,7 +94,6 @@ public sealed class DNC_Beta : DancerRotation
     // Override the method for handling general Global Cooldown (GCD) actions
     protected override bool GeneralGCD(out IAction? act)
     {
-        act = null;
         // If not in combat and lacking the Closed Position status, attempt to use Closed Position
         if (!InCombat && !Player.HasStatus(true, StatusID.ClosedPosition) && ClosedPositionPvE.CanUse(out act)) return true;
 
@@ -129,7 +130,7 @@ public sealed class DNC_Beta : DancerRotation
         if ((burst || Esprit >= 85) && SaberDancePvE.CanUse(out act, skipAoeCheck: true)) return true;
 
         // Additional logic for using Tillana and Standard Step based on various checks
-        if (!DevilmentPvE.CanUse(out act, skipComboCheck: true))
+        if (!DevilmentPvE.CanUse(out _, skipComboCheck: true))
         {
             if (TillanaPvE.CanUse(out act, skipAoeCheck: true)) return true;
         }

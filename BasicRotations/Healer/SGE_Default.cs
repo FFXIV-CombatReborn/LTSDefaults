@@ -2,6 +2,7 @@ namespace DefaultRotations.Healer;
 
 [Rotation("LTS's Default", CombatType.PvE, GameVersion = "6.58")]
 [SourceCode(Path = "main/DefaultRotations/Healer/SGE_Default.cs")]
+[Api(1)]
 public sealed class SGE_Default : SageRotation
 {
     [RotationConfig(CombatType.PvE, Name = "Use spells with cast times to heal.")]

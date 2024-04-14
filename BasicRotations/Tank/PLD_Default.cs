@@ -2,6 +2,7 @@
 
 [Rotation("LTS's Default", CombatType.PvE, GameVersion = "6.58")]
 [SourceCode(Path = "main/DefaultRotations/Tank/PLD_Default.cs")]
+[Api(1)]
 public class PLD_Default : PaladinRotation
 {
     [RotationConfig(CombatType.PvE, Name = "Use Divine Veil at 15 seconds remaining on Countdown")]

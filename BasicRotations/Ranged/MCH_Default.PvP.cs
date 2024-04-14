@@ -2,6 +2,7 @@ namespace DefaultRotations.Ranged;
 
 [Rotation("LTS's PvP", CombatType.PvP, GameVersion = "6.58", Description = "Additonal contributions to this rotation thanks to Lelia!")]
 [SourceCode(Path = "main/DefaultRotations/Ranged/MCH_Default.PvP.cs")]
+[Api(1)]
 public sealed class MCH_DefaultPvP : MachinistRotation
 {
 

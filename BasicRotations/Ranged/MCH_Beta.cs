@@ -4,6 +4,7 @@ namespace DefaultRotations.Ranged;
 
 [Rotation("Testing Rotations", CombatType.PvE, GameVersion = "6.58", Description = "Additonal contributions to this rotation thanks to Toshi!")]
 [SourceCode(Path = "main/DefaultRotations/Ranged/MCH_Beta.cs")]
+[Api(1)]
 public sealed class MCH_Beta : MachinistRotation
 {
 

@@ -2,6 +2,7 @@ namespace DefaultRotations.Healer;
 
 [Rotation("LTS's Default", CombatType.PvE, GameVersion = "6.58")]
 [SourceCode(Path = "main/DefaultRotations/Healer/SCH_Default.cs")]
+[Api(1)]
 public sealed class SCH_Default : ScholarRotation
 {
     [RotationConfig(CombatType.PvE, Name = "Use spells with cast times to heal.")]

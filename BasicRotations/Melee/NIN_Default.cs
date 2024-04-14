@@ -2,6 +2,7 @@ namespace DefaultRotations.Melee;
 
 [Rotation("LTS's Default", CombatType.PvE, GameVersion = "6.58")]
 [SourceCode(Path = "main/DefaultRotations/Melee/NIN_Default.cs")]
+[Api(1)]
 public sealed class NIN_Default : NinjaRotation
 {
     private IBaseAction? _ninActionAim = null; // Holds the next ninjutsu action to perform.
