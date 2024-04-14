@@ -78,14 +78,14 @@ public class RDM_DefaultPvP : RedMageRotation
 
     protected bool DefenseAreaAbility(out IAction? act)
     {
-        if (MagickBarrierPvP.CanUse(out act)) return true;
-        if (FrazzlePvP.CanUse(out act)) return true;
+        if (MagickBarrierPvP.CanUse(out act, skipAoeCheck: true)) return true;
+        if (FrazzlePvP.CanUse(out act, skipAoeCheck: true)) return true;
         return base.DefenseAreaGCD(out act);
     }
 
     protected sealed override bool MoveBackAbility(IAction nextGCD, out IAction? act)
     {
-        if (DisplacementPvP.CanUse(out act)) return true;
+        if (DisplacementPvP.CanUse(out act, skipAoeCheck: true)) return true;
         return base.MoveBackAbility(nextGCD, out act);
     }
 
@@ -113,22 +113,22 @@ public class RDM_DefaultPvP : RedMageRotation
         if (EnchantedRipostePvP.CanUse(out act)) return true;
         if (EnchantedZwerchhauPvP.CanUse(out act)) return true;
         if (EnchantedRedoublementPvP.CanUse(out act)) return true;
-        if (VerholyPvP.CanUse(out act)) return true;
+        if (VerholyPvP.CanUse(out act, skipAoeCheck: true)) return true;
         if (ResolutionPvP.CanUse(out act)) return true;
 
         //Black Magic
         if (EnchantedRipostePvP_29692.CanUse(out act)) return true;
         if (EnchantedZwerchhauPvP_29693.CanUse(out act)) return true;
         if (EnchantedRedoublementPvP_29694.CanUse(out act)) return true;
-        if (VerflarePvP.CanUse(out act)) return true;
+        if (VerflarePvP.CanUse(out act, skipAoeCheck: true)) return true;
         if (ResolutionPvP_29696.CanUse(out act)) return true;
 
         //White Magic
-        if (VerstonePvP.CanUse(out act)) return true;
+        if (VerstonePvP.CanUse(out act, skipComboCheck: true)) return true;
         if (VeraeroIiiPvP.CanUse(out act)) return true;
 
         //Black Magic
-        if (VerfirePvP.CanUse(out act)) return true;
+        if (VerfirePvP.CanUse(out act, skipComboCheck: true)) return true;
         if (VerthunderIiiPvP.CanUse(out act)) return true;
 
         return base.GeneralGCD(out act);
