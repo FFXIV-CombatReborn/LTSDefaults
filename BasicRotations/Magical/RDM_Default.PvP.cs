@@ -94,8 +94,8 @@ public class RDM_DefaultPvP : RedMageRotation
         #region PvP
         act = null;
         if (GuardCancel && Player.HasStatus(true, StatusID.Guard)) return false;
-        if (BlackShiftPvP.CanUse(out act)) return true;
-        if (WhiteShiftPvP.CanUse(out act)) return true;
+        //if (BlackShiftPvP.CanUse(out act)) return true;
+        //if (WhiteShiftPvP.CanUse(out act)) return true;
 
         #endregion
         return base.AttackAbility(nextGCD, out act);
@@ -110,14 +110,6 @@ public class RDM_DefaultPvP : RedMageRotation
         if (!Player.HasStatus(true, StatusID.Guard) && UseSprintPvP && !Player.HasStatus(true, StatusID.Sprint) && !InCombat && SprintPvP.CanUse(out act)) return true;
 
         //White Magic
-        if (VerstonePvP.CanUse(out act)) return true;
-        if (VeraeroIiiPvP.CanUse(out act)) return true;
-
-        //Black Magic
-        if (VerfirePvP.CanUse(out act)) return true;
-        if (VerthunderIiiPvP.CanUse(out act)) return true;
-
-        //White Magic
         if (EnchantedRipostePvP.CanUse(out act)) return true;
         if (EnchantedZwerchhauPvP.CanUse(out act)) return true;
         if (EnchantedRedoublementPvP.CanUse(out act)) return true;
@@ -130,6 +122,14 @@ public class RDM_DefaultPvP : RedMageRotation
         if (EnchantedRedoublementPvP_29694.CanUse(out act)) return true;
         if (VerflarePvP.CanUse(out act)) return true;
         if (ResolutionPvP_29696.CanUse(out act)) return true;
+
+        //White Magic
+        if (VerstonePvP.CanUse(out act)) return true;
+        if (VeraeroIiiPvP.CanUse(out act)) return true;
+
+        //Black Magic
+        if (VerfirePvP.CanUse(out act)) return true;
+        if (VerthunderIiiPvP.CanUse(out act)) return true;
 
         return base.GeneralGCD(out act);
     }
