@@ -83,17 +83,25 @@ public class RDM_DefaultPvP : RedMageRotation
         return base.DefenseAreaGCD(out act);
     }
 
-    protected sealed override bool MoveBackAbility(IAction nextGCD, out IAction? act)
-    {
-        if (DisplacementPvP.CanUse(out act, skipAoeCheck: true)) return true;
-        return base.MoveBackAbility(nextGCD, out act);
-    }
-
     protected override bool AttackAbility(IAction nextGCD, out IAction? act)
     {
         #region PvP
         act = null;
         if (GuardCancel && Player.HasStatus(true, StatusID.Guard)) return false;
+
+        if (Player.HasStatus(true, StatusID.BlackShift))
+        {
+            if (ResolutionPvP_29696.CanUse(out act)) return true;
+        }
+
+        if (Player.HasStatus(true, StatusID.WhiteShift))
+        {
+            if (ResolutionPvP.CanUse(out act)) return true;
+        }
+
+        if (DisplacementPvP.CanUse(out act, skipAoeCheck: true)) return true;
+        if (CorpsacorpsPvP.CanUse(out act, skipAoeCheck: true)) return true;
+        
         //if (BlackShiftPvP.CanUse(out act)) return true;
         //if (WhiteShiftPvP.CanUse(out act)) return true;
 
@@ -104,33 +112,34 @@ public class RDM_DefaultPvP : RedMageRotation
     protected override bool GeneralGCD(out IAction? act)
     {
         act = null;
-
+    
         // Early exits for Guard status or Sprint usage
         if (GuardCancel && Player.HasStatus(true, StatusID.Guard)) return false;
         if (!Player.HasStatus(true, StatusID.Guard) && UseSprintPvP && !Player.HasStatus(true, StatusID.Sprint) && !InCombat && SprintPvP.CanUse(out act)) return true;
 
-        //White Magic
-        if (EnchantedRipostePvP.CanUse(out act)) return true;
-        if (EnchantedZwerchhauPvP.CanUse(out act)) return true;
-        if (EnchantedRedoublementPvP.CanUse(out act)) return true;
-        if (VerholyPvP.CanUse(out act, skipAoeCheck: true)) return true;
-        if (ResolutionPvP.CanUse(out act)) return true;
-
-        //Black Magic
-        if (EnchantedRipostePvP_29692.CanUse(out act)) return true;
-        if (EnchantedZwerchhauPvP_29693.CanUse(out act)) return true;
-        if (EnchantedRedoublementPvP_29694.CanUse(out act)) return true;
-        if (VerflarePvP.CanUse(out act, skipAoeCheck: true)) return true;
-        if (ResolutionPvP_29696.CanUse(out act)) return true;
-
-        //White Magic
-        if (VerstonePvP.CanUse(out act, skipComboCheck: true)) return true;
-        if (VeraeroIiiPvP.CanUse(out act)) return true;
-
-        //Black Magic
-        if (VerfirePvP.CanUse(out act, skipComboCheck: true)) return true;
-        if (VerthunderIiiPvP.CanUse(out act)) return true;
-
+        //Handling status from White Shift
+        if (Player.HasStatus(true, StatusID.WhiteShift))
+        {
+            if (VerstonePvP.CanUse(out act, skipComboCheck: true)) return true;
+            if (VeraeroIiiPvP.CanUse(out act)) return true;
+            if (EnchantedRipostePvP.CanUse(out act)) return true;
+            if (EnchantedZwerchhauPvP.CanUse(out act)) return true;
+            if (EnchantedRedoublementPvP.CanUse(out act)) return true;
+            if (VerholyPvP.CanUse(out act, skipAoeCheck: true)) return true;
+        }
+    
+        //Handling status from BlackShift
+        if (Player.HasStatus(true, StatusID.BlackShift))
+        {
+            if (VerfirePvP.CanUse(out act, skipComboCheck: true)) return true;
+            if (VerthunderIiiPvP.CanUse(out act)) return true;
+            if (EnchantedRipostePvP_29692.CanUse(out act)) return true;
+            if (EnchantedZwerchhauPvP_29693.CanUse(out act)) return true;
+            if (EnchantedRedoublementPvP_29694.CanUse(out act)) return true;
+            if (VerflarePvP.CanUse(out act, skipAoeCheck: true)) return true;
+        }
+    
         return base.GeneralGCD(out act);
     }
+
 }
