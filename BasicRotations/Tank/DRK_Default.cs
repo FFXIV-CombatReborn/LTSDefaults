@@ -2,6 +2,7 @@ namespace DefaultRotations.Tank;
 
 [Rotation("LTS's Default", CombatType.PvE, GameVersion = "6.58")]
 [SourceCode(Path = "main/DefaultRotations/Tank/DRK_Balance.cs")]
+[Api(1)]
 public sealed class DRK_Default : DarkKnightRotation
 {
     // Indicates whether the Dark Knight can heal using a single ability.

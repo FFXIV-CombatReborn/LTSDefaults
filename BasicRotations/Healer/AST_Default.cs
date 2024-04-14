@@ -2,6 +2,7 @@ namespace DefaultRotations.Healer;
 
 [Rotation("LTS's Default", CombatType.PvE, GameVersion = "6.58")]
 [SourceCode(Path = "main/DefaultRotations/Healer/AST_Default.cs")]
+[Api(1)]
 public sealed class AST_Default : AstrologianRotation
 {
     [Range(4, 20, ConfigUnitType.Seconds)]

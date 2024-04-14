@@ -1,6 +1,7 @@
 ﻿namespace DefaultRotations.Magical;
 
 [Rotation("LTS's PvP", CombatType.PvP, GameVersion = "6.58")]
+[Api(1)]
 public class RDM_DefaultPvP : RedMageRotation
 {
     [RotationConfig(CombatType.PvP, Name = "Sprint")]

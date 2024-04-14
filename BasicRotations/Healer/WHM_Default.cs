@@ -2,6 +2,7 @@ namespace DefaultRotations.Healer;
 
 [Rotation("LTS's Default", CombatType.PvE, GameVersion = "6.58")]
 [SourceCode(Path = "main/DefaultRotations/Healer/WHM_Default.cs")]
+[Api(1)]
 public sealed class WHM_Default :WhiteMageRotation
 {
     [RotationConfig(CombatType.PvE, Name = "Use Lily at max stacks.")]

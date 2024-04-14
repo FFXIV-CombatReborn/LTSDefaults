@@ -2,6 +2,7 @@ namespace DefaultRotations.Melee;
 
 [Rotation("LTS's Default", CombatType.PvE, GameVersion = "6.58")]
 [SourceCode(Path = "main/DefaultRotations/Melee/DRG_Default.cs")]
+[Api(1)]
 
 public sealed class DRG_Default : DragoonRotation
 {

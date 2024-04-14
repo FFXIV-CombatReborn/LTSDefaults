@@ -2,6 +2,7 @@
 
 [Rotation("LTS's Default", CombatType.PvP, GameVersion = "6.58", Description = "Beta Rotation")]
 [SourceCode(Path = "main/DefaultRotations/Melee/MNK_Default.cs")]
+[Api(1)]
 public sealed class MNK_DefaultPvP : MonkRotation
 {
 

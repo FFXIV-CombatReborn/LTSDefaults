@@ -2,6 +2,7 @@
 
 [Rotation("Testing Rotations", CombatType.PvE, GameVersion = "6.58")]
 [SourceCode(Path = "main/DefaultRotations/Melee/SAM_Beta.cs")]
+[Api(1)]
 public sealed class SAM_Beta : SamuraiRotation
 {
     [Range(0, 85, ConfigUnitType.None, 5)]

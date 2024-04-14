@@ -4,6 +4,7 @@ namespace DefaultRotations.Tank;
 
 [Rotation("LTS's Default", CombatType.PvE, GameVersion = "6.58")]
 [SourceCode(Path = "main/DefaultRotations/Tank/GNB_Default.cs")]
+[Api(1)]
 public sealed class GNB_Default : GunbreakerRotation
 {
     public override bool CanHealSingleSpell => false;
