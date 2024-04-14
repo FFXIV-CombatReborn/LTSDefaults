@@ -2,12 +2,12 @@
 
 namespace DefaultRotations.Ranged;
 
-[Rotation("Dancer Beta", CombatType.PvE, GameVersion = "6.58", Description = "Additonal contributions to this rotation thanks to Toshi!")]
+[Rotation("Dancer Beta Rotation", CombatType.PvE, GameVersion = "6.58", Description = "Additonal contributions to this rotation thanks to Toshi!")]
 [SourceCode(Path = "main/DefaultRotations/Ranged/DNC_Beta.cs")]
 [Api(1)]
 public sealed class DNC_Beta : DancerRotation
 {
-    [RotationConfig(CombatType.PvE, Name = "Holds Standard and Tech Step if no targets in range (Warning will drift)")]
+    [RotationConfig(CombatType.PvE, Name = "Holds Standard and Tech Step if no targets in range (Warning, steps will drift)")]
     public bool HoldStepForTargets { get; set; } = false;
 
     // Override the method for actions to be taken during countdown phase of combat
@@ -29,13 +29,13 @@ public sealed class DNC_Beta : DancerRotation
     protected override bool EmergencyAbility(IAction nextGCD, out IAction? act)
     {
         // Special handling if the last action was Quadruple Technical Finish and level requirement is met
-        if (IsLastAction(ActionID.QuadrupleTechnicalFinishPvE) && TechnicalStepPvE.EnoughLevel)
+        if (IsLastGCD(ActionID.QuadrupleTechnicalFinishPvE) && TechnicalStepPvE.EnoughLevel)
         {
             // Attempt to use Devilment ignoring clipping checks
             if (DevilmentPvE.CanUse(out act, skipClippingCheck: true)) return true;
         }
         // Similar handling for Double Standard Finish when level requirement is not met
-        else if (IsLastAction(ActionID.DoubleStandardFinishPvE) && !TechnicalStepPvE.EnoughLevel)
+        else if (IsLastGCD(ActionID.DoubleStandardFinishPvE) && !TechnicalStepPvE.EnoughLevel)
         {
             if (DevilmentPvE.CanUse(out act, skipClippingCheck: true)) return true;
         }
