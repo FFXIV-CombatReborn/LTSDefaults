@@ -1,6 +1,4 @@
-﻿using Lumina.Excel.GeneratedSheets2;
-
-namespace DefaultRotations.Ranged;
+﻿namespace DefaultRotations.Ranged;
 
 [Rotation("Beta Rotations", CombatType.PvE | CombatType.PvP, GameVersion = "6.58",
     Description = "Please make sure that the three song times add up to 120 seconds!")]
@@ -8,6 +6,7 @@ namespace DefaultRotations.Ranged;
 [Api(1)]
 public sealed class BRD_Beta : BardRotation
 {
+    #region Config Options
     [RotationConfig(CombatType.PvE, Name = @"Use Raging Strikes on ""Wanderer's Minuet""")]
     public bool BindWAND { get; set; } = false;
 
@@ -30,46 +29,9 @@ public sealed class BRD_Beta : BardRotation
     private float WANDRemainTime => 45 - WANDTime;
     private float MAGERemainTime => 45 - MAGETime;
     private float ARMYRemainTime => 45 - ARMYTime;
+    #endregion
 
-    protected override bool GeneralGCD(out IAction? act)
-    {
-        #region PvP
-
-        //if (PvP_FinalFantasia.CanUse(out act, CanUseOption.MustUse)) return true;
-
-        if (BlastArrowPvP.CanUse(out act, skipAoeCheck: true)) return true;
-        if (ApexArrowPvP.CanUse(out act, skipAoeCheck: true)) return true;
-
-        if (PitchPerfectPvP.CanUse(out act)) return true;
-        if (PowerfulShotPvP.CanUse(out act)) return true;
-        #endregion
-
-        if (IronJawsPvE.CanUse(out act)) return true;
-        if (IronJawsPvE.CanUse(out act, skipStatusProvideCheck: true) && (IronJawsPvE.Target.Target?.WillStatusEnd(30, true, IronJawsPvE.Setting.TargetStatusProvide ?? []) ?? false))
-        {
-            if (Player.HasStatus(true, StatusID.RagingStrikes) && Player.WillStatusEndGCD(1, 0, true, StatusID.RagingStrikes)) return true;
-        }
-
-        if (CanUseApexArrow(out act)) return true;
-
-        if (BlastArrowPvE.CanUse(out act, skipAoeCheck: true))
-        {
-            if (!Player.HasStatus(true, StatusID.RagingStrikes)) return true;
-            if (Player.HasStatus(true, StatusID.RagingStrikes) && BarragePvE.Cooldown.IsCoolingDown) return true;
-        }
-
-        if (ShadowbitePvE.CanUse(out act)) return true;
-        if (QuickNockPvE.CanUse(out act)) return true;
-
-        if (WindbitePvE.CanUse(out act)) return true;
-        if (VenomousBitePvE.CanUse(out act)) return true;
-
-        if (StraightShotPvE.CanUse(out act)) return true;
-        if (HeavyShotPvE.CanUse(out act)) return true;
-
-        return base.GeneralGCD(out act);
-    }
-
+    #region Emergency Logic
     protected override bool EmergencyAbility(IAction nextGCD, out IAction? act)
     {
         if (nextGCD.IsTheSameTo(true, StraightShotPvE, VenomousBitePvE, WindbitePvE, IronJawsPvE))
@@ -86,15 +48,16 @@ public sealed class BRD_Beta : BardRotation
 
         return base.EmergencyAbility(nextGCD, out act);
     }
+    #endregion
 
+    #region oGCD Logic
     protected override bool AttackAbility(IAction nextGCD, out IAction? act)
     {
         #region PvP
-        //if (PvP_FinalFantasia.CanUse(out act, CanUseOption.MustUse)) return true;
 
         if (SilentNocturnePvP.CanUse(out act)) return true;
-        if (TheWardensPaeanPvP.CanUse(out act)) return true;
 
+        if (TheWardensPaeanPvP.CanUse(out act)) return true;
 
         if (EmpyrealArrowPvP.CanUse(out act, usedUp: true)) return true;
 
@@ -194,7 +157,46 @@ public sealed class BRD_Beta : BardRotation
 
         return base.AttackAbility(nextGCD, out act);
     }
+    #endregion
 
+    #region GCD Logic
+    protected override bool GeneralGCD(out IAction? act)
+    {
+        #region PvP
+        if (BlastArrowPvP.CanUse(out act, skipAoeCheck: true)) return true;
+        if (ApexArrowPvP.CanUse(out act, skipAoeCheck: true)) return true;
+        if (PitchPerfectPvP.CanUse(out act)) return true;
+        if (PowerfulShotPvP.CanUse(out act)) return true;
+        #endregion
+
+        if (IronJawsPvE.CanUse(out act)) return true;
+        if (IronJawsPvE.CanUse(out act, skipStatusProvideCheck: true) && (IronJawsPvE.Target.Target?.WillStatusEnd(30, true, IronJawsPvE.Setting.TargetStatusProvide ?? []) ?? false))
+        {
+            if (Player.HasStatus(true, StatusID.RagingStrikes) && Player.WillStatusEndGCD(1, 0, true, StatusID.RagingStrikes)) return true;
+        }
+
+        if (CanUseApexArrow(out act)) return true;
+
+        if (BlastArrowPvE.CanUse(out act, skipAoeCheck: true))
+        {
+            if (!Player.HasStatus(true, StatusID.RagingStrikes)) return true;
+            if (Player.HasStatus(true, StatusID.RagingStrikes) && BarragePvE.Cooldown.IsCoolingDown) return true;
+        }
+
+        if (ShadowbitePvE.CanUse(out act)) return true;
+        if (QuickNockPvE.CanUse(out act)) return true;
+
+        if (WindbitePvE.CanUse(out act)) return true;
+        if (VenomousBitePvE.CanUse(out act)) return true;
+
+        if (StraightShotPvE.CanUse(out act)) return true;
+        if (HeavyShotPvE.CanUse(out act)) return true;
+
+        return base.GeneralGCD(out act);
+    }
+    #endregion
+
+    #region Extra Methods
     private bool CanUseApexArrow(out IAction act)
     {
         if (!ApexArrowPvE.CanUse(out act, skipAoeCheck: true)) return false;
@@ -213,4 +215,5 @@ public sealed class BRD_Beta : BardRotation
 
         return false;
     }
+    #endregion
 }

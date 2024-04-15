@@ -1,13 +1,11 @@
-﻿using RotationSolver.Basic.Data;
-
-namespace DefaultRotations.Ranged;
+﻿namespace DefaultRotations.Ranged;
 
 [Rotation("Beta Rotations", CombatType.PvE, GameVersion = "6.58", Description = "Additonal contributions to this rotation thanks to Toshi!")]
 [SourceCode(Path = "main/DefaultRotations/Ranged/MCH_Beta.cs")]
 [Api(1)]
 public sealed class MCH_Beta : MachinistRotation
 {
-    [RotationConfig(CombatType.PvE, Name = "Uses queen immediately whenever you get 50 battery")]
+    [RotationConfig(CombatType.PvE, Name = "Uses Rook Autoturret/Automaton Queen immediately whenever you get 50 battery")]
     public bool UseQueenWhenever { get; set; } = true;
 
     #region Countdown logic
@@ -147,9 +145,9 @@ public sealed class MCH_Beta : MachinistRotation
 
         // AoE actions: ChainSaw and SpreadShot based on their usability.
         if (SpreadShotPvE.CanUse(out _))
-            {
+        {
             if (ChainSawPvE.CanUse(out act)) return true;
-            }
+        }
         if (SpreadShotPvE.CanUse(out act)) return true;
 
         // Single target actions: CleanShot, SlugShot, and SplitShot based on their usability.
@@ -193,6 +191,5 @@ public sealed class MCH_Beta : MachinistRotation
             return HyperchargePvE.CanUse(out act);
         }
     }
-
     #endregion
 }
