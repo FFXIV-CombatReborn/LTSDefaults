@@ -3,7 +3,7 @@ using Lumina.Excel.GeneratedSheets2;
 namespace DefaultRotations.Ranged;
 
 [Rotation("LTS's Default", CombatType.PvE, GameVersion = "6.58",
-    Description = "Please make sure that the three song times add up to 120 seconds!")]
+    Description = "Please make sure that the three song times add up to 120 seconds, Wanderers default first song for now.")]
 [SourceCode(Path = "main/DefaultRotations/Ranged/BRD_Default.cs")]
 [Api(1)]
 public sealed class BRD_Default : BardRotation
@@ -11,10 +11,7 @@ public sealed class BRD_Default : BardRotation
     [RotationConfig(CombatType.PvE, Name = @"Use Raging Strikes on ""Wanderer's Minuet""")]
     public bool BindWAND { get; set; } = false;
 
-    [RotationConfig(CombatType.PvE, Name = "First Song")]
-    private Song FirstSong { get; set; } = Song.WANDERER;
-
-    [Range(0, 45, ConfigUnitType.Seconds, 1)]
+    [Range(1, 45, ConfigUnitType.Seconds, 1)]
     [RotationConfig(CombatType.PvE, Name = "Wanderer's Minuet Uptime")]
     public float WANDTime { get; set; } = 43;
 
@@ -25,6 +22,9 @@ public sealed class BRD_Default : BardRotation
     [Range(0, 45, ConfigUnitType.Seconds, 1)]
     [RotationConfig(CombatType.PvE, Name = "Army's Paeon Uptime")]
     public float ARMYTime { get; set; } = 43;
+
+    [RotationConfig(CombatType.PvE, Name = "First Song")]
+    private Song FirstSong { get; set; } = Song.WANDERER;
 
     private bool BindWANDEnough => BindWAND && this.TheWanderersMinuetPvE.EnoughLevel;
     private float WANDRemainTime => 45 - WANDTime;
