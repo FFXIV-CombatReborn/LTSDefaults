@@ -2,12 +2,15 @@
 
 namespace DefaultRotations.Ranged;
 
-[Rotation("Dancer Beta Rotation", CombatType.PvE, GameVersion = "6.58", Description = "Additonal contributions to this rotation thanks to Toshi!")]
+[Rotation("Beta Rotations", CombatType.PvE, GameVersion = "6.58", Description = "Additonal contributions to this rotation thanks to Toshi!")]
 [SourceCode(Path = "main/DefaultRotations/Ranged/DNC_Beta.cs")]
 [Api(1)]
 public sealed class DNC_Beta : DancerRotation
 {
-    [RotationConfig(CombatType.PvE, Name = "Holds Standard and Tech Step if no targets in range (Warning, steps will drift)")]
+    [RotationConfig(CombatType.PvE, Name = "Holds Tech Step if no targets in range (Warning, will drift)")]
+    public bool HoldTechForTargets { get; set; } = true;
+
+    [RotationConfig(CombatType.PvE, Name = "Holds Standard Step if no targets in range (Warning, will drift & Buff may fall off)")]
     public bool HoldStepForTargets { get; set; } = false;
 
     // Override the method for actions to be taken during countdown phase of combat
@@ -102,11 +105,11 @@ public sealed class DNC_Beta : DancerRotation
         if (ExecuteStepGCD(out act)) return true;
 
         // Attempt to use Technical Step in burst mode and if in combat, checks for hostiles if bool is true
-        if (HoldStepForTargets)
+        if (HoldTechForTargets)
             {
             if (HasHostilesInMaxRange && IsBurst && InCombat && TechnicalStepPvE.CanUse(out act, skipAoeCheck: true)) return true;
             }
-        if (!HoldStepForTargets)
+        if (!HoldTechForTargets)
             {
             if (IsBurst && InCombat && TechnicalStepPvE.CanUse(out act, skipAoeCheck: true)) return true;
             }

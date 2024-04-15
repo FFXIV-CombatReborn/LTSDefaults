@@ -52,7 +52,7 @@ public sealed class BRD_Default : BardRotation
 
         if (CanUseApexArrow(out act)) return true;
 
-        if (BlastArrowPvE.CanUse(out act, skipAoeCheck : true))
+        if (BlastArrowPvE.CanUse(out act, skipAoeCheck: true))
         {
             if (!Player.HasStatus(true, StatusID.RagingStrikes)) return true;
             if (Player.HasStatus(true, StatusID.RagingStrikes) && BarragePvE.Cooldown.IsCoolingDown) return true;
@@ -95,7 +95,7 @@ public sealed class BRD_Default : BardRotation
         if (SilentNocturnePvP.CanUse(out act)) return true;
         if (TheWardensPaeanPvP.CanUse(out act)) return true;
 
-        
+
         if (EmpyrealArrowPvP.CanUse(out act, usedUp: true)) return true;
 
         if (RepellingShotPvP.CanUse(out act)) return true;
@@ -197,7 +197,7 @@ public sealed class BRD_Default : BardRotation
 
     private bool CanUseApexArrow(out IAction act)
     {
-        if (!ApexArrowPvE.CanUse(out act,skipAoeCheck: true)) return false;
+        if (!ApexArrowPvE.CanUse(out act, skipAoeCheck: true)) return false;
 
         if (QuickNockPvE.CanUse(out _) && SoulVoice == 100) return true;
 

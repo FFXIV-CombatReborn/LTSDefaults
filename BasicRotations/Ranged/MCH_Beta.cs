@@ -2,11 +2,13 @@
 
 namespace DefaultRotations.Ranged;
 
-[Rotation("MCH Beta Rotation", CombatType.PvE, GameVersion = "6.58", Description = "Additonal contributions to this rotation thanks to Toshi!")]
+[Rotation("Beta Rotations", CombatType.PvE, GameVersion = "6.58", Description = "Additonal contributions to this rotation thanks to Toshi!")]
 [SourceCode(Path = "main/DefaultRotations/Ranged/MCH_Beta.cs")]
 [Api(1)]
 public sealed class MCH_Beta : MachinistRotation
 {
+    [RotationConfig(CombatType.PvE, Name = "Uses queen immediately whenever you get 50 battery")]
+    public bool UseQueenWhenever { get; set; } = true;
 
     #region Countdown logic
     // Defines logic for actions to take during the countdown before combat starts.
@@ -72,11 +74,11 @@ public sealed class MCH_Beta : MachinistRotation
     // Logic for using attack abilities outside of GCD, focusing on burst windows and cooldown management.
     protected override bool AttackAbility(IAction nextGCD, out IAction? act)
     {
-        // Define conditions under which the Rook Autoturret can be used.
+        // Define conditions under which the Rook Autoturret/Queen can be used.
         bool OpenerQueen = !CombatElapsedLess(20f) && CombatElapsedLess(25f);
         bool CombatTimeQueen = CombatElapsedLess(60f) && !CombatElapsedLess(45f);
         bool WildfireCooldownQueen = WildfirePvE.Cooldown.IsCoolingDown && WildfirePvE.Cooldown.ElapsedAfter(105f) && Battery == 100 &&
-                    (nextGCD.IsTheSameTo(true, AirAnchorPvE) || nextGCD.IsTheSameTo(true, CleanShotPvE));
+                    (nextGCD.IsTheSameTo(true, AirAnchorPvE) || nextGCD.IsTheSameTo(true, CleanShotPvE)) || nextGCD.IsTheSameTo(true, HeatedCleanShotPvE) || nextGCD.IsTheSameTo(true, ChainSawPvE);
         bool BatteryCheckQueen = Battery >= 90 && !WildfirePvE.Cooldown.ElapsedAfter(70f);
         bool LastGCDCheckQueen = Battery >= 80 && !WildfirePvE.Cooldown.ElapsedAfter(77.5f) && IsLastGCD(true, AirAnchorPvE);
 
@@ -85,7 +87,7 @@ public sealed class MCH_Beta : MachinistRotation
         {
             return HyperchargePvE.CanUse(out act, skipClippingCheck: true);
         }
-
+        // Burst
         if (IsBurst)
         {
             if (UseBurstMedicine(out act)) return true;
@@ -100,12 +102,17 @@ public sealed class MCH_Beta : MachinistRotation
         {
             if (CanUseHyperchargePvE(out act)) return true;
         }
-
-        if (OpenerQueen || CombatTimeQueen || WildfireCooldownQueen || BatteryCheckQueen || LastGCDCheckQueen)
+        // Rook Autoturret/Queen Logic toggle on
+        if (UseQueenWhenever && (OpenerQueen || CombatTimeQueen || WildfireCooldownQueen || BatteryCheckQueen || LastGCDCheckQueen))
         {
             return RookAutoturretPvE.CanUse(out act, skipComboCheck: true);
         }
-
+        // Rook Autoturret/Queen Logic toggle off
+        if (!UseQueenWhenever)
+        {
+            return RookAutoturretPvE.CanUse(out act, skipComboCheck: true);
+        }
+        // Use Barrel Stabilizer on CD if won't cap
         if (BarrelStabilizerPvE.CanUse(out act)) return true;
 
         return base.AttackAbility(nextGCD, out act);
@@ -139,7 +146,10 @@ public sealed class MCH_Beta : MachinistRotation
         if (!CombatElapsedLessGCD(4) && ChainSawPvE.CanUse(out act, skipAoeCheck: true)) return true;
 
         // AoE actions: ChainSaw and SpreadShot based on their usability.
-        if (ChainSawPvE.CanUse(out act)) return true;
+        if (SpreadShotPvE.CanUse(out _))
+            {
+            if (ChainSawPvE.CanUse(out act)) return true;
+            }
         if (SpreadShotPvE.CanUse(out act)) return true;
 
         // Single target actions: CleanShot, SlugShot, and SplitShot based on their usability.
