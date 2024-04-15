@@ -5,7 +5,7 @@
 [Api(1)]
 public sealed class RPR_Default : ReaperRotation
 {
-    [RotationConfig(CombatType.PvE)]
+    [RotationConfig(CombatType.PvE, Name = "Wait until 50 stacks of Shroud to use Enshroud.")]
     public bool EnshroudPooling { get; set; } = false;
 
     protected override IAction? CountDownAction(float remainTime)
