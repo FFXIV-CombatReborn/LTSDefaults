@@ -170,8 +170,6 @@ public class BLM_Beta : BlackMageRotation
 
     private bool DoIce(out IAction? act)
     {
-        act = null;
-
         if (IsLastAction(ActionID.UmbralSoulPvE, ActionID.TransposePvE)
             && IsParadoxActive && BlizzardPvE.CanUse(out act)) return true;
 
@@ -256,7 +254,6 @@ public class BLM_Beta : BlackMageRotation
 
     private bool DoFire(out IAction? act)
     {
-        act = null;
         if (UsePolyglot(out act)) return true;
 
         // Add thunder only at combat start.
@@ -293,7 +290,6 @@ public class BLM_Beta : BlackMageRotation
 
     private bool UseInstanceSpell(out IAction? act)
     {
-        act = null;
         if (UsePolyglot(out act)) return true;
         if (HasThunder && AddThunder(out act, 1)) return true;
         if (UsePolyglot(out act, 0)) return true;
@@ -319,7 +315,6 @@ public class BLM_Beta : BlackMageRotation
 
     private bool AddElementBase(out IAction? act)
     {
-        act = null;
         if (CurrentMp >= 7200)
         {
             if (FireIiPvE.CanUse(out act)) return true;
