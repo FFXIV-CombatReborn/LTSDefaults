@@ -1,6 +1,6 @@
 ﻿namespace DefaultRotations.Ranged;
 
-[Rotation("Beta Rotations", CombatType.PvE | CombatType.PvP, GameVersion = "6.58",
+[Rotation("Beta Rotations", CombatType.PvE, GameVersion = "6.58",
     Description = "Please make sure that the three song times add up to 120 seconds!")]
 [SourceCode(Path = "main/DefaultRotations/Ranged/BRD_Beta.cs")]
 [Api(1)]
@@ -10,10 +10,7 @@ public sealed class BRD_Beta : BardRotation
     [RotationConfig(CombatType.PvE, Name = @"Use Raging Strikes on ""Wanderer's Minuet""")]
     public bool BindWAND { get; set; } = false;
 
-    [RotationConfig(CombatType.PvE, Name = "First Song")]
-    private Song FirstSong { get; set; } = Song.WANDERER;
-
-    [Range(0, 45, ConfigUnitType.Seconds, 1)]
+    [Range(1, 45, ConfigUnitType.Seconds, 1)]
     [RotationConfig(CombatType.PvE, Name = "Wanderer's Minuet Uptime")]
     public float WANDTime { get; set; } = 43;
 
@@ -24,6 +21,9 @@ public sealed class BRD_Beta : BardRotation
     [Range(0, 45, ConfigUnitType.Seconds, 1)]
     [RotationConfig(CombatType.PvE, Name = "Army's Paeon Uptime")]
     public float ARMYTime { get; set; } = 43;
+
+    [RotationConfig(CombatType.PvE, Name = "First Song")]
+    private Song FirstSong { get; set; } = Song.WANDERER;
 
     private bool BindWANDEnough => BindWAND && this.TheWanderersMinuetPvE.EnoughLevel;
     private float WANDRemainTime => 45 - WANDTime;
@@ -53,17 +53,7 @@ public sealed class BRD_Beta : BardRotation
     #region oGCD Logic
     protected override bool AttackAbility(IAction nextGCD, out IAction? act)
     {
-        #region PvP
-
-        if (SilentNocturnePvP.CanUse(out act)) return true;
-
-        if (TheWardensPaeanPvP.CanUse(out act)) return true;
-
-        if (EmpyrealArrowPvP.CanUse(out act, usedUp: true)) return true;
-
-        if (RepellingShotPvP.CanUse(out act)) return true;
-        #endregion
-
+        act = null;
         if (Song == Song.NONE)
         {
             switch (FirstSong)
@@ -162,13 +152,6 @@ public sealed class BRD_Beta : BardRotation
     #region GCD Logic
     protected override bool GeneralGCD(out IAction? act)
     {
-        #region PvP
-        if (BlastArrowPvP.CanUse(out act, skipAoeCheck: true)) return true;
-        if (ApexArrowPvP.CanUse(out act, skipAoeCheck: true)) return true;
-        if (PitchPerfectPvP.CanUse(out act)) return true;
-        if (PowerfulShotPvP.CanUse(out act)) return true;
-        #endregion
-
         if (IronJawsPvE.CanUse(out act)) return true;
         if (IronJawsPvE.CanUse(out act, skipStatusProvideCheck: true) && (IronJawsPvE.Target.Target?.WillStatusEnd(30, true, IronJawsPvE.Setting.TargetStatusProvide ?? []) ?? false))
         {
