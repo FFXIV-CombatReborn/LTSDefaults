@@ -1,0 +1,8 @@
+PLD: Does not use mits
+AST: Has issues with Earthly Star
+WHM: Has issues with Regen and general healing
+BLM: Leyline's are not used automatically (not sure if I want automatic leyline use)
+SMN: Options not appearing to end user
+BRD: Options not appearing to end user
+SGE: has weirdness with AOE shields failing and using double dot instead
+RPR: Option not named lol
