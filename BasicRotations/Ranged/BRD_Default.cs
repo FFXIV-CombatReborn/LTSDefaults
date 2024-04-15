@@ -2,8 +2,8 @@ using Lumina.Excel.GeneratedSheets2;
 
 namespace DefaultRotations.Ranged;
 
-[Rotation("LTS's Default", CombatType.PvE | CombatType.PvP, GameVersion = "6.58",
-    Description = "Please make sure that the three song times add up to 120 seconds!")]
+[Rotation("LTS's Default", CombatType.PvE, GameVersion = "6.58",
+    Description = "Please make sure that the three song times add up to 120 seconds, Wanderers default first song for now.")]
 [SourceCode(Path = "main/DefaultRotations/Ranged/BRD_Default.cs")]
 [Api(1)]
 public sealed class BRD_Default : BardRotation
@@ -11,10 +11,7 @@ public sealed class BRD_Default : BardRotation
     [RotationConfig(CombatType.PvE, Name = @"Use Raging Strikes on ""Wanderer's Minuet""")]
     public bool BindWAND { get; set; } = false;
 
-    [RotationConfig(CombatType.PvE, Name = "First Song")]
-    private Song FirstSong { get; set; } = Song.WANDERER;
-
-    [Range(0, 45, ConfigUnitType.Seconds, 1)]
+    [Range(1, 45, ConfigUnitType.Seconds, 1)]
     [RotationConfig(CombatType.PvE, Name = "Wanderer's Minuet Uptime")]
     public float WANDTime { get; set; } = 43;
 
@@ -26,6 +23,9 @@ public sealed class BRD_Default : BardRotation
     [RotationConfig(CombatType.PvE, Name = "Army's Paeon Uptime")]
     public float ARMYTime { get; set; } = 43;
 
+    [RotationConfig(CombatType.PvE, Name = "First Song")]
+    private Song FirstSong { get; set; } = Song.WANDERER;
+
     private bool BindWANDEnough => BindWAND && this.TheWanderersMinuetPvE.EnoughLevel;
     private float WANDRemainTime => 45 - WANDTime;
     private float MAGERemainTime => 45 - MAGETime;
@@ -33,17 +33,6 @@ public sealed class BRD_Default : BardRotation
 
     protected override bool GeneralGCD(out IAction? act)
     {
-        #region PvP
-
-        //if (PvP_FinalFantasia.CanUse(out act, CanUseOption.MustUse)) return true;
-
-        if (BlastArrowPvP.CanUse(out act, skipAoeCheck: true)) return true;
-        if (ApexArrowPvP.CanUse(out act, skipAoeCheck: true)) return true;
-
-        if (PitchPerfectPvP.CanUse(out act)) return true;
-        if (PowerfulShotPvP.CanUse(out act)) return true;
-        #endregion
-
         if (IronJawsPvE.CanUse(out act)) return true;
         if (IronJawsPvE.CanUse(out act, skipStatusProvideCheck: true) && (IronJawsPvE.Target.Target?.WillStatusEnd(30, true, IronJawsPvE.Setting.TargetStatusProvide ?? []) ?? false))
         {
@@ -52,7 +41,7 @@ public sealed class BRD_Default : BardRotation
 
         if (CanUseApexArrow(out act)) return true;
 
-        if (BlastArrowPvE.CanUse(out act, skipAoeCheck: true))
+        if (BlastArrowPvE.CanUse(out act, skipAoeCheck : true))
         {
             if (!Player.HasStatus(true, StatusID.RagingStrikes)) return true;
             if (Player.HasStatus(true, StatusID.RagingStrikes) && BarragePvE.Cooldown.IsCoolingDown) return true;
@@ -89,18 +78,7 @@ public sealed class BRD_Default : BardRotation
 
     protected override bool AttackAbility(IAction nextGCD, out IAction? act)
     {
-        #region PvP
-        //if (PvP_FinalFantasia.CanUse(out act, CanUseOption.MustUse)) return true;
-
-        if (SilentNocturnePvP.CanUse(out act)) return true;
-        if (TheWardensPaeanPvP.CanUse(out act)) return true;
-
-
-        if (EmpyrealArrowPvP.CanUse(out act, usedUp: true)) return true;
-
-        if (RepellingShotPvP.CanUse(out act)) return true;
-        #endregion
-
+        act = null;
         if (Song == Song.NONE)
         {
             switch (FirstSong)
@@ -197,7 +175,7 @@ public sealed class BRD_Default : BardRotation
 
     private bool CanUseApexArrow(out IAction act)
     {
-        if (!ApexArrowPvE.CanUse(out act, skipAoeCheck: true)) return false;
+        if (!ApexArrowPvE.CanUse(out act,skipAoeCheck: true)) return false;
 
         if (QuickNockPvE.CanUse(out _) && SoulVoice == 100) return true;
 

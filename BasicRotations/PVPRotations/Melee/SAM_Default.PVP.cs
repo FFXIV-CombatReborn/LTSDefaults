@@ -1,8 +1,9 @@
-﻿namespace DefaultRotations.Magical;
+﻿namespace DefaultRotations.Melee;
 
-[Rotation("LTS's PvP", CombatType.PvP, GameVersion = "6.58")]
+[Rotation("LTS's PVP", CombatType.PvP, GameVersion = "6.58", Description = "Beta Rotation")]
+[SourceCode(Path = "main/DefaultRotations/PVPRotations/Tank/SAM_Default.PvP.cs")]
 [Api(1)]
-public class RDM_DefaultPvP : RedMageRotation
+public sealed class SAM_DefaultPvP : SamuraiRotation
 {
     [RotationConfig(CombatType.PvP, Name = "Sprint")]
     public bool UseSprintPvP { get; set; } = false;
@@ -70,77 +71,39 @@ public class RDM_DefaultPvP : RedMageRotation
 
     protected override bool EmergencyAbility(IAction nextGCD, out IAction? act)
     {
-        if (UseRecuperatePvP && Player.CurrentHp / Player.MaxHp * 100 < RCValue && RecuperatePvP.CanUse(out act)) return true;
-
+        act = null;
+        if (GuardCancel && Player.HasStatus(true, StatusID.Guard)) return false;
         if (TryPurify(out act)) return true;
+        if (UseRecuperatePvP && Player.CurrentHp / Player.MaxHp * 100 < RCValue && RecuperatePvP.CanUse(out act)) return true;
 
         return base.EmergencyAbility(nextGCD, out act);
     }
 
-    protected bool DefenseAreaAbility(out IAction? act)
-    {
-        if (MagickBarrierPvP.CanUse(out act, skipAoeCheck: true)) return true;
-        if (FrazzlePvP.CanUse(out act, skipAoeCheck: true)) return true;
-        return base.DefenseAreaGCD(out act);
-    }
-
     protected override bool AttackAbility(IAction nextGCD, out IAction? act)
     {
-        #region PvP
         act = null;
         if (GuardCancel && Player.HasStatus(true, StatusID.Guard)) return false;
 
-        if (Player.HasStatus(true, StatusID.BlackShift))
-        {
-            if (ResolutionPvP_29696.CanUse(out act)) return true;
-        }
-
-        if (Player.HasStatus(true, StatusID.WhiteShift))
-        {
-            if (ResolutionPvP.CanUse(out act)) return true;
-        }
-
-        if (DisplacementPvP.CanUse(out act, skipAoeCheck: true)) return true;
-        if (CorpsacorpsPvP.CanUse(out act, skipAoeCheck: true)) return true;
-        
-        //if (BlackShiftPvP.CanUse(out act)) return true;
-        //if (WhiteShiftPvP.CanUse(out act)) return true;
-
-        #endregion
         return base.AttackAbility(nextGCD, out act);
     }
+    protected override bool GeneralAbility(IAction nextGCD, out IAction? act)
+    {
+        act = null;
+        if (GuardCancel && Player.HasStatus(true, StatusID.Guard)) return false;
 
+        return base.GeneralAbility(nextGCD, out act);
+    }
     protected override bool GeneralGCD(out IAction? act)
     {
         act = null;
-    
         // Early exits for Guard status or Sprint usage
         if (GuardCancel && Player.HasStatus(true, StatusID.Guard)) return false;
         if (!Player.HasStatus(true, StatusID.Guard) && UseSprintPvP && !Player.HasStatus(true, StatusID.Sprint) && !InCombat && SprintPvP.CanUse(out act)) return true;
 
-        //Handling status from White Shift
-        if (Player.HasStatus(true, StatusID.WhiteShift))
-        {
-            if (VerstonePvP.CanUse(out act, skipComboCheck: true)) return true;
-            if (VeraeroIiiPvP.CanUse(out act)) return true;
-            if (EnchantedRipostePvP.CanUse(out act)) return true;
-            if (EnchantedZwerchhauPvP.CanUse(out act)) return true;
-            if (EnchantedRedoublementPvP.CanUse(out act)) return true;
-            if (VerholyPvP.CanUse(out act, skipAoeCheck: true)) return true;
-        }
-    
-        //Handling status from BlackShift
-        if (Player.HasStatus(true, StatusID.BlackShift))
-        {
-            if (VerfirePvP.CanUse(out act, skipComboCheck: true)) return true;
-            if (VerthunderIiiPvP.CanUse(out act)) return true;
-            if (EnchantedRipostePvP_29692.CanUse(out act)) return true;
-            if (EnchantedZwerchhauPvP_29693.CanUse(out act)) return true;
-            if (EnchantedRedoublementPvP_29694.CanUse(out act)) return true;
-            if (VerflarePvP.CanUse(out act, skipAoeCheck: true)) return true;
-        }
-    
+        if (KashaPvP.CanUse(out act)) return true;
+        if (GekkoPvP.CanUse(out act)) return true;
+        if (YukikazePvP.CanUse(out act)) return true;
+
         return base.GeneralGCD(out act);
     }
-
 }
