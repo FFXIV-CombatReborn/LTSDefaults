@@ -1,6 +1,6 @@
 ﻿namespace DefaultRotations.Magical;
 
-[Rotation("Testing Rotations", CombatType.PvE, GameVersion = "6.58")]
+[Rotation("Beta Rotations", CombatType.PvE, GameVersion = "6.58")]
 [SourceCode(Path = "main/DefaultRotations/Magical/BLM_Beta.cs")]
 [Api(1)]
 public class BLM_Beta : BlackMageRotation

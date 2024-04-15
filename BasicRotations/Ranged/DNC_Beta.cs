@@ -1,13 +1,15 @@
-﻿using RotationSolver.Basic.Attributes;
+﻿namespace DefaultRotations.Ranged;
 
-namespace DefaultRotations.Ranged;
-
-[Rotation("Dancer Beta Rotation", CombatType.PvE, GameVersion = "6.58", Description = "Additonal contributions to this rotation thanks to Toshi!")]
+[Rotation("Beta Rotations", CombatType.PvE, GameVersion = "6.58", Description = "Additonal contributions to this rotation thanks to Toshi!")]
 [SourceCode(Path = "main/DefaultRotations/Ranged/DNC_Beta.cs")]
 [Api(1)]
 public sealed class DNC_Beta : DancerRotation
 {
-    [RotationConfig(CombatType.PvE, Name = "Holds Standard and Tech Step if no targets in range (Warning, steps will drift)")]
+    #region Config Options
+    [RotationConfig(CombatType.PvE, Name = "Holds Tech Step if no targets in range (Warning, will drift)")]
+    public bool HoldTechForTargets { get; set; } = true;
+
+    [RotationConfig(CombatType.PvE, Name = "Holds Standard Step if no targets in range (Warning, will drift & Buff may fall off)")]
     public bool HoldStepForTargets { get; set; } = false;
 
     // Override the method for actions to be taken during countdown phase of combat
@@ -24,7 +26,9 @@ public sealed class DNC_Beta : DancerRotation
         // If none of the above conditions are met, fallback to the base class method
         return base.CountDownAction(remainTime);
     }
+    #endregion
 
+    #region Emergency Logic
     // Override the method for handling emergency abilities
     protected override bool EmergencyAbility(IAction nextGCD, out IAction? act)
     {
@@ -56,7 +60,9 @@ public sealed class DNC_Beta : DancerRotation
         // Fallback to base class method if none of the above conditions are met
         return base.EmergencyAbility(nextGCD, out act);
     }
+    #endregion
 
+    #region oGCD Logic
     // Override the method for handling attack abilities
     protected override bool AttackAbility(IAction nextGCD, out IAction? act)
     {
@@ -90,7 +96,9 @@ public sealed class DNC_Beta : DancerRotation
         // Fallback to base class attack ability method if none of the above conditions are met
         return base.AttackAbility(nextGCD, out act);
     }
+    #endregion
 
+    #region GCD Logic
     // Override the method for handling general Global Cooldown (GCD) actions
     protected override bool GeneralGCD(out IAction? act)
     {
@@ -102,14 +110,14 @@ public sealed class DNC_Beta : DancerRotation
         if (ExecuteStepGCD(out act)) return true;
 
         // Attempt to use Technical Step in burst mode and if in combat, checks for hostiles if bool is true
-        if (HoldStepForTargets)
-            {
+        if (HoldTechForTargets)
+        {
             if (HasHostilesInMaxRange && IsBurst && InCombat && TechnicalStepPvE.CanUse(out act, skipAoeCheck: true)) return true;
-            }
-        if (!HoldStepForTargets)
-            {
+        }
+        if (!HoldTechForTargets)
+        {
             if (IsBurst && InCombat && TechnicalStepPvE.CanUse(out act, skipAoeCheck: true)) return true;
-            }
+        }
 
         // Delegate to AttackGCD method to handle attack actions during GCD
         if (AttackGCD(out act, Player.HasStatus(true, StatusID.Devilment))) return true;
@@ -117,7 +125,9 @@ public sealed class DNC_Beta : DancerRotation
         // Fallback to base class general GCD method if none of the above conditions are met
         return base.GeneralGCD(out act);
     }
+    #endregion
 
+    #region Extra Methods
     // Helper method to handle attack actions during GCD based on certain conditions
     private bool AttackGCD(out IAction? act, bool burst)
     {
@@ -159,7 +169,7 @@ public sealed class DNC_Beta : DancerRotation
         // Return false if no action is determined to be taken
         return false;
     }
-
+    // Method for Standard Step Logic
     private bool UseStandardStep(out IAction act)
     {
         // Attempt to use Standard Step if available and certain conditions are met
@@ -194,6 +204,7 @@ public sealed class DNC_Beta : DancerRotation
         }
         return false;
     }
+    // Rewrite of method to hold dance finish until target is in range 14 yalms
     private bool FinishTheDance(out IAction? act)
     {
         bool areDanceTargetsInRange = AllHostileTargets.Any(hostile => hostile.DistanceToPlayer() < 14);
@@ -217,5 +228,5 @@ public sealed class DNC_Beta : DancerRotation
         act = null;
         return false;
     }
-
+    #endregion
 }
