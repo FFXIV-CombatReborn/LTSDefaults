@@ -31,11 +31,11 @@ public sealed class SMN_Default : SummonerRotation
     [RotationConfig(CombatType.PvE, Name = "Use Crimson Cyclone. Will use at any range, regardless of saftey use with caution.")]
     public bool AddCrimsonCyclone { get; set; } = true;
 
-    [RotationConfig(CombatType.PvE, Name = "Order")]
-    public SummonOrderType SummonOrder { get; set; } = SummonOrderType.EmeraldTopazRuby;
-
     [RotationConfig(CombatType.PvE, Name = "Use Swiftcast")]
     public SwiftType AddSwiftcast { get; set; } = SwiftType.No;
+
+    [RotationConfig(CombatType.PvE, Name = "Order")]
+    public SummonOrderType SummonOrder { get; set; } = SummonOrderType.EmeraldTopazRuby;
 
     public override bool CanHealSingleSpell => false;
 
