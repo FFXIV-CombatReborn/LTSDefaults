@@ -41,7 +41,7 @@ public sealed class SCH_Default : ScholarRotation
     protected override bool GeneralGCD(out IAction? act)
     {
         if (SummonEosPvE.CanUse(out act)) return true;
-        if (BioPvE.CanUse(out act)) return true;
+        if (BioPvE.CanUse(out act) && AllHostileTargets.Where(p => p.DistanceToPlayer() < 5).Count() < 2) return true;
 
         //AOE
         if (ArtOfWarPvE.CanUse(out act)) return true;
