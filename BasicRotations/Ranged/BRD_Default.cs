@@ -111,9 +111,7 @@ public sealed class BRD_Default : BardRotation
 
             if (Repertoire == 3) return true;
 
-            if (Repertoire == 2 && EmpyrealArrowPvE.Cooldown.WillHaveOneChargeGCD(1) && NextAbilityToNextGCD < PitchPerfectPvE.AnimationLockTime + Ping) return true;
-
-            if (Repertoire == 2 && EmpyrealArrowPvE.Cooldown.WillHaveOneChargeGCD() && NextAbilityToNextGCD > PitchPerfectPvE.AnimationLockTime + Ping) return true;
+            if (Repertoire == 2 && EmpyrealArrowPvE.Cooldown.WillHaveOneChargeGCD()) return true;
         }
 
         if (MagesBalladPvE.CanUse(out act))
@@ -138,12 +136,7 @@ public sealed class BRD_Default : BardRotation
             if (RagingStrikesPvE.Cooldown.IsCoolingDown && !Player.HasStatus(true, StatusID.RagingStrikes)) return true;
         }
 
-        if (EmpyrealArrowPvE.Cooldown.IsCoolingDown || !EmpyrealArrowPvE.Cooldown.WillHaveOneChargeGCD() || Repertoire != 3 || !EmpyrealArrowPvE.EnoughLevel)
-        {
-            if (RainOfDeathPvE.CanUse(out act, usedUp: true)) return true;
-
-            if (BloodletterPvE.CanUse(out act, usedUp: true)) return true;
-        }
+        if (BloodletterLogic(out act)) return true;
 
         return base.AttackAbility(nextGCD, out act);
     }
@@ -196,6 +189,31 @@ public sealed class BRD_Default : BardRotation
 
         if (!Player.HasStatus(true, StatusID.RagingStrikes) && SoulVoice == 100) return true;
 
+        return false;
+    }
+    private bool BloodletterLogic(out IAction? act)
+    {
+        bool isBattleVoice = BattleVoicePvE.CanUse(out _);
+        bool isRadiantFinale = RadiantFinalePvE.CanUse(out _);
+        bool isRagingNow = Player.HasStatus(true, StatusID.RagingStrikes);
+        bool isRagingSoon = RagingStrikesPvE.Cooldown.WillHaveOneCharge(30);
+        bool isBloodTrait = EnhancedBloodletterTrait.EnoughLevel && BloodletterPvE.Cooldown.CurrentCharges < 3;
+        bool isNoBloodTrait = !EnhancedBloodletterTrait.EnoughLevel && BloodletterPvE.Cooldown.CurrentCharges < 2;
+        bool isEmpyrealArrowCD = EmpyrealArrowPvE.Cooldown.IsCoolingDown;
+        bool isEmpyrealSoon = !EmpyrealArrowPvE.Cooldown.WillHaveOneChargeGCD();
+        bool isEmpyrealLevel = !EmpyrealArrowPvE.EnoughLevel;
+        bool isRepertoire = Repertoire != 3;
+
+        if (RainOfDeathPvE.CanUse(out act, usedUp: true))
+        {
+            if (isEmpyrealArrowCD || isEmpyrealSoon || isEmpyrealLevel || isRepertoire) return true;
+        }
+
+        if (BloodletterPvE.CanUse(out act, usedUp: true))
+        {
+            if (isBattleVoice || isRadiantFinale || (isRagingSoon && (isBloodTrait || isNoBloodTrait))) return false;
+            if (isEmpyrealArrowCD || isEmpyrealSoon || isEmpyrealLevel || isRepertoire) return true;
+        }
         return false;
     }
     #endregion

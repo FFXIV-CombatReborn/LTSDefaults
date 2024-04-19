@@ -5,6 +5,13 @@ namespace DefaultRotations.Ranged;
 [Api(1)]
 public sealed class DNC_Default : DancerRotation
 {
+    #region Config Options
+    [RotationConfig(CombatType.PvE, Name = "Holds Tech Step if no targets in range (Warning, will drift)")]
+    public bool HoldTechForTargets { get; set; } = true;
+
+    [RotationConfig(CombatType.PvE, Name = "Holds Standard Step if no targets in range (Warning, will drift & Buff may fall off)")]
+    public bool HoldStepForTargets { get; set; } = false;
+
     // Override the method for actions to be taken during countdown phase of combat
     protected override IAction? CountDownAction(float remainTime)
     {
@@ -19,19 +26,20 @@ public sealed class DNC_Default : DancerRotation
         // If none of the above conditions are met, fallback to the base class method
         return base.CountDownAction(remainTime);
     }
+    #endregion
 
+    #region Emergency Logic
     // Override the method for handling emergency abilities
     protected override bool EmergencyAbility(IAction nextGCD, out IAction? act)
     {
-        act = null;
         // Special handling if the last action was Quadruple Technical Finish and level requirement is met
-        if (IsLastAction(ActionID.QuadrupleTechnicalFinishPvE) && TechnicalStepPvE.EnoughLevel)
+        if (IsLastGCD(ActionID.QuadrupleTechnicalFinishPvE) && TechnicalStepPvE.EnoughLevel)
         {
             // Attempt to use Devilment ignoring clipping checks
             if (DevilmentPvE.CanUse(out act, skipClippingCheck: true)) return true;
         }
         // Similar handling for Double Standard Finish when level requirement is not met
-        else if (IsLastAction(ActionID.DoubleStandardFinishPvE) && !TechnicalStepPvE.EnoughLevel)
+        else if (IsLastGCD(ActionID.DoubleStandardFinishPvE) && !TechnicalStepPvE.EnoughLevel)
         {
             if (DevilmentPvE.CanUse(out act, skipClippingCheck: true)) return true;
         }
@@ -52,7 +60,9 @@ public sealed class DNC_Default : DancerRotation
         // Fallback to base class method if none of the above conditions are met
         return base.EmergencyAbility(nextGCD, out act);
     }
+    #endregion
 
+    #region oGCD Logic
     // Override the method for handling attack abilities
     protected override bool AttackAbility(IAction nextGCD, out IAction? act)
     {
@@ -62,7 +72,7 @@ public sealed class DNC_Default : DancerRotation
         if (IsDancing) return false;
 
         // Logic for using Fan Dance abilities based on certain conditions
-        if ((Player.HasStatus(true, StatusID.Devilment) || Feathers > 3 || !TechnicalStepPvE.EnoughLevel) && !FanDanceIiiPvE.CanUse(out act, skipAoeCheck: true))
+        if ((Player.HasStatus(true, StatusID.Devilment) || Feathers > 3 || !TechnicalStepPvE.EnoughLevel) && !FanDanceIiiPvE.CanUse(out _, skipAoeCheck: true))
         {
             if (FanDancePvE.CanUse(out act, skipAoeCheck: true)) return true;
             if (FanDanceIiPvE.CanUse(out act)) return true;
@@ -86,11 +96,12 @@ public sealed class DNC_Default : DancerRotation
         // Fallback to base class attack ability method if none of the above conditions are met
         return base.AttackAbility(nextGCD, out act);
     }
+    #endregion
 
+    #region GCD Logic
     // Override the method for handling general Global Cooldown (GCD) actions
     protected override bool GeneralGCD(out IAction? act)
     {
-        act = null;
         // If not in combat and lacking the Closed Position status, attempt to use Closed Position
         if (!InCombat && !Player.HasStatus(true, StatusID.ClosedPosition) && ClosedPositionPvE.CanUse(out act)) return true;
 
@@ -98,8 +109,15 @@ public sealed class DNC_Default : DancerRotation
         if (FinishTheDance(out act)) return true;
         if (ExecuteStepGCD(out act)) return true;
 
-        // Attempt to use Technical Step in burst mode and if in combat
-        if (IsBurst && InCombat && TechnicalStepPvE.CanUse(out act, skipAoeCheck: true)) return true;
+        // Attempt to use Technical Step in burst mode and if in combat, checks for hostiles if bool is true
+        if (HoldTechForTargets)
+        {
+            if (HasHostilesInMaxRange && IsBurst && InCombat && TechnicalStepPvE.CanUse(out act, skipAoeCheck: true)) return true;
+        }
+        if (!HoldTechForTargets)
+        {
+            if (IsBurst && InCombat && TechnicalStepPvE.CanUse(out act, skipAoeCheck: true)) return true;
+        }
 
         // Delegate to AttackGCD method to handle attack actions during GCD
         if (AttackGCD(out act, Player.HasStatus(true, StatusID.Devilment))) return true;
@@ -107,7 +125,9 @@ public sealed class DNC_Default : DancerRotation
         // Fallback to base class general GCD method if none of the above conditions are met
         return base.GeneralGCD(out act);
     }
+    #endregion
 
+    #region Extra Methods
     // Helper method to handle attack actions during GCD based on certain conditions
     private bool AttackGCD(out IAction? act, bool burst)
     {
@@ -120,15 +140,22 @@ public sealed class DNC_Default : DancerRotation
         if ((burst || Esprit >= 85) && SaberDancePvE.CanUse(out act, skipAoeCheck: true)) return true;
 
         // Additional logic for using Tillana and Standard Step based on various checks
-        if (!DevilmentPvE.CanUse(out act, skipComboCheck: true))
+        if (!DevilmentPvE.CanUse(out _, skipComboCheck: true))
         {
             if (TillanaPvE.CanUse(out act, skipAoeCheck: true)) return true;
         }
 
         if (StarfallDancePvE.CanUse(out act, skipAoeCheck: true)) return true;
 
-        if (UseStandardStep(out act)) return true;
+        if (HoldStepForTargets)
+        {
+            if (HasHostilesInMaxRange && UseStandardStep(out act)) return true;
 
+        }
+        if (!HoldStepForTargets)
+        {
+            if (UseStandardStep(out act)) return true;
+        }
         // Attempt to use various dance moves based on availability and conditions
         if (BloodshowerPvE.CanUse(out act)) return true;
         if (FountainfallPvE.CanUse(out act)) return true;
@@ -142,7 +169,7 @@ public sealed class DNC_Default : DancerRotation
         // Return false if no action is determined to be taken
         return false;
     }
-
+    // Method for Standard Step Logic
     private bool UseStandardStep(out IAction act)
     {
         // Attempt to use Standard Step if available and certain conditions are met
@@ -177,6 +204,7 @@ public sealed class DNC_Default : DancerRotation
         }
         return false;
     }
+    // Rewrite of method to hold dance finish until target is in range 14 yalms
     private bool FinishTheDance(out IAction? act)
     {
         bool areDanceTargetsInRange = AllHostileTargets.Any(hostile => hostile.DistanceToPlayer() < 14);
@@ -200,5 +228,5 @@ public sealed class DNC_Default : DancerRotation
         act = null;
         return false;
     }
-
+    #endregion
 }
