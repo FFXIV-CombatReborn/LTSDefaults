@@ -160,7 +160,7 @@ public sealed class NIN_Beta : NinjaRotation
             }
 
             //Vulnerable
-            if (IsBurst && TrickAttackPvE.Cooldown.WillHaveOneCharge(18) && SuitonPvE.CanUse(out _))
+            if (IsBurst && TrickAttackPvE.Cooldown.WillHaveOneCharge(18) && SuitonPvE.CanUse(out _) && !Player.HasStatus(true, StatusID.Suiton))
             {
                 SetNinjutsu(SuitonPvE);
                 return false;
