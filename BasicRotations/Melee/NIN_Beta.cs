@@ -152,8 +152,7 @@ public sealed class NIN_Beta : NinjaRotation
             //Aoe
             if (KatonPvE.CanUse(out _))
             {
-                if (!Player.HasStatus(true, StatusID.Doton) && !IsMoving
-                    && (!TenChiJinPvE.Cooldown.WillHaveOneCharge(6)) || !TenChiJinPvE.Cooldown.IsCoolingDown)
+                if (!Player.HasStatus(true, StatusID.Doton) && !IsMoving && !IsLastGCD(false, DotonPvE) && (!TenChiJinPvE.Cooldown.WillHaveOneCharge(6)) || !TenChiJinPvE.Cooldown.IsCoolingDown)
                     SetNinjutsu(DotonPvE);
                 else SetNinjutsu(KatonPvE);
                 return false;
@@ -229,7 +228,7 @@ public sealed class NIN_Beta : NinjaRotation
             {
                 if (RaitonPvE_18877.CanUse(out act, skipAoeCheck: true)) return true;
             }
-            else if (chiId == DotonPvE_18880.ID && !IsLastAction(false, DotonPvE_18880))
+            else if (chiId == DotonPvE_18880.ID && !IsLastAction(false, DotonPvE_18880) && !Player.HasStatus(true, StatusID.Doton))
             {
                 if (DotonPvE_18880.CanUse(out act, skipAoeCheck: true)) return true;
             }
