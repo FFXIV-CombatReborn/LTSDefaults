@@ -5,9 +5,12 @@ namespace DefaultRotations.Melee;
 [Api(1)]
 public sealed class MNK_Default : MonkRotation
 {
+    #region Config Options
     [RotationConfig(CombatType.PvE, Name = "Use Form Shift")]
     public bool AutoFormShift { get; set; } = true;
+    #endregion
 
+    #region Countdown Logic
     protected override IAction? CountDownAction(float remainTime)
     {
         if (remainTime < 0.2)
@@ -21,7 +24,47 @@ public sealed class MNK_Default : MonkRotation
 
         return base.CountDownAction(remainTime);
     }
+    #endregion
 
+    #region oGCD Logic
+    protected override bool EmergencyAbility(IAction nextGCD, out IAction? act)
+    {
+        if (InCombat)
+        {
+            if (UseBurstMedicine(out act)) return true;
+            if (IsBurst && !CombatElapsedLessGCD(2) && RiddleOfFirePvE.CanUse(out act, onLastAbility: true)) return true;
+        }
+        return base.EmergencyAbility(nextGCD, out act);
+    }
+
+    protected override bool AttackAbility(IAction nextGCD, out IAction? act)
+    {
+        act = null;
+
+        if (CombatElapsedLessGCD(3)) return false; // Prevents the use of abilities if 3 GCDs have not been used
+
+        if (BeastChakras.Contains(BeastChakra.NONE) && Player.HasStatus(true, StatusID.RaptorForm)
+            && (!RiddleOfFirePvE.EnoughLevel || Player.HasStatus(false, StatusID.RiddleOfFire) && !Player.WillStatusEndGCD(3, 0, false, StatusID.RiddleOfFire)
+            || RiddleOfFirePvE.Cooldown.WillHaveOneChargeGCD(1) && (PerfectBalancePvE.Cooldown.ElapsedAfter(60) || !PerfectBalancePvE.Cooldown.IsCoolingDown)))
+        {
+            if (PerfectBalancePvE.CanUse(out act, usedUp: true)) return true; // Perfect Balance
+        }
+
+        if (BrotherhoodPvE.CanUse(out act, skipAoeCheck: true)) return true; // Brotherhood
+
+        if (HowlingFistPvE.CanUse(out act)) return true; // Howling Fist
+        if (SteelPeakPvE.CanUse(out act)) return true; // Steel Peak
+        if (HowlingFistPvE.CanUse(out act, skipAoeCheck: true)) return true; // Howling Fist AOE
+
+        if (RiddleOfWindPvE.CanUse(out act)) return true; // Riddle Of Wind
+
+        if (MergedStatus.HasFlag(AutoStatus.MoveForward) && MoveForwardAbility(nextGCD, out act)) return true;
+
+        return base.AttackAbility(nextGCD, out act);
+    }
+    #endregion
+
+    #region GCD Logic
     private bool OpoOpoForm(out IAction? act)
     {
         if (ArmOfTheDestroyerPvE.CanUse(out act)) return true; // Arm Of The Destoryer
@@ -166,40 +209,5 @@ public sealed class MNK_Default : MonkRotation
 
         return CoerlForm(out act);
     }
-
-    protected override bool EmergencyAbility(IAction nextGCD, out IAction? act)
-    {
-        if (InCombat)
-        {
-            if (UseBurstMedicine(out act)) return true;
-            if (IsBurst && !CombatElapsedLessGCD(2) && RiddleOfFirePvE.CanUse(out act, onLastAbility: true)) return true;
-        }
-        return base.EmergencyAbility(nextGCD, out act);
-    }
-
-    protected override bool AttackAbility(IAction nextGCD, out IAction? act)
-    {
-        act = null;
-
-        if (CombatElapsedLessGCD(3)) return false; // Prevents the use of abilities if 3 GCDs have not been used
-
-        if (BeastChakras.Contains(BeastChakra.NONE) && Player.HasStatus(true, StatusID.RaptorForm)
-            && (!RiddleOfFirePvE.EnoughLevel || Player.HasStatus(false, StatusID.RiddleOfFire) && !Player.WillStatusEndGCD(3, 0, false, StatusID.RiddleOfFire)
-            || RiddleOfFirePvE.Cooldown.WillHaveOneChargeGCD(1) && (PerfectBalancePvE.Cooldown.ElapsedAfter(60) || !PerfectBalancePvE.Cooldown.IsCoolingDown)))
-        {
-            if (PerfectBalancePvE.CanUse(out act, usedUp: true)) return true; // Perfect Balance
-        }
-
-        if (BrotherhoodPvE.CanUse(out act, skipAoeCheck: true)) return true; // Brotherhood
-
-        if (HowlingFistPvE.CanUse(out act)) return true; // Howling Fist
-        if (SteelPeakPvE.CanUse(out act)) return true; // Steel Peak
-        if (HowlingFistPvE.CanUse(out act, skipAoeCheck: true)) return true; // Howling Fist AOE
-
-        if (RiddleOfWindPvE.CanUse(out act)) return true; // Riddle Of Wind
-
-        if (MergedStatus.HasFlag(AutoStatus.MoveForward) && MoveForwardAbility(nextGCD, out act)) return true;
-
-        return base.AttackAbility(nextGCD, out act);
-    }
+    #endregion
 }

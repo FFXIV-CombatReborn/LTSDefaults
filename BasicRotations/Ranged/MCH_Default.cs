@@ -1,5 +1,3 @@
-using RotationSolver.Basic.Data;
-
 namespace DefaultRotations.Ranged;
 
 [Rotation("LTS's Default", CombatType.PvE, GameVersion = "6.58", Description = "Additonal contributions to this rotation thanks to Toshi!")]
@@ -7,8 +5,10 @@ namespace DefaultRotations.Ranged;
 [Api(1)]
 public sealed class MCH_Default : MachinistRotation
 {
+    #region Config Options
     [RotationConfig(CombatType.PvE, Name = "Uses Rook Autoturret/Automaton Queen immediately whenever you get 50 battery")]
     public bool UseQueenWhenever { get; set; } = true;
+    #endregion
 
     #region Countdown logic
     // Defines logic for actions to take during the countdown before combat starts.
@@ -26,7 +26,7 @@ public sealed class MCH_Default : MachinistRotation
     }
     #endregion
 
-    #region Emergency Logic
+    #region oGCD Logic
     // Determines emergency actions to take based on the next planned GCD action.
     protected override bool EmergencyAbility(IAction nextGCD, out IAction? act)
     {
@@ -48,7 +48,8 @@ public sealed class MCH_Default : MachinistRotation
 
         // Keeps Ricochet and Gauss cannon Even
         bool isRicochetMore = (GaussRoundPvE.Cooldown.CurrentCharges <= RicochetPvE.Cooldown.CurrentCharges);
-        bool isGaussMore = (GaussRoundPvE.Cooldown.CurrentCharges > RicochetPvE.Cooldown.CurrentCharges);
+        bool isGaussMore = (!RicochetPvE.EnoughLevel /*Check to use Gauss below lvl50 */ || 
+                           (GaussRoundPvE.Cooldown.CurrentCharges > RicochetPvE.Cooldown.CurrentCharges));
 
         // Attempt to use Reassemble if it's ready
         if (isReassembleUsable)
@@ -68,9 +69,7 @@ public sealed class MCH_Default : MachinistRotation
         }
         return base.EmergencyAbility(nextGCD, out act);
     }
-    #endregion
 
-    #region oGCD Logic
     // Logic for using attack abilities outside of GCD, focusing on burst windows and cooldown management.
     protected override bool AttackAbility(IAction nextGCD, out IAction? act)
     {

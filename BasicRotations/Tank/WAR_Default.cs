@@ -5,8 +5,8 @@ namespace DefaultRotations.Tank;
 [Api(1)]
 public sealed class WAR_Default : WarriorRotation
 {
-    private static bool IsBurstStatus => !Player.WillStatusEndGCD(0, 0, false, StatusID.InnerStrength);
 
+    #region Countdown Logic
     protected override IAction? CountDownAction(float remainTime)
     {
         if (remainTime <= CountDownAhead)
@@ -22,40 +22,9 @@ public sealed class WAR_Default : WarriorRotation
         }
         return base.CountDownAction(remainTime);
     }
+    #endregion
 
-    protected override bool GeneralGCD(out IAction? act)
-    {
-        // If the player's Surging Tempest status will not end in the next 3 GCDs, consider using certain abilities.
-        if (!Player.WillStatusEndGCD(3, 0, true, StatusID.SurgingTempest))
-        {
-            // If the player is not moving, is in a burst status, and Primal Rend can be used on a target within a distance of 1, use Primal Rend.
-            if (!IsMoving && IsBurstStatus && PrimalRendPvE.CanUse(out act, skipAoeCheck: true))
-            {
-                if (PrimalRendPvE.Target.Target?.DistanceToPlayer() < 1) return true;
-            }
-            // If the player is in a burst status, does not have the Nascent Chaos status, or has a Beast Gauge greater than 80, consider using Steel Cyclone or Inner Beast.
-            if (IsBurstStatus || !Player.HasStatus(false, StatusID.NascentChaos) || BeastGauge > 80)
-            {
-                if (SteelCyclonePvE.CanUse(out act)) return true;
-                if (InnerBeastPvE.CanUse(out act)) return true;
-            }
-        }
-
-        // If any of the following abilities can be used, use them and return true.
-        if (MythrilTempestPvE.CanUse(out act)) return true;
-        if (OverpowerPvE.CanUse(out act)) return true;
-        if (StormsEyePvE.CanUse(out act)) return true;
-        if (StormsPathPvE.CanUse(out act)) return true;
-        if (MaimPvE.CanUse(out act)) return true;
-        if (HeavySwingPvE.CanUse(out act)) return true;
-
-        // If Tomahawk can be used, use it and return true.
-        if (TomahawkPvE.CanUse(out act)) return true;
-
-        return base.GeneralGCD(out act);
-    }
-
-
+    #region oGCD Logic
     protected override bool AttackAbility(IAction nextGCD, out IAction? act)
     {
         // If Infuriate can be used, use it and return true.
@@ -159,6 +128,40 @@ public sealed class WAR_Default : WarriorRotation
 
         return base.DefenseAreaAbility(nextGCD, out act);
     }
+    #endregion
+
+    #region GCD Logic
+    protected override bool GeneralGCD(out IAction? act)
+    {
+        // If the player's Surging Tempest status will not end in the next 3 GCDs, consider using certain abilities.
+        if (!Player.WillStatusEndGCD(3, 0, true, StatusID.SurgingTempest))
+        {
+            // If the player is not moving, is in a burst status, and Primal Rend can be used on a target within a distance of 1, use Primal Rend.
+            if (!IsMoving && IsBurstStatus && PrimalRendPvE.CanUse(out act, skipAoeCheck: true))
+            {
+                if (PrimalRendPvE.Target.Target?.DistanceToPlayer() < 1) return true;
+            }
+            // If the player is in a burst status, does not have the Nascent Chaos status, or has a Beast Gauge greater than 80, consider using Steel Cyclone or Inner Beast.
+            if (IsBurstStatus || !Player.HasStatus(false, StatusID.NascentChaos) || BeastGauge > 80)
+            {
+                if (SteelCyclonePvE.CanUse(out act)) return true;
+                if (InnerBeastPvE.CanUse(out act)) return true;
+            }
+        }
+
+        // If any of the following abilities can be used, use them and return true.
+        if (MythrilTempestPvE.CanUse(out act)) return true;
+        if (OverpowerPvE.CanUse(out act)) return true;
+        if (StormsEyePvE.CanUse(out act)) return true;
+        if (StormsPathPvE.CanUse(out act)) return true;
+        if (MaimPvE.CanUse(out act)) return true;
+        if (HeavySwingPvE.CanUse(out act)) return true;
+
+        // If Tomahawk can be used, use it and return true.
+        if (TomahawkPvE.CanUse(out act)) return true;
+
+        return base.GeneralGCD(out act);
+    }
 
     [RotationDesc(ActionID.NascentFlashPvE)]
     protected override bool HealSingleGCD(out IAction? act)
@@ -173,5 +176,9 @@ public sealed class WAR_Default : WarriorRotation
 
         return base.HealSingleGCD(out act);
     }
+    #endregion
 
+    #region Extra Methods
+    private static bool IsBurstStatus => !Player.WillStatusEndGCD(0, 0, false, StatusID.InnerStrength);
+    #endregion
 }

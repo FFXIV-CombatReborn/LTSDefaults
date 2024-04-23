@@ -5,38 +5,14 @@ namespace DefaultRotations.Magical;
 [Api(1)]
 public sealed class RDM_Default : RedMageRotation
 {
+    #region Config Options
     private static BaseAction VerthunderStartUp { get; } = new BaseAction(ActionID.VerthunderPvE, false);
-
-    private bool CanStartMeleeCombo
-    {
-        get
-        {
-            if (Player.HasStatus(true, StatusID.Manafication, StatusID.Embolden) ||
-                             BlackMana == 100 || WhiteMana == 100) return true;
-
-            if (BlackMana == WhiteMana) return false;
-
-            else if (WhiteMana < BlackMana)
-            {
-                if (Player.HasStatus(true, StatusID.VerstoneReady)) return false;
-            }
-            else
-            {
-                if (Player.HasStatus(true, StatusID.VerfireReady)) return false;
-            }
-
-            if (Player.HasStatus(true, VercurePvE.Setting.StatusProvide ?? [])) return false;
-
-            //Waiting for embolden.
-            if (EmboldenPvE.EnoughLevel && EmboldenPvE.Cooldown.WillHaveOneChargeGCD(5)) return false;
-
-            return true;
-        }
-    }
 
     [RotationConfig(CombatType.PvE, Name = "Use Vercure for Dualcast when out of combat.")]
     public bool UseVercure { get; set; }
+    #endregion
 
+    #region Countdown Logic
     protected override IAction? CountDownAction(float remainTime)
     {
         if (remainTime < VerthunderStartUp.Info.CastTime + CountDownAhead
@@ -49,68 +25,9 @@ public sealed class RDM_Default : RedMageRotation
 
         return base.CountDownAction(remainTime);
     }
+    #endregion
 
-    protected override bool GeneralGCD(out IAction? act)
-    {
-        act = null;
-        if (ManaStacks == 3) return false;
-
-        if (!VerthunderIiPvE.CanUse(out _))
-        {
-            if (VerfirePvE.CanUse(out act)) return true;
-            if (VerstonePvE.CanUse(out act)) return true;
-        }
-
-        if (ScatterPvE.CanUse(out act)) return true;
-        if (WhiteMana < BlackMana)
-        {
-            if (VeraeroIiPvE.CanUse(out act) && BlackMana - WhiteMana != 5) return true;
-            if (VeraeroPvE.CanUse(out act) && BlackMana - WhiteMana != 6) return true;
-        }
-        if (VerthunderIiPvE.CanUse(out act)) return true;
-        if (VerthunderPvE.CanUse(out act)) return true;
-
-        if (JoltPvE.CanUse(out act)) return true;
-
-        if (UseVercure && NotInCombatDelay && VercurePvE.CanUse(out act)) return true;
-
-        return base.GeneralGCD(out act);
-    }
-
-    protected override bool EmergencyGCD(out IAction? act)
-    {
-        if (ManaStacks == 3)
-        {
-            if (BlackMana > WhiteMana)
-            {
-                if (VerholyPvE.CanUse(out act, skipAoeCheck: true)) return true;
-            }
-            if (VerflarePvE.CanUse(out act, skipAoeCheck: true)) return true;
-        }
-
-        if (ResolutionPvE.CanUse(out act, skipAoeCheck: true)) return true;
-        if (ScorchPvE.CanUse(out act, skipAoeCheck: true)) return true;
-
-
-        if (IsLastGCD(true, MoulinetPvE) && MoulinetPvE.CanUse(out act, skipAoeCheck: true)) return true;
-        if (ZwerchhauPvE.CanUse(out act)) return true;
-        if (RedoublementPvE.CanUse(out act)) return true;
-
-        if (!CanStartMeleeCombo) return false;
-
-        if (MoulinetPvE.CanUse(out act))
-        {
-            if (BlackMana >= 60 && WhiteMana >= 60) return true;
-        }
-        else
-        {
-            if (BlackMana >= 50 && WhiteMana >= 50 && RipostePvE.CanUse(out act)) return true;
-        }
-        if (ManaStacks > 0 && RipostePvE.CanUse(out act)) return true;
-
-        return base.EmergencyGCD(out act);
-    }
-
+    #region oGCD Logic
     protected override bool EmergencyAbility(IAction nextGCD, out IAction? act)
     {
         act = null;
@@ -149,4 +66,97 @@ public sealed class RDM_Default : RedMageRotation
 
         return base.AttackAbility(nextGCD, out act);
     }
+    #endregion
+
+    #region GCD Logic
+    protected override bool EmergencyGCD(out IAction? act)
+    {
+        if (ManaStacks == 3)
+        {
+            if (BlackMana > WhiteMana)
+            {
+                if (VerholyPvE.CanUse(out act, skipAoeCheck: true)) return true;
+            }
+            if (VerflarePvE.CanUse(out act, skipAoeCheck: true)) return true;
+        }
+
+        if (ResolutionPvE.CanUse(out act, skipAoeCheck: true)) return true;
+        if (ScorchPvE.CanUse(out act, skipAoeCheck: true)) return true;
+
+
+        if (IsLastGCD(true, MoulinetPvE) && MoulinetPvE.CanUse(out act, skipAoeCheck: true)) return true;
+        if (ZwerchhauPvE.CanUse(out act)) return true;
+        if (RedoublementPvE.CanUse(out act)) return true;
+
+        if (!CanStartMeleeCombo) return false;
+
+        if (MoulinetPvE.CanUse(out act))
+        {
+            if (BlackMana >= 60 && WhiteMana >= 60) return true;
+        }
+        else
+        {
+            if (BlackMana >= 50 && WhiteMana >= 50 && RipostePvE.CanUse(out act)) return true;
+        }
+        if (ManaStacks > 0 && RipostePvE.CanUse(out act)) return true;
+
+        return base.EmergencyGCD(out act);
+    }
+
+    protected override bool GeneralGCD(out IAction? act)
+    {
+        act = null;
+        if (ManaStacks == 3) return false;
+
+        if (!VerthunderIiPvE.CanUse(out _))
+        {
+            if (VerfirePvE.CanUse(out act)) return true;
+            if (VerstonePvE.CanUse(out act)) return true;
+        }
+
+        if (ScatterPvE.CanUse(out act)) return true;
+        if (WhiteMana < BlackMana)
+        {
+            if (VeraeroIiPvE.CanUse(out act) && BlackMana - WhiteMana != 5) return true;
+            if (VeraeroPvE.CanUse(out act) && BlackMana - WhiteMana != 6) return true;
+        }
+        if (VerthunderIiPvE.CanUse(out act)) return true;
+        if (VerthunderPvE.CanUse(out act)) return true;
+
+        if (JoltPvE.CanUse(out act)) return true;
+
+        if (UseVercure && NotInCombatDelay && VercurePvE.CanUse(out act)) return true;
+
+        return base.GeneralGCD(out act);
+    }
+    #endregion
+
+    #region Extra Methods
+    private bool CanStartMeleeCombo
+    {
+        get
+        {
+            if (Player.HasStatus(true, StatusID.Manafication, StatusID.Embolden) ||
+                             BlackMana == 100 || WhiteMana == 100) return true;
+
+            if (BlackMana == WhiteMana) return false;
+
+            else if (WhiteMana < BlackMana)
+            {
+                if (Player.HasStatus(true, StatusID.VerstoneReady)) return false;
+            }
+            else
+            {
+                if (Player.HasStatus(true, StatusID.VerfireReady)) return false;
+            }
+
+            if (Player.HasStatus(true, VercurePvE.Setting.StatusProvide ?? [])) return false;
+
+            //Waiting for embolden.
+            if (EmboldenPvE.EnoughLevel && EmboldenPvE.Cooldown.WillHaveOneChargeGCD(5)) return false;
+
+            return true;
+        }
+    }
+    #endregion
 }

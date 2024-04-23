@@ -6,7 +6,11 @@ namespace DefaultRotations.Melee;
 
 public sealed class DRG_Default : DragoonRotation
 {
+    #region Config Options
     [RotationDesc(ActionID.SpineshatterDivePvE, ActionID.DragonfireDivePvE)]
+    #endregion
+
+    #region Move Logic
     protected override bool MoveForwardAbility(IAction nextGCD, out IAction act)
     {
         if (SpineshatterDivePvE.CanUse(out act)) return true;
@@ -14,6 +18,10 @@ public sealed class DRG_Default : DragoonRotation
 
         return false;
     }
+
+    #endregion
+
+    #region oGCD Logic
     protected override bool EmergencyAbility(IAction nextGCD, out IAction? act)
     {
         if (nextGCD.IsTheSameTo(true, FullThrustPvE, CoerthanTormentPvE)
@@ -24,6 +32,8 @@ public sealed class DRG_Default : DragoonRotation
 
         return base.EmergencyAbility(nextGCD, out act);
     }
+
+
 
     protected override bool AttackAbility(IAction nextGCD, out IAction? act)
     {
@@ -68,7 +78,9 @@ public sealed class DRG_Default : DragoonRotation
 
         return base.AttackAbility(nextGCD, out act);
     }
+    #endregion
 
+    #region GCD Logic
     protected override bool GeneralGCD(out IAction? act)
     {
         if (CoerthanTormentPvE.CanUse(out act)) return true;
@@ -94,4 +106,5 @@ public sealed class DRG_Default : DragoonRotation
 
         return base.GeneralGCD(out act);
     }
+    #endregion
 }
