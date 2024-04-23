@@ -31,7 +31,7 @@ public sealed class BRD_Default : BardRotation
     private float ARMYRemainTime => 45 - ARMYTime;
     #endregion
 
-    #region Emergency Logic
+    #region oGCD Logic
     protected override bool EmergencyAbility(IAction nextGCD, out IAction? act)
     {
         if (nextGCD.IsTheSameTo(true, StraightShotPvE, VenomousBitePvE, WindbitePvE, IronJawsPvE))
@@ -48,9 +48,7 @@ public sealed class BRD_Default : BardRotation
 
         return base.EmergencyAbility(nextGCD, out act);
     }
-    #endregion
 
-    #region oGCD Logic
     protected override bool AttackAbility(IAction nextGCD, out IAction? act)
     {
         act = null;

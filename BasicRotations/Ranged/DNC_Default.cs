@@ -11,7 +11,9 @@ public sealed class DNC_Default : DancerRotation
 
     [RotationConfig(CombatType.PvE, Name = "Holds Standard Step if no targets in range (Warning, will drift & Buff may fall off)")]
     public bool HoldStepForTargets { get; set; } = false;
+    #endregion
 
+    #region Countdown Logic
     // Override the method for actions to be taken during countdown phase of combat
     protected override IAction? CountDownAction(float remainTime)
     {
@@ -28,10 +30,15 @@ public sealed class DNC_Default : DancerRotation
     }
     #endregion
 
-    #region Emergency Logic
+    #region oGCD Logic
     // Override the method for handling emergency abilities
     protected override bool EmergencyAbility(IAction nextGCD, out IAction? act)
     {
+        if (Player.HasStatus(true, StatusID.TechnicalFinish))
+        {
+            if (DevilmentPvE.CanUse(out act, skipClippingCheck: true)) return true;
+        }
+
         // Special handling if the last action was Quadruple Technical Finish and level requirement is met
         if (IsLastGCD(ActionID.QuadrupleTechnicalFinishPvE) && TechnicalStepPvE.EnoughLevel)
         {
@@ -60,9 +67,7 @@ public sealed class DNC_Default : DancerRotation
         // Fallback to base class method if none of the above conditions are met
         return base.EmergencyAbility(nextGCD, out act);
     }
-    #endregion
 
-    #region oGCD Logic
     // Override the method for handling attack abilities
     protected override bool AttackAbility(IAction nextGCD, out IAction? act)
     {

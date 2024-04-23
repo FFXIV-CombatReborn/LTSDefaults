@@ -5,6 +5,7 @@
 [Api(1)]
 public class PLD_Default : PaladinRotation
 {
+    #region Config Options
     [RotationConfig(CombatType.PvE, Name = "Use Divine Veil at 15 seconds remaining on Countdown")]
     public bool UseDivineVeilPre { get; set; } = false;
 
@@ -13,7 +14,9 @@ public class PLD_Default : PaladinRotation
 
     [RotationConfig(CombatType.PvE, Name = "Use Shield Bash when Low Blow is cooling down")]
     public bool UseShieldBash { get; set; } = true;
+    #endregion
 
+    #region Countdown Logic
     protected override IAction? CountDownAction(float remainTime)
     {
         if (remainTime < HolySpiritPvE.Info.CastTime + CountDownAhead
@@ -24,7 +27,9 @@ public class PLD_Default : PaladinRotation
 
         return base.CountDownAction(remainTime);
     }
+    #endregion
 
+    #region oGCD Logic
     protected override bool EmergencyAbility(IAction nextGCD, out IAction? act)
     {
         if (InCombat)
@@ -64,6 +69,45 @@ public class PLD_Default : PaladinRotation
         return base.AttackAbility(nextGCD, out act);
     }
 
+    [RotationDesc(ActionID.ReprisalPvE, ActionID.DivineVeilPvE)]
+    protected override bool DefenseAreaAbility(IAction nextGCD, out IAction? act)
+    {
+
+        if (DivineVeilPvE.CanUse(out act)) return true;
+
+        if (PassageOfArmsPvE.CanUse(out act)) return true;
+        return base.DefenseAreaAbility(nextGCD, out act);
+    }
+
+    [RotationDesc(ActionID.SentinelPvE, ActionID.RampartPvE, ActionID.BulwarkPvE, ActionID.SheltronPvE, ActionID.ReprisalPvE)]
+    protected override bool DefenseSingleAbility(IAction nextGCD, out IAction? act)
+    {
+
+        // If the player has the Hallowed Ground status, don't use any abilities.
+        if (!Player.HasStatus(true, StatusID.HallowedGround))
+        {
+            // If Bulwark can be used and there are more than 2 hostiles in range, use it and return true.
+            if (BulwarkPvE.CanUse(out act, true) && NumberOfHostilesInRange > 2) return true;
+
+            // If Oath can be used, use it and return true.
+            //if (UseOath(out act, true)) return true;
+
+            // If Rampart is not cooling down or has been cooling down for more than 60 seconds, and Sentinel can be used, use Sentinel and return true.
+            if ((!RampartPvE.Cooldown.IsCoolingDown || RampartPvE.Cooldown.ElapsedAfter(60)) && SentinelPvE.CanUse(out act)) return true;
+
+            // If Sentinel is at an enough level and is cooling down for more than 60 seconds, or if Sentinel is not at an enough level, and Rampart can be used, use Rampart and return true.
+            if ((SentinelPvE.EnoughLevel && SentinelPvE.Cooldown.IsCoolingDown && SentinelPvE.Cooldown.ElapsedAfter(60) || !SentinelPvE.EnoughLevel) && RampartPvE.CanUse(out act)) return true;
+
+            // If Reprisal can be used, use it and return true.
+            if (ReprisalPvE.CanUse(out act, skipAoeCheck: true, skipStatusProvideCheck: true)) return true;
+
+        }
+
+        return base.DefenseSingleAbility(nextGCD, out act);
+    }
+    #endregion
+
+    #region GCD Logic
     protected override bool GeneralGCD(out IAction? act)
     {
         if (Player.HasStatus(true, StatusID.Requiescat))
@@ -108,44 +152,9 @@ public class PLD_Default : PaladinRotation
 
         return base.GeneralGCD(out act);
     }
+    #endregion
 
-    [RotationDesc(ActionID.ReprisalPvE, ActionID.DivineVeilPvE)]
-    protected override bool DefenseAreaAbility(IAction nextGCD, out IAction? act)
-    {
-
-        if (DivineVeilPvE.CanUse(out act)) return true;
-
-        if (PassageOfArmsPvE.CanUse(out act)) return true;
-        return base.DefenseAreaAbility(nextGCD, out act);
-    }
-
-    [RotationDesc(ActionID.SentinelPvE, ActionID.RampartPvE, ActionID.BulwarkPvE, ActionID.SheltronPvE, ActionID.ReprisalPvE)]
-    protected override bool DefenseSingleAbility(IAction nextGCD, out IAction? act)
-    {
-
-        // If the player has the Hallowed Ground status, don't use any abilities.
-        if (!Player.HasStatus(true, StatusID.HallowedGround))
-        {
-            // If Bulwark can be used and there are more than 2 hostiles in range, use it and return true.
-            if (BulwarkPvE.CanUse(out act, true) && NumberOfHostilesInRange > 2) return true;
-
-            // If Oath can be used, use it and return true.
-            //if (UseOath(out act, true)) return true;
-
-            // If Rampart is not cooling down or has been cooling down for more than 60 seconds, and Sentinel can be used, use Sentinel and return true.
-            if ((!RampartPvE.Cooldown.IsCoolingDown || RampartPvE.Cooldown.ElapsedAfter(60)) && SentinelPvE.CanUse(out act)) return true;
-
-            // If Sentinel is at an enough level and is cooling down for more than 60 seconds, or if Sentinel is not at an enough level, and Rampart can be used, use Rampart and return true.
-            if ((SentinelPvE.EnoughLevel && SentinelPvE.Cooldown.IsCoolingDown && SentinelPvE.Cooldown.ElapsedAfter(60) || !SentinelPvE.EnoughLevel) && RampartPvE.CanUse(out act)) return true;
-
-            // If Reprisal can be used, use it and return true.
-            if (ReprisalPvE.CanUse(out act, skipAoeCheck: true, skipStatusProvideCheck: true)) return true;
-
-        }
-
-        return base.DefenseSingleAbility(nextGCD, out act);
-    }
-
+    #region Extra Methods
     private bool UseOath(out IAction act, bool onLast = false)
     {
         if (SheltronPvE.CanUse(out act, onLastAbility: onLast)) return true;
@@ -153,4 +162,5 @@ public class PLD_Default : PaladinRotation
 
         return false;
     }
+    #endregion
 }

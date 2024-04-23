@@ -5,18 +5,21 @@ namespace DefaultRotations.Healer;
 [Api(1)]
 public sealed class SGE_Default : SageRotation
 {
+    #region Config Options
     [RotationConfig(CombatType.PvE, Name = "Use spells with cast times to heal.")]
     public bool GCDHeal { get; set; } = false;
+    #endregion
 
-    public override bool CanHealSingleSpell => base.CanHealSingleSpell && (GCDHeal || PartyMembers.GetJobCategory(JobRole.Healer).Count() < 2);
-    public override bool CanHealAreaSpell => base.CanHealAreaSpell && (GCDHeal || PartyMembers.GetJobCategory(JobRole.Healer).Count() < 2);
-
+    #region Countdown Logic
     protected override IAction? CountDownAction(float remainTime)
     {
         if (remainTime <= 1.5 && DosisPvE.CanUse(out var act)) return act;
         if (remainTime <= 3 && UseBurstMedicine(out act)) return act;
         return base.CountDownAction(remainTime);
     }
+    #endregion
+
+    #region oGCD Logic
     protected override bool EmergencyAbility(IAction nextGCD, out IAction? act)
     {
         if (base.EmergencyAbility(nextGCD, out act)) return true;
@@ -33,6 +36,21 @@ public sealed class SGE_Default : SageRotation
         }
 
         return base.EmergencyAbility(nextGCD, out act);
+    }
+
+    [RotationDesc(ActionID.PanhaimaPvE, ActionID.KeracholePvE, ActionID.HolosPvE)]
+    protected override bool DefenseAreaAbility(IAction nextGCD, out IAction? act)
+    {
+        if (Addersgall <= 1)
+        {
+            if (PanhaimaPvE.CanUse(out act, onLastAbility: true)) return true;
+        }
+
+        if (KeracholePvE.CanUse(out act, onLastAbility: true)) return true;
+
+        if (HolosPvE.CanUse(out act, onLastAbility: true)) return true;
+
+        return base.DefenseAreaAbility(nextGCD, out act);
     }
 
     [RotationDesc(ActionID.HaimaPvE, ActionID.TaurocholePvE, ActionID.PanhaimaPvE, ActionID.KeracholePvE, ActionID.HolosPvE)]
@@ -57,43 +75,80 @@ public sealed class SGE_Default : SageRotation
         return base.DefenseSingleAbility(nextGCD, out act);
     }
 
-    [RotationDesc(ActionID.EukrasianDiagnosisPvE)]
-    protected override bool DefenseSingleGCD(out IAction? act)
+    [RotationDesc(ActionID.KeracholePvE, ActionID.PhysisPvE, ActionID.HolosPvE, ActionID.IxocholePvE)]
+    protected override bool HealAreaAbility(IAction nextGCD, out IAction? act)
     {
-        if (EukrasianDiagnosisPvE.CanUse(out act))
-        {
-            if (EukrasianDiagnosisPvE.Target.Target?.HasStatus(true,
-                StatusID.EukrasianDiagnosis,
-                StatusID.DifferentialDiagnosis,
-                StatusID.EukrasianPrognosis,
-                StatusID.Galvanize
-            ) ?? false) return false;
+        if (PhysisIiPvE.CanUse(out act)) return true;
+        if (!PhysisIiPvE.EnoughLevel && PhysisPvE.CanUse(out act)) return true;
 
-            if (EukrasiaPvE.CanUse(out act)) return true;
+        if (KeracholePvE.CanUse(out act, onLastAbility: true) && EnhancedKeracholeTrait.EnoughLevel) return true;
 
-            act = EukrasianDiagnosisPvE;
-            return true;
-        }
+        if (HolosPvE.CanUse(out act, onLastAbility: true) && PartyMembersAverHP < 0.50f) return true;
 
-        return base.DefenseSingleGCD(out act);
-    }
-
-    [RotationDesc(ActionID.PanhaimaPvE, ActionID.KeracholePvE, ActionID.HolosPvE)]
-    protected override bool DefenseAreaAbility(IAction nextGCD, out IAction? act)
-    {
-        if (Addersgall <= 1)
-        {
-            if (PanhaimaPvE.CanUse(out act, onLastAbility: true)) return true;
-        }
+        if (IxocholePvE.CanUse(out act, onLastAbility: true)) return true;
 
         if (KeracholePvE.CanUse(out act, onLastAbility: true)) return true;
 
-        if (HolosPvE.CanUse(out act, onLastAbility: true)) return true;
+        return base.HealAreaAbility(nextGCD, out act);
+    }
 
-        return base.DefenseAreaAbility(nextGCD, out act);
+    [RotationDesc(ActionID.TaurocholePvE, ActionID.KeracholePvE, ActionID.DruocholePvE, ActionID.HolosPvE, ActionID.PhysisPvE, ActionID.PanhaimaPvE)]
+    protected override bool HealSingleAbility(IAction nextGCD, out IAction? act)
+    {
+        if (TaurocholePvE.CanUse(out act)) return true;
+
+        if (KeracholePvE.CanUse(out act) && EnhancedKeracholeTrait.EnoughLevel) return true;
+
+        if ((!TaurocholePvE.EnoughLevel || TaurocholePvE.Cooldown.IsCoolingDown) && DruocholePvE.CanUse(out act)) return true;
+
+        if (SoteriaPvE.CanUse(out act) && PartyMembers.Any(b => b.HasStatus(true, StatusID.Kardion) && b.GetHealthRatio() < 0.85f)) return true;
+
+
+        var tank = PartyMembers.GetJobCategory(JobRole.Tank);
+        if (Addersgall < 1 && (tank.Any(t => t.GetHealthRatio() < 0.65f) || PartyMembers.Any(b => b.GetHealthRatio() < 0.20f)))
+        {
+            if (HaimaPvE.CanUse(out act, onLastAbility: true)) return true;
+
+            if (PhysisIiPvE.CanUse(out act)) return true;
+            if (!PhysisIiPvE.EnoughLevel && PhysisPvE.CanUse(out act)) return true;
+
+            if (HolosPvE.CanUse(out act, onLastAbility: true)) return true;
+
+            if ((!HaimaPvE.EnoughLevel || HaimaPvE.Cooldown.ElapsedAfter(20)) && PanhaimaPvE.CanUse(out act, onLastAbility: true)) return true;
+        }
+
+        if (tank.Any(t => t.GetHealthRatio() < 0.60f))
+        {
+            if (ZoePvE.CanUse(out act)) return true;
+        }
+
+        if (tank.Any(t => t.GetHealthRatio() < 0.70f) || PartyMembers.Any(b => b.GetHealthRatio() < 0.30f))
+        {
+            if (KrasisPvE.CanUse(out act)) return true;
+        }
+
+        if (KeracholePvE.CanUse(out act)) return true;
+
+        return base.HealSingleAbility(nextGCD, out act);
     }
 
     [RotationDesc(ActionID.EukrasianPrognosisPvE)]
+
+    protected override bool GeneralAbility(IAction nextGCD, out IAction? act)
+    {
+        if (KardiaPvE.CanUse(out act)) return true;
+
+        if (Addersgall <= 1 && RhizomataPvE.CanUse(out act)) return true;
+
+        if (SoteriaPvE.CanUse(out act) && PartyMembers.Any(b => b.HasStatus(true, StatusID.Kardion) && b.GetHealthRatio() < HealthSingleAbility)) return true;
+
+        if (PepsisPvE.CanUse(out act)) return true;
+
+        return base.GeneralAbility(nextGCD, out act);
+    }
+    #endregion
+
+    #region GCD Logic 
     protected override bool DefenseAreaGCD(out IAction? act)
     {
         if (EukrasianPrognosisPvE.CanUse(out act))
@@ -113,17 +168,25 @@ public sealed class SGE_Default : SageRotation
         return base.DefenseAreaGCD(out act);
     }
 
-    protected override bool GeneralAbility(IAction nextGCD, out IAction? act)
+    [RotationDesc(ActionID.EukrasianDiagnosisPvE)]
+    protected override bool DefenseSingleGCD(out IAction? act)
     {
-        if (KardiaPvE.CanUse(out act)) return true;
+        if (EukrasianDiagnosisPvE.CanUse(out act))
+        {
+            if (EukrasianDiagnosisPvE.Target.Target?.HasStatus(true,
+                StatusID.EukrasianDiagnosis,
+                StatusID.DifferentialDiagnosis,
+                StatusID.EukrasianPrognosis,
+                StatusID.Galvanize
+            ) ?? false) return false;
 
-        if (Addersgall <= 1 && RhizomataPvE.CanUse(out act)) return true;
+            if (EukrasiaPvE.CanUse(out act)) return true;
 
-        if (SoteriaPvE.CanUse(out act) && PartyMembers.Any(b => b.HasStatus(true, StatusID.Kardion) && b.GetHealthRatio() < HealthSingleAbility)) return true;
+            act = EukrasianDiagnosisPvE;
+            return true;
+        }
 
-        if (PepsisPvE.CanUse(out act)) return true;
-
-        return base.GeneralAbility(nextGCD, out act);
+        return base.DefenseSingleGCD(out act);
     }
 
     protected override bool GeneralGCD(out IAction? act)
@@ -176,53 +239,6 @@ public sealed class SGE_Default : SageRotation
         return base.GeneralGCD(out act);
     }
 
-    [RotationDesc(ActionID.TaurocholePvE, ActionID.KeracholePvE, ActionID.DruocholePvE, ActionID.HolosPvE, ActionID.PhysisPvE, ActionID.PanhaimaPvE)]
-    protected override bool HealSingleAbility(IAction nextGCD, out IAction? act)
-    {
-        if (TaurocholePvE.CanUse(out act)) return true;
-
-        if (KeracholePvE.CanUse(out act) && EnhancedKeracholeTrait.EnoughLevel) return true;
-
-        if ((!TaurocholePvE.EnoughLevel || TaurocholePvE.Cooldown.IsCoolingDown) && DruocholePvE.CanUse(out act)) return true;
-
-        if (SoteriaPvE.CanUse(out act) && PartyMembers.Any(b => b.HasStatus(true, StatusID.Kardion) && b.GetHealthRatio() < 0.85f)) return true;
-
-
-        var tank = PartyMembers.GetJobCategory(JobRole.Tank);
-        if (Addersgall < 1 && (tank.Any(t => t.GetHealthRatio() < 0.65f) || PartyMembers.Any(b => b.GetHealthRatio() < 0.20f)))
-        {
-            if (HaimaPvE.CanUse(out act, onLastAbility: true)) return true;
-
-            if (PhysisIiPvE.CanUse(out act)) return true;
-            if (!PhysisIiPvE.EnoughLevel && PhysisPvE.CanUse(out act)) return true;
-
-            if (HolosPvE.CanUse(out act, onLastAbility: true)) return true;
-
-            if ((!HaimaPvE.EnoughLevel || HaimaPvE.Cooldown.ElapsedAfter(20)) && PanhaimaPvE.CanUse(out act, onLastAbility: true)) return true;
-        }
-
-        if (tank.Any(t => t.GetHealthRatio() < 0.60f))
-        {
-            if (ZoePvE.CanUse(out act)) return true;
-        }
-
-        if (tank.Any(t => t.GetHealthRatio() < 0.70f) || PartyMembers.Any(b => b.GetHealthRatio() < 0.30f))
-        {
-            if (KrasisPvE.CanUse(out act)) return true;
-        }
-
-        if (KeracholePvE.CanUse(out act)) return true;
-
-        return base.HealSingleAbility(nextGCD, out act);
-    }
-
-    [RotationDesc(ActionID.DiagnosisPvE)]
-    protected override bool HealSingleGCD(out IAction? act)
-    {
-        if (DiagnosisPvE.CanUse(out act)) return true;
-        return base.HealSingleGCD(out act);
-    }
-
     [RotationDesc(ActionID.PneumaPvE, ActionID.PrognosisPvE, ActionID.EukrasianPrognosisPvE)]
     protected override bool HealAreaGCD(out IAction? act)
     {
@@ -246,20 +262,16 @@ public sealed class SGE_Default : SageRotation
         return base.HealAreaGCD(out act);
     }
 
-    [RotationDesc(ActionID.KeracholePvE, ActionID.PhysisPvE, ActionID.HolosPvE, ActionID.IxocholePvE)]
-    protected override bool HealAreaAbility(IAction nextGCD, out IAction? act)
+    [RotationDesc(ActionID.DiagnosisPvE)]
+    protected override bool HealSingleGCD(out IAction? act)
     {
-        if (PhysisIiPvE.CanUse(out act)) return true;
-        if (!PhysisIiPvE.EnoughLevel && PhysisPvE.CanUse(out act)) return true;
-
-        if (KeracholePvE.CanUse(out act, onLastAbility: true) && EnhancedKeracholeTrait.EnoughLevel) return true;
-
-        if (HolosPvE.CanUse(out act, onLastAbility: true) && PartyMembersAverHP < 0.50f) return true;
-
-        if (IxocholePvE.CanUse(out act, onLastAbility: true)) return true;
-
-        if (KeracholePvE.CanUse(out act, onLastAbility: true)) return true;
-
-        return base.HealAreaAbility(nextGCD, out act);
+        if (DiagnosisPvE.CanUse(out act)) return true;
+        return base.HealSingleGCD(out act);
     }
+    #endregion
+
+    #region Extra Methods
+    public override bool CanHealSingleSpell => base.CanHealSingleSpell && (GCDHeal || PartyMembers.GetJobCategory(JobRole.Healer).Count() < 2);
+    public override bool CanHealAreaSpell => base.CanHealAreaSpell && (GCDHeal || PartyMembers.GetJobCategory(JobRole.Healer).Count() < 2);
+    #endregion
 }

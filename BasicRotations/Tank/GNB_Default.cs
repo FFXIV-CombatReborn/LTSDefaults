@@ -7,17 +7,16 @@ namespace DefaultRotations.Tank;
 [Api(1)]
 public sealed class GNB_Default : GunbreakerRotation
 {
-    public override bool CanHealSingleSpell => false;
-
-    public override bool CanHealAreaSpell => false;
-
+    #region Countdown Logic
     protected override IAction? CountDownAction(float remainTime)
     {
         if (remainTime <= 0.7 && LightningShotPvE.CanUse(out var act)) return act;
         if (remainTime <= 1.2 && UseBurstMedicine(out act)) return act;
         return base.CountDownAction(remainTime);
     }
+    #endregion
 
+    #region oGCD Logic
     protected override bool EmergencyAbility(IAction nextGCD, out IAction? act)
     {
         if (base.EmergencyAbility(nextGCD, out act)) return true;
@@ -31,34 +30,38 @@ public sealed class GNB_Default : GunbreakerRotation
         return base.EmergencyAbility(nextGCD, out act);
     }
 
-    protected override bool GeneralGCD(out IAction? act)
+    [RotationDesc(ActionID.HeartOfLightPvE, ActionID.ReprisalPvE)]
+    protected override bool DefenseAreaAbility(IAction nextGCD, out IAction? act)
     {
-        if (FatedCirclePvE.CanUse(out act)) return true;
-        if (CanUseGnashingFang(out act)) return true;
-
-        if (DemonSlaughterPvE.CanUse(out act)) return true;
-        if (DemonSlicePvE.CanUse(out act)) return true;
-
-        if (Player.HasStatus(true, StatusID.NoMercy) && CanUseSonicBreak(out act)) return true;
-
-        if (Player.HasStatus(true, StatusID.NoMercy) && CanUseDoubleDown(out act)) return true;
-
-        if (SavageClawPvE.CanUse(out act, skipComboCheck: true)) return true;
-        if (WickedTalonPvE.CanUse(out act, skipComboCheck: true)) return true;
-
-        if (CanUseBurstStrike(out act)) return true;
-
-        if (SolidBarrelPvE.CanUse(out act)) return true;
-        if (BrutalShellPvE.CanUse(out act)) return true;
-        if (KeenEdgePvE.CanUse(out act)) return true;
-
-
-
-        if (LightningShotPvE.CanUse(out act)) return true;
-
-        return base.GeneralGCD(out act);
+        if (!Player.HasStatus(true, StatusID.NoMercy) && HeartOfLightPvE.CanUse(out act, skipAoeCheck: true)) return true;
+        if (!Player.HasStatus(true, StatusID.NoMercy) && ReprisalPvE.CanUse(out act, skipAoeCheck: true)) return true;
+        return base.DefenseAreaAbility(nextGCD, out act);
     }
 
+    [RotationDesc(ActionID.HeartOfStonePvE, ActionID.NebulaPvE, ActionID.RampartPvE, ActionID.CamouflagePvE, ActionID.ReprisalPvE)]
+    protected override bool DefenseSingleAbility(IAction nextGCD, out IAction? act)
+    {
+        //10
+        if (CamouflagePvE.CanUse(out act, onLastAbility: true)) return true;
+        //15
+        if (HeartOfStonePvE.CanUse(out act, onLastAbility: true)) return true;
+
+        //30
+        if ((!RampartPvE.Cooldown.IsCoolingDown || RampartPvE.Cooldown.ElapsedAfter(60)) && NebulaPvE.CanUse(out act)) return true;
+        //20
+        if (NebulaPvE.Cooldown.IsCoolingDown && NebulaPvE.Cooldown.ElapsedAfter(60) && RampartPvE.CanUse(out act)) return true;
+
+        if (ReprisalPvE.CanUse(out act)) return true;
+
+        return base.DefenseSingleAbility(nextGCD, out act);
+    }
+
+    [RotationDesc(ActionID.AuroraPvE)]
+    protected override bool HealSingleAbility(IAction nextGCD, out IAction? act)
+    {
+        if (AuroraPvE.CanUse(out act, usedUp: true, onLastAbility: true)) return true;
+        return base.HealSingleAbility(nextGCD, out act);
+    }
     protected override bool AttackAbility(IAction nextGCD, out IAction? act)
     {
         //if (IsBurst && CanUseNoMercy(out act)) return true;
@@ -95,39 +98,42 @@ public sealed class GNB_Default : GunbreakerRotation
         if (MergedStatus.HasFlag(AutoStatus.MoveForward) && MoveForwardAbility(nextGCD, out act)) return true;
         return base.AttackAbility(nextGCD, out act);
     }
+    #endregion
 
-    [RotationDesc(ActionID.HeartOfLightPvE, ActionID.ReprisalPvE)]
-    protected override bool DefenseAreaAbility(IAction nextGCD, out IAction? act)
+    #region GCD Logic
+    protected override bool GeneralGCD(out IAction? act)
     {
-        if (!Player.HasStatus(true, StatusID.NoMercy) && HeartOfLightPvE.CanUse(out act, skipAoeCheck: true)) return true;
-        if (!Player.HasStatus(true, StatusID.NoMercy) && ReprisalPvE.CanUse(out act, skipAoeCheck: true)) return true;
-        return base.DefenseAreaAbility(nextGCD, out act);
+        if (FatedCirclePvE.CanUse(out act)) return true;
+        if (CanUseGnashingFang(out act)) return true;
+
+        if (DemonSlaughterPvE.CanUse(out act)) return true;
+        if (DemonSlicePvE.CanUse(out act)) return true;
+
+        if (Player.HasStatus(true, StatusID.NoMercy) && CanUseSonicBreak(out act)) return true;
+
+        if (Player.HasStatus(true, StatusID.NoMercy) && CanUseDoubleDown(out act)) return true;
+
+        if (SavageClawPvE.CanUse(out act, skipComboCheck: true)) return true;
+        if (WickedTalonPvE.CanUse(out act, skipComboCheck: true)) return true;
+
+        if (CanUseBurstStrike(out act)) return true;
+
+        if (SolidBarrelPvE.CanUse(out act)) return true;
+        if (BrutalShellPvE.CanUse(out act)) return true;
+        if (KeenEdgePvE.CanUse(out act)) return true;
+
+
+
+        if (LightningShotPvE.CanUse(out act)) return true;
+
+        return base.GeneralGCD(out act);
     }
+    #endregion
 
-    [RotationDesc(ActionID.HeartOfStonePvE, ActionID.NebulaPvE, ActionID.RampartPvE, ActionID.CamouflagePvE, ActionID.ReprisalPvE)]
-    protected override bool DefenseSingleAbility(IAction nextGCD, out IAction? act)
-    {
-        //10
-        if (CamouflagePvE.CanUse(out act, onLastAbility: true)) return true;
-        //15
-        if (HeartOfStonePvE.CanUse(out act, onLastAbility: true)) return true;
+    #region Extra Methods
+    public override bool CanHealSingleSpell => false;
 
-        //30
-        if ((!RampartPvE.Cooldown.IsCoolingDown || RampartPvE.Cooldown.ElapsedAfter(60)) && NebulaPvE.CanUse(out act)) return true;
-        //20
-        if (NebulaPvE.Cooldown.IsCoolingDown && NebulaPvE.Cooldown.ElapsedAfter(60) && RampartPvE.CanUse(out act)) return true;
-
-        if (ReprisalPvE.CanUse(out act)) return true;
-
-        return base.DefenseSingleAbility(nextGCD, out act);
-    }
-
-    [RotationDesc(ActionID.AuroraPvE)]
-    protected override bool HealSingleAbility(IAction nextGCD, out IAction? act)
-    {
-        if (AuroraPvE.CanUse(out act, usedUp: true, onLastAbility: true)) return true;
-        return base.HealSingleAbility(nextGCD, out act);
-    }
+    public override bool CanHealAreaSpell => false;
 
     //private bool CanUseNoMercy(out IAction act)
     //{
@@ -234,4 +240,5 @@ public sealed class GNB_Default : GunbreakerRotation
         }
         return false;
     }
+#endregion
 }

@@ -5,6 +5,7 @@
 [Api(1)]
 public sealed class RPR_Default : ReaperRotation
 {
+    #region Countdown Logic
     [RotationConfig(CombatType.PvE, Name = "Wait until 50 stacks of Shroud to use Enshroud.")]
     public bool EnshroudPooling { get; set; } = false;
 
@@ -17,21 +18,65 @@ public sealed class RPR_Default : ReaperRotation
 
         return base.CountDownAction(remainTime);
     }
+    #endregion
 
-    private bool Reaping(out IAction? act)
+    #region oGCD Logic
+    protected override bool AttackAbility(IAction nextGCD, out IAction? act)
     {
-        if (GrimReapingPvE.CanUse(out act)) return true;
-        if (Player.HasStatus(true, StatusID.EnhancedCrossReaping) || !Player.HasStatus(true, StatusID.EnhancedVoidReaping))
-        {
-            if (CrossReapingPvE.CanUse(out act)) return true;
-        }
-        else
-        {
-            if (VoidReapingPvE.CanUse(out act)) return true;
-        }
-        return false;
-    }
+        var IsTargetBoss = HostileTarget?.IsBossFromTTK() ?? false;
+        var IsTargetDying = HostileTarget?.IsDying() ?? false;
 
+        if (IsBurst)
+        {
+            if (UseBurstMedicine(out act))
+            {
+                if (CombatElapsedLess(10))
+                {
+                    if (!CombatElapsedLess(5)) return true;
+                }
+                else
+                {
+                    if (ArcaneCirclePvE.Cooldown.WillHaveOneCharge(5)) return true;
+                }
+            }
+            if ((HostileTarget?.HasStatus(true, StatusID.DeathsDesign) ?? false)
+                && ArcaneCirclePvE.CanUse(out act, skipAoeCheck: true)) return true;
+        }
+
+        if (IsTargetBoss && IsTargetDying ||
+           !EnshroudPooling && Shroud >= 50 ||
+           EnshroudPooling && Shroud >= 50 &&
+           (!PlentifulHarvestPvE.EnoughLevel ||
+           Player.HasStatus(true, StatusID.ArcaneCircle) ||
+           ArcaneCirclePvE.Cooldown.WillHaveOneCharge(8) ||
+           !Player.HasStatus(true, StatusID.ArcaneCircle) && ArcaneCirclePvE.Cooldown.WillHaveOneCharge(65) && !ArcaneCirclePvE.Cooldown.WillHaveOneCharge(50) ||
+           !Player.HasStatus(true, StatusID.ArcaneCircle) && Shroud >= 90))
+        {
+            if (EnshroudPvE.CanUse(out act)) return true;
+        }
+
+        if (HasEnshrouded && (Player.HasStatus(true, StatusID.ArcaneCircle) || LemureShroud < 3))
+        {
+            if (LemuresScythePvE.CanUse(out act, usedUp: true)) return true;
+            if (LemuresSlicePvE.CanUse(out act, usedUp: true)) return true;
+        }
+
+        if (PlentifulHarvestPvE.EnoughLevel && !Player.HasStatus(true, StatusID.ImmortalSacrifice) && !Player.HasStatus(true, StatusID.BloodsownCircle_2972) || !PlentifulHarvestPvE.EnoughLevel)
+        {
+            if (GluttonyPvE.CanUse(out act, skipAoeCheck: true)) return true;
+        }
+
+        if (!Player.HasStatus(true, StatusID.BloodsownCircle_2972) && !Player.HasStatus(true, StatusID.ImmortalSacrifice) && (GluttonyPvE.EnoughLevel && !GluttonyPvE.Cooldown.WillHaveOneChargeGCD(4) || !GluttonyPvE.EnoughLevel || Soul == 100))
+        {
+            if (GrimSwathePvE.CanUse(out act)) return true;
+            if (BloodStalkPvE.CanUse(out act)) return true;
+        }
+
+        return base.AttackAbility(nextGCD, out act);
+    }
+    #endregion
+
+    #region GCD Logic
     protected override bool GeneralGCD(out IAction? act)
     {
         if (SoulsowPvE.CanUse(out act)) return true;
@@ -103,58 +148,21 @@ public sealed class RPR_Default : ReaperRotation
 
         return base.GeneralGCD(out act);
     }
+#endregion
 
-    protected override bool AttackAbility(IAction nextGCD, out IAction? act)
+    #region Extra Methods
+    private bool Reaping(out IAction? act)
     {
-        var IsTargetBoss = HostileTarget?.IsBossFromTTK() ?? false;
-        var IsTargetDying = HostileTarget?.IsDying() ?? false;
-
-        if (IsBurst)
+        if (GrimReapingPvE.CanUse(out act)) return true;
+        if (Player.HasStatus(true, StatusID.EnhancedCrossReaping) || !Player.HasStatus(true, StatusID.EnhancedVoidReaping))
         {
-            if (UseBurstMedicine(out act))
-            {
-                if (CombatElapsedLess(10))
-                {
-                    if (!CombatElapsedLess(5)) return true;
-                }
-                else
-                {
-                    if (ArcaneCirclePvE.Cooldown.WillHaveOneCharge(5)) return true;
-                }
-            }
-            if ((HostileTarget?.HasStatus(true, StatusID.DeathsDesign) ?? false)
-                && ArcaneCirclePvE.CanUse(out act, skipAoeCheck: true)) return true;
+            if (CrossReapingPvE.CanUse(out act)) return true;
         }
-
-        if (IsTargetBoss && IsTargetDying ||
-           !EnshroudPooling && Shroud >= 50 ||
-           EnshroudPooling && Shroud >= 50 &&
-           (!PlentifulHarvestPvE.EnoughLevel ||
-           Player.HasStatus(true, StatusID.ArcaneCircle) ||
-           ArcaneCirclePvE.Cooldown.WillHaveOneCharge(8) ||
-           !Player.HasStatus(true, StatusID.ArcaneCircle) && ArcaneCirclePvE.Cooldown.WillHaveOneCharge(65) && !ArcaneCirclePvE.Cooldown.WillHaveOneCharge(50) ||
-           !Player.HasStatus(true, StatusID.ArcaneCircle) && Shroud >= 90))
+        else
         {
-            if (EnshroudPvE.CanUse(out act)) return true;
+            if (VoidReapingPvE.CanUse(out act)) return true;
         }
-
-        if (HasEnshrouded && (Player.HasStatus(true, StatusID.ArcaneCircle) || LemureShroud < 3))
-        {
-            if (LemuresScythePvE.CanUse(out act, usedUp: true)) return true;
-            if (LemuresSlicePvE.CanUse(out act, usedUp: true)) return true;
-        }
-
-        if (PlentifulHarvestPvE.EnoughLevel && !Player.HasStatus(true, StatusID.ImmortalSacrifice) && !Player.HasStatus(true, StatusID.BloodsownCircle_2972) || !PlentifulHarvestPvE.EnoughLevel)
-        {
-            if (GluttonyPvE.CanUse(out act, skipAoeCheck: true)) return true;
-        }
-
-        if (!Player.HasStatus(true, StatusID.BloodsownCircle_2972) && !Player.HasStatus(true, StatusID.ImmortalSacrifice) && (GluttonyPvE.EnoughLevel && !GluttonyPvE.Cooldown.WillHaveOneChargeGCD(4) || !GluttonyPvE.EnoughLevel || Soul == 100))
-        {
-            if (GrimSwathePvE.CanUse(out act)) return true;
-            if (BloodStalkPvE.CanUse(out act)) return true;
-        }
-
-        return base.AttackAbility(nextGCD, out act);
+        return false;
     }
+    #endregion 
 }

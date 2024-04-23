@@ -5,61 +5,26 @@
 [Api(1)]
 public sealed class SAM_Default : SamuraiRotation
 {
+    #region Config Options
+
     [Range(0, 85, ConfigUnitType.None, 5)]
     [RotationConfig(CombatType.PvE, Name = "Use Kenki above.")]
     public int AddKenki { get; set; } = 50;
 
-    private static bool HaveMeikyoShisui => Player.HasStatus(true, StatusID.MeikyoShisui);
+    #endregion
 
-    protected override bool GeneralGCD(out IAction? act)
+    #region Countdown Logic
+
+    protected override IAction? CountDownAction(float remainTime)
     {
-        if (KaeshiNamikiriPvE.CanUse(out act, skipAoeCheck: true, usedUp: true)) return true;
-
-        var IsTargetBoss = HostileTarget?.IsBossFromTTK() ?? false;
-        var IsTargetDying = HostileTarget?.IsDying() ?? false;
-
-        if (KaeshiGokenPvE.CanUse(out act, skipAoeCheck: true, usedUp: true)) return true;
-        if (KaeshiSetsugekkaPvE.CanUse(out act, skipAoeCheck: true, usedUp: true)) return true;
-
-        if ((!IsTargetBoss || (HostileTarget?.HasStatus(true, StatusID.Higanbana) ?? false)) && HasMoon && HasFlower
-            && OgiNamikiriPvE.CanUse(out act, skipAoeCheck: true)) return true;
-
-        if (SenCount == 1 && IsTargetBoss && !IsTargetDying)
-        {
-            if (HasMoon && HasFlower && HiganbanaPvE.CanUse(out act)) return true;
-        }
-        if (SenCount == 2)
-        {
-            if (TenkaGokenPvE.CanUse(out act, skipAoeCheck: !MidareSetsugekkaPvE.EnoughLevel)) return true;
-        }
-        if (SenCount == 3)
-        {
-            if (MidareSetsugekkaPvE.CanUse(out act)) return true;
-        }
-
-        if ((!HasMoon || IsMoonTimeLessThanFlower || !OkaPvE.EnoughLevel) && MangetsuPvE.CanUse(out act, skipAoeCheck: HaveMeikyoShisui && !HasGetsu)) return true;
-        if ((!HasFlower || !IsMoonTimeLessThanFlower) && OkaPvE.CanUse(out act, skipAoeCheck: HaveMeikyoShisui && !HasKa)) return true;
-
-        if (!HasSetsu && YukikazePvE.CanUse(out act, skipComboCheck: HaveMeikyoShisui && HasGetsu && HasKa)) return true;
-
-        if (GekkoPvE.CanUse(out act, skipComboCheck: HaveMeikyoShisui && !HasGetsu)) return true;
-        if (KashaPvE.CanUse(out act, skipComboCheck: HaveMeikyoShisui && !HasKa)) return true;
-
-        if ((!HasMoon || IsMoonTimeLessThanFlower || !ShifuPvE.EnoughLevel) && JinpuPvE.CanUse(out act)) return true;
-        if ((!HasFlower || !IsMoonTimeLessThanFlower) && ShifuPvE.CanUse(out act)) return true;
-
-        if (FukoPvE.CanUse(out act)) return true;
-        if (!FukoPvE.EnoughLevel && FugaPvE.CanUse(out act)) return true;
-
-        if (!HaveMeikyoShisui)
-        {
-            if (HakazePvE.CanUse(out act)) return true;
-
-            if (EnpiPvE.CanUse(out act)) return true;
-        }
-
-        return base.GeneralGCD(out act);
+        if (remainTime <= 5 && MeikyoShisuiPvE.CanUse(out var act)) return act;
+        if (remainTime <= 2 && TrueNorthPvE.CanUse(out act)) return act;
+        return base.CountDownAction(remainTime);
     }
+
+    #endregion
+
+    #region oGCD Logic
 
     protected override bool AttackAbility(IAction nextGCD, out IAction? act)
     {
@@ -103,10 +68,64 @@ public sealed class SAM_Default : SamuraiRotation
         return base.EmergencyAbility(nextGCD, out act);
     }
 
-    protected override IAction? CountDownAction(float remainTime)
+    #endregion
+
+    #region GCD Logic
+
+    protected override bool GeneralGCD(out IAction? act)
     {
-        if (remainTime <= 5 && MeikyoShisuiPvE.CanUse(out var act)) return act;
-        if (remainTime <= 2 && TrueNorthPvE.CanUse(out act)) return act;
-        return base.CountDownAction(remainTime);
+        if (KaeshiNamikiriPvE.CanUse(out act, skipAoeCheck: true, usedUp: true)) return true;
+
+        var IsTargetBoss = HostileTarget?.IsBossFromTTK() ?? false;
+        var IsTargetDying = HostileTarget?.IsDying() ?? false;
+
+        if (KaeshiGokenPvE.CanUse(out act, skipAoeCheck: true, usedUp: true)) return true;
+        if (KaeshiSetsugekkaPvE.CanUse(out act, skipAoeCheck: true, usedUp: true)) return true;
+
+        if ((!IsTargetBoss || (HostileTarget?.HasStatus(true, StatusID.Higanbana) ?? false)) && HasMoon && HasFlower
+            && OgiNamikiriPvE.CanUse(out act, skipAoeCheck: true)) return true;
+
+        if (SenCount == 1 && IsTargetBoss && !IsTargetDying)
+        {
+            if (HasMoon && HasFlower && HiganbanaPvE.CanUse(out act)) return true;
+        }
+        if (SenCount == 2)
+        {
+            if (TenkaGokenPvE.CanUse(out act, skipAoeCheck: !MidareSetsugekkaPvE.EnoughLevel)) return true;
+        }
+        if (SenCount == 3)
+        {
+            if (MidareSetsugekkaPvE.CanUse(out act)) return true;
+        }
+
+        if ((!HasMoon || IsMoonTimeLessThanFlower || !OkaPvE.EnoughLevel) && MangetsuPvE.CanUse(out act, skipAoeCheck: HaveMeikyoShisui && !HasGetsu)) return true;
+        if ((!HasFlower || !IsMoonTimeLessThanFlower) && OkaPvE.CanUse(out act, skipAoeCheck: HaveMeikyoShisui && !HasKa)) return true;
+
+        if (!HasSetsu && YukikazePvE.CanUse(out act, skipComboCheck: HaveMeikyoShisui && HasGetsu && HasKa)) return true;
+
+        if (GekkoPvE.CanUse(out act, skipComboCheck: HaveMeikyoShisui && !HasGetsu)) return true;
+        if (KashaPvE.CanUse(out act, skipComboCheck: HaveMeikyoShisui && !HasKa)) return true;
+
+        if ((!HasMoon || IsMoonTimeLessThanFlower || !ShifuPvE.EnoughLevel) && JinpuPvE.CanUse(out act)) return true;
+        if ((!HasFlower || !IsMoonTimeLessThanFlower) && ShifuPvE.CanUse(out act)) return true;
+
+        if (FukoPvE.CanUse(out act, skipComboCheck: true)) return true;
+        if (!FukoPvE.EnoughLevel && FugaPvE.CanUse(out act, skipComboCheck: true)) return true;
+
+        if (!HaveMeikyoShisui)
+        {
+            if (HakazePvE.CanUse(out act)) return true;
+
+            if (EnpiPvE.CanUse(out act)) return true;
+        }
+
+        return base.GeneralGCD(out act);
     }
+
+    #endregion
+
+    #region Extra Methods
+    private static bool HaveMeikyoShisui => Player.HasStatus(true, StatusID.MeikyoShisui);
+
+    #endregion
 }

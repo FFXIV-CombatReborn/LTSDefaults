@@ -5,10 +5,13 @@ namespace DefaultRotations.Healer;
 [Api(1)]
 public sealed class AST_Default : AstrologianRotation
 {
+    #region Config Options
     [Range(4, 20, ConfigUnitType.Seconds)]
     [RotationConfig(CombatType.PvE, Name = "Use Earthly Star during countdown timer.")]
     public float UseEarthlyStarTime { get; set; } = 15;
+    #endregion
 
+    #region Countdown Logic
     protected override IAction? CountDownAction(float remainTime)
     {
         if (remainTime < MaleficPvE.Info.CastTime + CountDownAhead
@@ -21,7 +24,9 @@ public sealed class AST_Default : AstrologianRotation
 
         return base.CountDownAction(remainTime);
     }
+    #endregion
 
+    #region Defensive Logic
     [RotationDesc(ActionID.CelestialIntersectionPvE, ActionID.ExaltationPvE)]
     protected override bool DefenseSingleAbility(IAction nextGCD, out IAction? act)
     {
@@ -51,7 +56,9 @@ public sealed class AST_Default : AstrologianRotation
         if (CollectiveUnconsciousPvE.CanUse(out act)) return true;
         return base.DefenseAreaAbility(nextGCD, out act);
     }
+    #endregion
 
+    #region GCD Logic
     protected override bool GeneralGCD(out IAction? act)
     {
         ////Add AspectedBeneficwhen not in combat.
@@ -66,6 +73,19 @@ public sealed class AST_Default : AstrologianRotation
         return base.GeneralGCD(out act);
     }
 
+    [RotationDesc(ActionID.AspectedBeneficPvE, ActionID.BeneficIiPvE, ActionID.BeneficPvE)]
+    protected override bool HealSingleGCD(out IAction? act)
+    {
+        if (AspectedBeneficPvE.CanUse(out act)
+            && (IsMoving
+            || AspectedBeneficPvE.Target.Target?.GetHealthRatio() > 0.4)) return true;
+
+        if (BeneficIiPvE.CanUse(out act)) return true;
+        if (BeneficPvE.CanUse(out act)) return true;
+
+        return base.HealSingleGCD(out act);
+    }
+
     [RotationDesc(ActionID.AspectedHeliosPvE, ActionID.HeliosPvE)]
     protected override bool HealAreaGCD(out IAction? act)
     {
@@ -73,7 +93,9 @@ public sealed class AST_Default : AstrologianRotation
         if (HeliosPvE.CanUse(out act)) return true;
         return base.HealAreaGCD(out act);
     }
+    #endregion
 
+    #region oGCD Logic
     protected override bool EmergencyAbility(IAction nextGCD, out IAction? act)
     {
         if (base.EmergencyAbility(nextGCD, out act)) return true;
@@ -98,19 +120,6 @@ public sealed class AST_Default : AstrologianRotation
         if (DrawPvE.CanUse(out act)) return true;
         if (RedrawPvE.CanUse(out act)) return true;
         return base.GeneralAbility(nextGCD, out act);
-    }
-
-    [RotationDesc(ActionID.AspectedBeneficPvE, ActionID.BeneficIiPvE, ActionID.BeneficPvE)]
-    protected override bool HealSingleGCD(out IAction? act)
-    {
-        if (AspectedBeneficPvE.CanUse(out act)
-            && (IsMoving
-            || AspectedBeneficPvE.Target.Target?.GetHealthRatio() > 0.4)) return true;
-
-        if (BeneficIiPvE.CanUse(out act)) return true;
-        if (BeneficPvE.CanUse(out act)) return true;
-
-        return base.HealSingleGCD(out act);
     }
 
     protected override bool AttackAbility(IAction nextGCD, out IAction? act)
@@ -191,4 +200,5 @@ public sealed class AST_Default : AstrologianRotation
 
         return base.HealAreaAbility(nextGCD, out act);
     }
+    #endregion
 }
