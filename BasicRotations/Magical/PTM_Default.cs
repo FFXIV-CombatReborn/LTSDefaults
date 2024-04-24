@@ -1,6 +1,6 @@
 ﻿/*namespace DefaultRotations.Magical;
 
-[Rotation("LTS's Default", CombatType.PvE, GameVersion = "7.0")]
+[Rotation("Default", CombatType.PvE, GameVersion = "7.0")]
 [SourceCode(Path = "main/DefaultRotations/Magical/PTM_Default.cs")]
 [Api(1)]
 public sealed class PTM_Default : PictomancerRotation

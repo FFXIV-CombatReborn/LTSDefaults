@@ -1,6 +1,6 @@
 namespace DefaultRotations.Tank;
 
-[Rotation("LTS's Default", CombatType.PvE, GameVersion = "6.58")]
+[Rotation("Default", CombatType.PvE, GameVersion = "6.58")]
 [SourceCode(Path = "main/DefaultRotations/Tank/DRK_Balance.cs")]
 [Api(1)]
 public sealed class DRK_Default : DarkKnightRotation
@@ -22,10 +22,6 @@ public sealed class DRK_Default : DarkKnightRotation
             {
                 if (ProvokePvE.CanUse(out _)) return ProvokePvE;
             }
-            //else
-            //{
-            //    if (Unmend.CanUse(out var act1)) return act1;
-            //}
         }
         if (remainTime <= 2 && UseBurstMedicine(out var act)) return act;
         if (remainTime <= 3 && TheBlackestNightPvE.CanUse(out act)) return act;
@@ -40,22 +36,9 @@ public sealed class DRK_Default : DarkKnightRotation
     {
         if (base.EmergencyAbility(nextGCD, out act)) return true;
 
-        //if ((InCombat && CombatElapsedLess(2) || DataCenter.TimeSinceLastAction.TotalSeconds >= 10) && nextGCD.IsTheSameTo(false, HardSlash, SyphonStrike, Souleater, BloodSpiller, Unmend))
-        //if ((InCombat && CombatElapsedLess(2) || DataCenter.TimeSinceLastAction.TotalSeconds >= 10) && Target != null && Target.IsNPCEnemy() && NumberOfHostilesIn(25) == 1)
         if ((InCombat && CombatElapsedLess(2) || TimeSinceLastAction.TotalSeconds >= 10))
         {
-            //int[] numbers = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
-            //foreach (int number in numbers)
-            //{
-            //    if (BloodWeapon.IsCoolingDown)
-            //    {
-            //        break;
-            //    }
-
-            //    BloodWeapon.CanUse(out act, CanUseOption.MustUse);
-            //}
             if (BloodWeaponPvE.CanUse(out act, skipAoeCheck: true)) return true;
-
         }
 
         return base.EmergencyAbility(nextGCD, out act);
@@ -103,7 +86,6 @@ public sealed class DRK_Default : DarkKnightRotation
 
     protected override bool AttackAbility(IAction nextGCD, out IAction? act)
     {
-        //if (InCombat && CombatElapsedLess(2) && BloodWeapon.CanUse(out act)) return true;
         if (CheckDarkSide)
         {
             if (FloodOfDarknessPvE.CanUse(out act)) return true;
@@ -166,12 +148,12 @@ public sealed class DRK_Default : DarkKnightRotation
         if (StalwartSoulPvE.CanUse(out act)) return true;
         if (UnleashPvE.CanUse(out act)) return true;
 
-        //单体
+        //Single Target
         if (SouleaterPvE.CanUse(out act)) return true;
         if (SyphonStrikePvE.CanUse(out act)) return true;
         if (HardSlashPvE.CanUse(out act)) return true;
 
-        if (BloodWeaponPvE.Cooldown.IsCoolingDown && !Player.HasStatus(true, StatusID.BloodWeapon) && UnmendPvE.CanUse(out act)) return true;
+        if (UnmendPvE.CanUse(out act)) return true;
 
         return base.GeneralGCD(out act);
     }
