@@ -1,6 +1,6 @@
 ﻿namespace DefaultRotations.Magical;
 
-[Rotation("LTS's Default", CombatType.PvE, GameVersion = "6.58")]
+[Rotation("Default", CombatType.PvE, GameVersion = "6.58")]
 [SourceCode(Path = "main/DefaultRotations/Magical/BLM_Default.cs")]
 [Api(1)]
 public class BLM_Default : BlackMageRotation

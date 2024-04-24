@@ -1,6 +1,6 @@
 ﻿/*namespace DefaultRotations.Melee;
 
-[Rotation("LTS's Default", CombatType.PvE, GameVersion = "7.0")]
+[Rotation("Default", CombatType.PvE, GameVersion = "7.0")]
 [SourceCode(Path = "main/DefaultRotations/Melee/VPR_Default.cs")]
 [Api(1)]
 public sealed class VPR_Default : ViperRotation

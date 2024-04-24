@@ -1,6 +1,6 @@
 namespace DefaultRotations.Ranged;
 
-[Rotation("LTS's PVP", CombatType.PvP, GameVersion = "6.58", Description = "Beta Rotation")]
+[Rotation("Default PVP", CombatType.PvP, GameVersion = "6.58", Description = "Beta Rotation")]
 [SourceCode(Path = "main/DefaultRotations/PVPRotations/Ranged/MCH_Default.PvP.cs")]
 [Api(1)]
 public sealed class MCH_DefaultPvP : MachinistRotation
