@@ -57,13 +57,13 @@ public sealed class MCH_Default : MachinistRotation
             if (ReassemblePvE.CanUse(out act, onLastAbility: true, skipClippingCheck: true, skipComboCheck: true, usedUp: true)) return true;
         }
         // Use Ricochet
-        if (isRicochetMore && ((!IsLastAction(true, GaussRoundPvE) && !IsLastAction(true, RicochetPvE) && Player.HasStatus(true, StatusID.Overheated)) || !Player.HasStatus(true, StatusID.Overheated)))
+        if (isRicochetMore && ((!IsLastAction(true, [GaussRoundPvE, RicochetPvE]) && IsLastGCD(true, HeatBlastPvE)) || !IsLastGCD(true, HeatBlastPvE)))
 
         {
             return RicochetPvE.CanUse(out act, skipAoeCheck: true, usedUp: true);
         }
         // Use Gause
-        if (isGaussMore && ((!IsLastAction(true, GaussRoundPvE) && !IsLastAction(true, RicochetPvE) && Player.HasStatus(true, StatusID.Overheated)) || !Player.HasStatus(true, StatusID.Overheated)))
+        if (isGaussMore && ((!IsLastAction(true, [GaussRoundPvE, RicochetPvE]) && IsLastGCD(true, HeatBlastPvE)) || !IsLastGCD(true, HeatBlastPvE)))
         {
             return GaussRoundPvE.CanUse(out act, usedUp: true);
         }
