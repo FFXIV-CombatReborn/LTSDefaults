@@ -45,27 +45,29 @@ public sealed class MCH_Default : MachinistRotation
             (!DrillPvE.EnoughLevel && CleanShotPvE.EnoughLevel && nextGCD.IsTheSameTo(true, CleanShotPvE)) ||
             //HotShot Logic
             (!CleanShotPvE.EnoughLevel && nextGCD.IsTheSameTo(true, HotShotPvE)));
-
+    
         // Keeps Ricochet and Gauss cannon Even
-        bool isRicochetMore = (GaussRoundPvE.Cooldown.CurrentCharges <= RicochetPvE.Cooldown.CurrentCharges);
-        bool isGaussMore = (!RicochetPvE.EnoughLevel /*Check to use Gauss below lvl50 */ || 
-                           (GaussRoundPvE.Cooldown.CurrentCharges > RicochetPvE.Cooldown.CurrentCharges));
-
+        bool isRicochetMore = RicochetPvE.EnoughLevel && GaussRoundPvE.Cooldown.CurrentCharges <= RicochetPvE.Cooldown.CurrentCharges;
+        bool isGaussMore = !RicochetPvE.EnoughLevel || GaussRoundPvE.Cooldown.CurrentCharges > RicochetPvE.Cooldown.CurrentCharges;
+    
         // Attempt to use Reassemble if it's ready
         if (isReassembleUsable)
         {
             if (ReassemblePvE.CanUse(out act, onLastAbility: true, skipClippingCheck: true, skipComboCheck: true, usedUp: true)) return true;
         }
+    
         // Use Ricochet
-        if (isRicochetMore && ((!IsLastAction(true, [GaussRoundPvE, RicochetPvE]) && IsLastGCD(true, HeatBlastPvE)) || !IsLastGCD(true, HeatBlastPvE)))
-
+        if (isRicochetMore && ((!IsLastAction(true, new[] { GaussRoundPvE, RicochetPvE }) && IsLastGCD(true, HeatBlastPvE)) || !IsLastGCD(true, HeatBlastPvE)))
         {
-            return RicochetPvE.CanUse(out act, skipAoeCheck: true, usedUp: true);
+            if (RicochetPvE.CanUse(out act, skipAoeCheck: true, usedUp: true))
+                return true;
         }
-        // Use Gause
-        if (isGaussMore && ((!IsLastAction(true, [GaussRoundPvE, RicochetPvE]) && IsLastGCD(true, HeatBlastPvE)) || !IsLastGCD(true, HeatBlastPvE)))
+    
+        // Use Gauss
+        if (isGaussMore && ((!IsLastAction(true, new[] { GaussRoundPvE, RicochetPvE }) && IsLastGCD(true, HeatBlastPvE)) || !IsLastGCD(true, HeatBlastPvE)))
         {
-            return GaussRoundPvE.CanUse(out act, usedUp: true);
+            if (GaussRoundPvE.CanUse(out act, usedUp: true))
+                return true;
         }
         return base.EmergencyAbility(nextGCD, out act);
     }
