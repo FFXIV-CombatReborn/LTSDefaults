@@ -1,13 +1,13 @@
 ﻿namespace DefaultRotations.Tank;
 
-[Rotation("Default", CombatType.PvE, GameVersion = "6.58")]
+[Rotation("Beta", CombatType.PvE, GameVersion = "6.58")]
 [SourceCode(Path = "main/DefaultRotations/Tank/WAR_Beta.cs")]
 [Api(1)]
 public sealed class WAR_Beta : WarriorRotation
 {
     #region Config Options
     [RotationConfig(CombatType.PvE, Name = "Only use Nascent Flash if Tank Stance is off")]
-    public bool NeverscentFlash { get; set; } = true;
+    public bool NeverscentFlash { get; set; } = false;
     #endregion
 
     #region Countdown Logic
