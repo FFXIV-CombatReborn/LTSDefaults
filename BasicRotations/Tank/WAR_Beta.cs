@@ -146,7 +146,7 @@ public sealed class WAR_Beta : WarriorRotation
         if (!Player.WillStatusEndGCD(3, 0, true, StatusID.SurgingTempest))
         {
             // If the player is not moving, is in a burst status, and Primal Rend can be used on a target within a distance of 1, use Primal Rend.
-            if (!IsMoving && /*IsBurstStatus &&*/ PrimalRendPvE.CanUse(out act, skipAoeCheck: true))
+            if (!IsMoving && PrimalRendPvE.CanUse(out act, skipAoeCheck: true))
             {
                 if (PrimalRendPvE.Target.Target?.DistanceToPlayer() < 1) return true;
             }
