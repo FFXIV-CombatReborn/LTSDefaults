@@ -45,7 +45,7 @@ public sealed class WAR_Beta : WarriorRotation
             && !Player.WillStatusEndGCD(6, 0, true, StatusID.SurgingTempest)
             || !MythrilTempestPvE.EnoughLevel)
         {
-            if (BerserkPvE.CanUse(out act, onLastAbility: true)) return true;
+            if (BerserkPvE.CanUse(out act)) return true;
         }
 
         // If the player is in a burst status, use Infuriate.
@@ -64,7 +64,7 @@ public sealed class WAR_Beta : WarriorRotation
         if (UpheavalPvE.CanUse(out act)) return true;
 
         // If Onslaught can be used and the player is not moving, use it and return true.
-        if (OnslaughtPvE.CanUse(out act, usedUp: IsBurstStatus) && !IsMoving) return true;
+        if (OnslaughtPvE.CanUse(out act, usedUp: IsBurstStatus) && !IsMoving && !IsLastAction(true, OnslaughtPvE)) return true;
 
         // If the player's status includes moving forward and a move forward ability can be used, use it and return true.
         if (MergedStatus.HasFlag(AutoStatus.MoveForward) && MoveForwardAbility(nextGCD, out act)) return true;
@@ -137,11 +137,16 @@ public sealed class WAR_Beta : WarriorRotation
     #region GCD Logic
     protected override bool GeneralGCD(out IAction? act)
     {
+        if (IsLastAction(true, BerserkPvE))
+        {
+            if (FellCleavePvE.CanUse(out act, skipStatusProvideCheck: true)) return true;
+        }
+
         // If the player's Surging Tempest status will not end in the next 3 GCDs, consider using certain abilities.
         if (!Player.WillStatusEndGCD(3, 0, true, StatusID.SurgingTempest))
         {
             // If the player is not moving, is in a burst status, and Primal Rend can be used on a target within a distance of 1, use Primal Rend.
-            if (!IsMoving && IsBurstStatus && PrimalRendPvE.CanUse(out act, skipAoeCheck: true))
+            if (!IsMoving && /*IsBurstStatus &&*/ PrimalRendPvE.CanUse(out act, skipAoeCheck: true))
             {
                 if (PrimalRendPvE.Target.Target?.DistanceToPlayer() < 1) return true;
             }
