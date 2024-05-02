@@ -1,9 +1,9 @@
 ﻿namespace DefaultRotations.Tank;
 
 [Rotation("Beta", CombatType.PvE, GameVersion = "6.58")]
-[SourceCode(Path = "main/DefaultRotations/Tank/DRK_Beta.cs")]
+[SourceCode(Path = "main/DefaultRotations/Tank/DRK_zBeta.cs")]
 [Api(1)]
-public sealed class DRK_Beta : DarkKnightRotation
+public sealed class DRK_zBeta : DarkKnightRotation
 {
     #region Config Options
     [RotationConfig(CombatType.PvE, Name = "Keep at least 3000 MP")]

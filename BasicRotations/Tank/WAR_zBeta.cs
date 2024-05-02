@@ -1,9 +1,9 @@
 ﻿namespace DefaultRotations.Tank;
 
 [Rotation("Beta", CombatType.PvE, GameVersion = "6.58")]
-[SourceCode(Path = "main/DefaultRotations/Tank/WAR_Beta.cs")]
+[SourceCode(Path = "main/DefaultRotations/Tank/WAR_zBeta.cs")]
 [Api(1)]
-public sealed class WAR_Beta : WarriorRotation
+public sealed class WAR_zBeta : WarriorRotation
 {
     #region Config Options
     [RotationConfig(CombatType.PvE, Name = "Only use Nascent Flash if Tank Stance is off")]
@@ -137,7 +137,7 @@ public sealed class WAR_Beta : WarriorRotation
     #region GCD Logic
     protected override bool GeneralGCD(out IAction? act)
     {
-        if (IsLastAction(true, BerserkPvE))
+        if (IsLastAction(false, InnerReleasePvE))
         {
             if (FellCleavePvE.CanUse(out act, skipStatusProvideCheck: true)) return true;
         }

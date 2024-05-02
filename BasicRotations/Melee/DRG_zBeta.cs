@@ -1,10 +1,10 @@
 ﻿namespace DefaultRotations.Melee;
 
 [Rotation("Beta", CombatType.PvE, GameVersion = "6.58")]
-[SourceCode(Path = "main/DefaultRotations/Melee/DRG_Beta.cs")]
+[SourceCode(Path = "main/DefaultRotations/Melee/DRG_zBeta.cs")]
 [Api(1)]
 
-public sealed class DRG_Beta : DragoonRotation
+public sealed class DRG_zBeta : DragoonRotation
 {
     #region Config Options
     [RotationDesc(ActionID.SpineshatterDivePvE, ActionID.DragonfireDivePvE)]

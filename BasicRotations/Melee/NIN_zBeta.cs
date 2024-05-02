@@ -1,9 +1,9 @@
 ﻿namespace DefaultRotations.Melee;
 
 [Rotation("NIN Beta Rotation", CombatType.PvE, GameVersion = "6.58")]
-[SourceCode(Path = "main/DefaultRotations/Melee/NIN_Beta.cs")]
+[SourceCode(Path = "main/DefaultRotations/Melee/NIN_zBeta.cs")]
 [Api(1)]
-public sealed class NIN_Beta : NinjaRotation
+public sealed class NIN_zBeta : NinjaRotation
 {
     #region Config Options
     // Configuration properties for rotation behavior.
