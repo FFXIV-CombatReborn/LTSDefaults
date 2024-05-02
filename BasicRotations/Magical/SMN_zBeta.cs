@@ -3,9 +3,9 @@
 namespace DefaultRotations.Magical;
 
 [Rotation("Beta", CombatType.PvE, GameVersion = "6.58")]
-[SourceCode(Path = "main/DefaultRotations/Magical/SMN_Beta.cs")]
+[SourceCode(Path = "main/DefaultRotations/Magical/SMN_zBeta.cs")]
 [Api(1)]
-public sealed class SMN_Beta : SummonerRotation
+public sealed class SMN_zBeta : SummonerRotation
 {
     #region Config Options
     public enum SwiftType : byte

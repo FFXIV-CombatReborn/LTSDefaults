@@ -1,9 +1,9 @@
 ﻿namespace DefaultRotations.Ranged;
 
 [Rotation("Beta", CombatType.PvE, GameVersion = "6.58", Description = "Additonal contributions to this rotation thanks to Toshi!")]
-[SourceCode(Path = "main/DefaultRotations/Ranged/MCH_Beta.cs")]
+[SourceCode(Path = "main/DefaultRotations/Ranged/MCH_zBeta.cs")]
 [Api(1)]
-public sealed class MCH_Beta : MachinistRotation
+public sealed class MCH_zBeta : MachinistRotation
 {
     #region Config Options
     [RotationConfig(CombatType.PvE, Name = "Uses Rook Autoturret/Automaton Queen immediately whenever you get 50 battery")]
@@ -88,7 +88,7 @@ public sealed class MCH_Beta : MachinistRotation
         // If Wildfire is active, use Hypercharge.....Period
         if (Player.HasStatus(true, StatusID.Wildfire_1946))
         {
-            return HyperchargePvE.CanUse(out act, skipClippingCheck: true);
+            return HyperchargePvE.CanUse(out act, skipClippingCheck: true, skipComboCheck: true);
         }
         // Burst
         if (IsBurst)
@@ -97,7 +97,7 @@ public sealed class MCH_Beta : MachinistRotation
 
             {
                 if ((IsLastAbility(false, HyperchargePvE) || Heat >= 50) && !CombatElapsedLess(10) && CanUseHyperchargePvE(out _)
-                && WildfirePvE.CanUse(out act, onLastAbility: true, skipComboCheck: true)) return true;
+                && !LowLevelHyperCheck && WildfirePvE.CanUse(out act, onLastAbility: true, skipComboCheck: true)) return true;
             }
         }
         // Use Hypercharge if at least 12 seconds of combat and (if wildfire will not be up in 30 seconds or if you hit 100 heat)
