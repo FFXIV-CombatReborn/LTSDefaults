@@ -5,6 +5,10 @@ namespace DefaultRotations.Tank;
 [Api(1)]
 public sealed class WAR_Default : WarriorRotation
 {
+    #region Config Options
+    [RotationConfig(CombatType.PvE, Name = "Only use Nascent Flash if Tank Stance is off")]
+    public bool NeverscentFlash { get; set; } = false;
+    #endregion
 
     #region Countdown Logic
     protected override IAction? CountDownAction(float remainTime)
@@ -41,7 +45,7 @@ public sealed class WAR_Default : WarriorRotation
             && !Player.WillStatusEndGCD(6, 0, true, StatusID.SurgingTempest)
             || !MythrilTempestPvE.EnoughLevel)
         {
-            if (BerserkPvE.CanUse(out act, onLastAbility: true)) return true;
+            if (BerserkPvE.CanUse(out act)) return true;
         }
 
         // If the player is in a burst status, use Infuriate.
@@ -60,7 +64,7 @@ public sealed class WAR_Default : WarriorRotation
         if (UpheavalPvE.CanUse(out act)) return true;
 
         // If Onslaught can be used and the player is not moving, use it and return true.
-        if (OnslaughtPvE.CanUse(out act, usedUp: IsBurstStatus) && !IsMoving) return true;
+        if (OnslaughtPvE.CanUse(out act, usedUp: IsBurstStatus) && !IsMoving && !IsLastAction(true, OnslaughtPvE)) return true;
 
         // If the player's status includes moving forward and a move forward ability can be used, use it and return true.
         if (MergedStatus.HasFlag(AutoStatus.MoveForward) && MoveForwardAbility(nextGCD, out act)) return true;
@@ -70,9 +74,6 @@ public sealed class WAR_Default : WarriorRotation
 
     protected override bool GeneralAbility(IAction nextGCD, out IAction? act)
     {
-        // Initialize the action to null.
-        act = null;
-
         // If the player's health ratio is less than 0.6 (60%), consider using healing abilities.
         if (Player.GetHealthRatio() < 0.6f)
         {
@@ -133,11 +134,16 @@ public sealed class WAR_Default : WarriorRotation
     #region GCD Logic
     protected override bool GeneralGCD(out IAction? act)
     {
+        if (IsLastAction(false, InnerReleasePvE))
+        {
+            if (FellCleavePvE.CanUse(out act, skipStatusProvideCheck: true)) return true;
+        }
+
         // If the player's Surging Tempest status will not end in the next 3 GCDs, consider using certain abilities.
         if (!Player.WillStatusEndGCD(3, 0, true, StatusID.SurgingTempest))
         {
             // If the player is not moving, is in a burst status, and Primal Rend can be used on a target within a distance of 1, use Primal Rend.
-            if (!IsMoving && IsBurstStatus && PrimalRendPvE.CanUse(out act, skipAoeCheck: true))
+            if (!IsMoving && PrimalRendPvE.CanUse(out act, skipAoeCheck: true))
             {
                 if (PrimalRendPvE.Target.Target?.DistanceToPlayer() < 1) return true;
             }
@@ -166,13 +172,13 @@ public sealed class WAR_Default : WarriorRotation
     [RotationDesc(ActionID.NascentFlashPvE)]
     protected override bool HealSingleGCD(out IAction? act)
     {
-        // Initialize the action to null.
-        act = null;
-
         // If Nascent Flash can be used and the player is in combat and the target's health ratio is less than 0.6, use Nascent Flash.
         // This means Nascent Flash is used when the player is in combat and the target is at 60% health or less.
-        if (NascentFlashPvE.CanUse(out act)
+        if (!NeverscentFlash && NascentFlashPvE.CanUse(out act)
             && (InCombat && NascentFlashPvE.Target.Target?.GetHealthRatio() < 0.6)) return true;
+
+        if (NeverscentFlash && NascentFlashPvE.CanUse(out act)
+            && (InCombat && !Player.HasStatus(true, StatusID.Defiance) && NascentFlashPvE.Target.Target?.GetHealthRatio() < 0.6)) return true;
 
         return base.HealSingleGCD(out act);
     }

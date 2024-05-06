@@ -8,6 +8,9 @@ public sealed class DRG_Default : DragoonRotation
 {
     #region Config Options
     [RotationDesc(ActionID.SpineshatterDivePvE, ActionID.DragonfireDivePvE)]
+
+    [RotationConfig(CombatType.PvE, Name = "Break Single Target Combo to AOE when time to AOE")]
+    public bool DoomSpikeWhenever { get; set; } = true;
     #endregion
 
     #region Move Logic
@@ -83,9 +86,11 @@ public sealed class DRG_Default : DragoonRotation
     #region GCD Logic
     protected override bool GeneralGCD(out IAction? act)
     {
+        var doomSpikeRightNow = DoomSpikeWhenever;
+
         if (CoerthanTormentPvE.CanUse(out act)) return true;
         if (SonicThrustPvE.CanUse(out act)) return true;
-        if (DoomSpikePvE.CanUse(out act)) return true;
+        if (DoomSpikePvE.CanUse(out act, skipComboCheck: doomSpikeRightNow)) return true;
 
 
         if (WheelingThrustPvE.CanUse(out act)) return true;
