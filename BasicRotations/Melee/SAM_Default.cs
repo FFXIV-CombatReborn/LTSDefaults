@@ -33,7 +33,10 @@ public sealed class SAM_Default : SamuraiRotation
 
         if (Kenki <= 50 && IkishotenPvE.CanUse(out act)) return true;
 
-        if ((HostileTarget?.HasStatus(true, StatusID.Higanbana) ?? false) && (HostileTarget?.WillStatusEnd(32, true, StatusID.Higanbana) ?? false) && !(HostileTarget?.WillStatusEnd(28, true, StatusID.Higanbana) ?? false) && SenCount == 1 && IsLastAction(true, YukikazePvE) && !HaveMeikyoShisui)
+        if ((HostileTarget?.HasStatus(true, StatusID.Higanbana) ?? false) &&
+            (HostileTarget?.WillStatusEnd(32, true, StatusID.Higanbana) ?? false) &&
+            !(HostileTarget?.WillStatusEnd(28, true, StatusID.Higanbana) ?? false) &&
+            SenCount == 1 && IsLastAction(true, YukikazePvE) && !HaveMeikyoShisui)
         {
             if (HagakurePvE.CanUse(out act)) return true;
         }
@@ -87,7 +90,7 @@ public sealed class SAM_Default : SamuraiRotation
 
         if (SenCount == 1 && IsTargetBoss && !IsTargetDying)
         {
-            if (HasMoon && HasFlower && HiganbanaPvE.CanUse(out act)) return true;
+            if (HasMoon && HasFlower && !FugaPvE.CanUse(out _) && HiganbanaPvE.CanUse(out act)) return true;
         }
         if (SenCount == 2)
         {
@@ -98,8 +101,8 @@ public sealed class SAM_Default : SamuraiRotation
             if (MidareSetsugekkaPvE.CanUse(out act)) return true;
         }
 
-        if ((!HasMoon || IsMoonTimeLessThanFlower || !OkaPvE.EnoughLevel) && MangetsuPvE.CanUse(out act, skipAoeCheck: HaveMeikyoShisui && !HasGetsu)) return true;
-        if ((!HasFlower || !IsMoonTimeLessThanFlower) && OkaPvE.CanUse(out act, skipAoeCheck: HaveMeikyoShisui && !HasKa)) return true;
+        if ((!HasMoon || IsMoonTimeLessThanFlower || !OkaPvE.EnoughLevel) && MangetsuPvE.CanUse(out act, skipComboCheck: HaveMeikyoShisui && !HasGetsu)) return true;
+        if ((!HasFlower || !IsMoonTimeLessThanFlower) && OkaPvE.CanUse(out act, skipComboCheck: HaveMeikyoShisui && !HasKa)) return true;
 
         if (!HasSetsu && YukikazePvE.CanUse(out act, skipComboCheck: HaveMeikyoShisui && HasGetsu && HasKa)) return true;
 

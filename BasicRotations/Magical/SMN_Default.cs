@@ -31,6 +31,9 @@ public sealed class SMN_Default : SummonerRotation
     [RotationConfig(CombatType.PvE, Name = "Use Crimson Cyclone. Will use at any range, regardless of saftey use with caution.")]
     public bool AddCrimsonCyclone { get; set; } = true;
 
+    [RotationConfig(CombatType.PvE, Name = "Use Bahamut no matter what whenever it's up lol don't wait")]
+    public bool AlwaysBaha { get; set; } = false;
+
     [RotationConfig(CombatType.PvE, Name = "Use Swiftcast")]
     public SwiftType AddSwiftcast { get; set; } = SwiftType.No;
 
@@ -93,6 +96,8 @@ public sealed class SMN_Default : SummonerRotation
     protected override bool GeneralGCD(out IAction? act)
     {
         if (SummonCarbunclePvE.CanUse(out act)) return true;
+
+        if ((Player.HasStatus(false, StatusID.SearingLight) || SearingLightPvE.Cooldown.IsCoolingDown) && AlwaysBaha && SummonBahamutPvE.CanUse(out act)) return true;
 
         if (SlipstreamPvE.CanUse(out act, skipAoeCheck: true)) return true;
 

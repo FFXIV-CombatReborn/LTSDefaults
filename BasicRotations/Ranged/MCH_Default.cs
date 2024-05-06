@@ -45,24 +45,24 @@ public sealed class MCH_Default : MachinistRotation
             (!DrillPvE.EnoughLevel && CleanShotPvE.EnoughLevel && nextGCD.IsTheSameTo(true, CleanShotPvE)) ||
             //HotShot Logic
             (!CleanShotPvE.EnoughLevel && nextGCD.IsTheSameTo(true, HotShotPvE)));
-    
+
         // Keeps Ricochet and Gauss cannon Even
         bool isRicochetMore = RicochetPvE.EnoughLevel && GaussRoundPvE.Cooldown.CurrentCharges <= RicochetPvE.Cooldown.CurrentCharges;
         bool isGaussMore = !RicochetPvE.EnoughLevel || GaussRoundPvE.Cooldown.CurrentCharges > RicochetPvE.Cooldown.CurrentCharges;
-    
+
         // Attempt to use Reassemble if it's ready
         if (isReassembleUsable)
         {
             if (ReassemblePvE.CanUse(out act, onLastAbility: true, skipClippingCheck: true, skipComboCheck: true, usedUp: true)) return true;
         }
-    
+
         // Use Ricochet
         if (isRicochetMore && ((!IsLastAction(true, new[] { GaussRoundPvE, RicochetPvE }) && IsLastGCD(true, HeatBlastPvE)) || !IsLastGCD(true, HeatBlastPvE)))
         {
             if (RicochetPvE.CanUse(out act, skipAoeCheck: true, usedUp: true))
                 return true;
         }
-    
+
         // Use Gauss
         if (isGaussMore && ((!IsLastAction(true, new[] { GaussRoundPvE, RicochetPvE }) && IsLastGCD(true, HeatBlastPvE)) || !IsLastGCD(true, HeatBlastPvE)))
         {
@@ -82,11 +82,13 @@ public sealed class MCH_Default : MachinistRotation
                     (nextGCD.IsTheSameTo(true, AirAnchorPvE) || nextGCD.IsTheSameTo(true, CleanShotPvE)) || nextGCD.IsTheSameTo(true, HeatedCleanShotPvE) || nextGCD.IsTheSameTo(true, ChainSawPvE);
         bool BatteryCheckQueen = Battery >= 90 && !WildfirePvE.Cooldown.ElapsedAfter(70f);
         bool LastGCDCheckQueen = Battery >= 80 && !WildfirePvE.Cooldown.ElapsedAfter(77.5f) && IsLastGCD(true, AirAnchorPvE);
+        // Check for not burning Hypercharge below level 52 on AOE
+        bool LowLevelHyperCheck = !AutoCrossbowPvE.EnoughLevel && SpreadShotPvE.CanUse(out _);
 
         // If Wildfire is active, use Hypercharge.....Period
         if (Player.HasStatus(true, StatusID.Wildfire_1946))
         {
-            return HyperchargePvE.CanUse(out act, skipClippingCheck: true);
+            return HyperchargePvE.CanUse(out act, skipClippingCheck: true, skipComboCheck: true);
         }
         // Burst
         if (IsBurst)
@@ -95,11 +97,11 @@ public sealed class MCH_Default : MachinistRotation
 
             {
                 if ((IsLastAbility(false, HyperchargePvE) || Heat >= 50) && !CombatElapsedLess(10) && CanUseHyperchargePvE(out _)
-                && WildfirePvE.CanUse(out act, onLastAbility: true, skipComboCheck: true)) return true;
+                && !LowLevelHyperCheck && WildfirePvE.CanUse(out act, onLastAbility: true, skipComboCheck: true)) return true;
             }
         }
         // Use Hypercharge if at least 12 seconds of combat and (if wildfire will not be up in 30 seconds or if you hit 100 heat)
-        if (!CombatElapsedLess(12) && !Player.HasStatus(true, StatusID.Reassembled) && (!WildfirePvE.Cooldown.WillHaveOneCharge(30) || (Heat == 100)))
+        if (!LowLevelHyperCheck && !CombatElapsedLess(12) && !Player.HasStatus(true, StatusID.Reassembled) && (!WildfirePvE.Cooldown.WillHaveOneCharge(30) || (Heat == 100)))
         {
             if (CanUseHyperchargePvE(out act)) return true;
         }
