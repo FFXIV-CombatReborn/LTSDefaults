@@ -5,10 +5,12 @@
 [Api(1)]
 public sealed class RPR_Default : ReaperRotation
 {
-    #region Countdown Logic
-    [RotationConfig(CombatType.PvE, Name = "Wait until 50 stacks of Shroud to use Enshroud.")]
+    #region Config Options
+    [RotationConfig(CombatType.PvE, Name = "[Beta Option] Wait until 50 stacks of Shroud to use Enshroud.")]
     public bool EnshroudPooling { get; set; } = false;
+    #endregion
 
+    #region Countdown Logic
     protected override IAction? CountDownAction(float remainTime)
     {
         if (remainTime < HarpePvE.Info.CastTime + CountDownAhead
@@ -43,14 +45,8 @@ public sealed class RPR_Default : ReaperRotation
                 && ArcaneCirclePvE.CanUse(out act, skipAoeCheck: true)) return true;
         }
 
-        if (IsTargetBoss && IsTargetDying ||
-           !EnshroudPooling && Shroud >= 50 ||
-           EnshroudPooling && Shroud >= 50 &&
-           (!PlentifulHarvestPvE.EnoughLevel ||
-           Player.HasStatus(true, StatusID.ArcaneCircle) ||
-           ArcaneCirclePvE.Cooldown.WillHaveOneCharge(8) ||
-           !Player.HasStatus(true, StatusID.ArcaneCircle) && ArcaneCirclePvE.Cooldown.WillHaveOneCharge(65) && !ArcaneCirclePvE.Cooldown.WillHaveOneCharge(50) ||
-           !Player.HasStatus(true, StatusID.ArcaneCircle) && Shroud >= 90))
+        if (IsTargetBoss && IsTargetDying || !EnshroudPooling && Shroud >= 50 || (EnshroudPooling && Shroud >= 50 &&
+           (!PlentifulHarvestPvE.EnoughLevel || Player.HasStatus(true, StatusID.ArcaneCircle) || ArcaneCirclePvE.Cooldown.WillHaveOneCharge(8) || !Player.HasStatus(true, StatusID.ArcaneCircle) && ArcaneCirclePvE.Cooldown.WillHaveOneCharge(65) && !ArcaneCirclePvE.Cooldown.WillHaveOneCharge(50) || !Player.HasStatus(true, StatusID.ArcaneCircle) && Shroud >= 90)))
         {
             if (EnshroudPvE.CanUse(out act)) return true;
         }
@@ -148,7 +144,7 @@ public sealed class RPR_Default : ReaperRotation
 
         return base.GeneralGCD(out act);
     }
-#endregion
+    #endregion
 
     #region Extra Methods
     private bool Reaping(out IAction? act)
