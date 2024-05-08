@@ -174,6 +174,7 @@ public sealed class DRK_Default : DarkKnightRotation
         {
             // Conditions based on player statuses and ability cooldowns.
             if (!DeliriumPvE.EnoughLevel) return true;
+            if (UnleashPvE.CanUse(out _) && !LivingShadowPvE.EnoughLevel) return true;
             if (Player.HasStatus(true, StatusID.Delirium_1972) && LivingShadowPvE.Cooldown.IsCoolingDown) return true;
             if ((DeliriumPvE.Cooldown.WillHaveOneChargeGCD(1) && !LivingShadowPvE.Cooldown.WillHaveOneChargeGCD(3)) || Blood >= 90 && !LivingShadowPvE.Cooldown.WillHaveOneChargeGCD(1)) return true;
 
