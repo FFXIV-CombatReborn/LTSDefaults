@@ -6,7 +6,7 @@
 public sealed class RPR_Default : ReaperRotation
 {
     #region Config Options
-    [RotationConfig(CombatType.PvE, Name = "[Beta Option] Wait until 50 stacks of Shroud to use Enshroud.")]
+    [RotationConfig(CombatType.PvE, Name = "[Beta Option] Pool Shroud for Arcane Circle.")]
     public bool EnshroudPooling { get; set; } = false;
     #endregion
 
@@ -25,8 +25,10 @@ public sealed class RPR_Default : ReaperRotation
     #region oGCD Logic
     protected override bool AttackAbility(IAction nextGCD, out IAction? act)
     {
-        var IsTargetBoss = HostileTarget?.IsBossFromTTK() ?? false;
-        var IsTargetDying = HostileTarget?.IsDying() ?? false;
+        bool IsTargetBoss = HostileTarget?.IsBossFromTTK() ?? false;
+        bool IsTargetDying = HostileTarget?.IsDying() ?? false;
+        bool NoEnshroudPooling = !EnshroudPooling && Shroud >= 50;
+        bool YesEnshroudPooling = EnshroudPooling && Shroud >= 50 && (!PlentifulHarvestPvE.EnoughLevel || Player.HasStatus(true, StatusID.ArcaneCircle) || ArcaneCirclePvE.Cooldown.WillHaveOneCharge(8) || !Player.HasStatus(true, StatusID.ArcaneCircle) && ArcaneCirclePvE.Cooldown.WillHaveOneCharge(65) && !ArcaneCirclePvE.Cooldown.WillHaveOneCharge(50) || !Player.HasStatus(true, StatusID.ArcaneCircle) && Shroud >= 90);
 
         if (IsBurst)
         {
@@ -45,8 +47,7 @@ public sealed class RPR_Default : ReaperRotation
                 && ArcaneCirclePvE.CanUse(out act, skipAoeCheck: true)) return true;
         }
 
-        if (IsTargetBoss && IsTargetDying || !EnshroudPooling && Shroud >= 50 || (EnshroudPooling && Shroud >= 50 &&
-           (!PlentifulHarvestPvE.EnoughLevel || Player.HasStatus(true, StatusID.ArcaneCircle) || ArcaneCirclePvE.Cooldown.WillHaveOneCharge(8) || !Player.HasStatus(true, StatusID.ArcaneCircle) && ArcaneCirclePvE.Cooldown.WillHaveOneCharge(65) && !ArcaneCirclePvE.Cooldown.WillHaveOneCharge(50) || !Player.HasStatus(true, StatusID.ArcaneCircle) && Shroud >= 90)))
+        if (IsTargetBoss && IsTargetDying || NoEnshroudPooling || YesEnshroudPooling)
         {
             if (EnshroudPvE.CanUse(out act)) return true;
         }

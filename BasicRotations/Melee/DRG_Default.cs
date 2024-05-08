@@ -86,7 +86,7 @@ public sealed class DRG_Default : DragoonRotation
     #region GCD Logic
     protected override bool GeneralGCD(out IAction? act)
     {
-        var doomSpikeRightNow = DoomSpikeWhenever;
+        bool doomSpikeRightNow = DoomSpikeWhenever;
 
         if (CoerthanTormentPvE.CanUse(out act)) return true;
         if (SonicThrustPvE.CanUse(out act)) return true;
