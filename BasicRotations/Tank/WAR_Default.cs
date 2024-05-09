@@ -8,6 +8,8 @@ public sealed class WAR_Default : WarriorRotation
     #region Config Options
     [RotationConfig(CombatType.PvE, Name = "Only use Nascent Flash if Tank Stance is off")]
     public bool NeverscentFlash { get; set; } = false;
+    [RotationConfig(CombatType.PvE, Name = "Use Bloodwhetting/Raw intuition on single enemies")]
+    public bool SoloIntuition { get; set; } = false;
     #endregion
 
     #region Countdown Logic
@@ -90,13 +92,14 @@ public sealed class WAR_Default : WarriorRotation
     // This method is responsible for determining the defensive abilities to use in a single-target situation.
     protected override bool DefenseSingleAbility(IAction nextGCD, out IAction? act)
     {
+        bool RawSingleTargets = SoloIntuition;
         act = null;
 
         // If the player currently has the Holmgang status and their health ratio is less than 0.3 (30%), don't use any defensive abilities.
         if (Player.HasStatus(true, StatusID.Holmgang_409) && Player.GetHealthRatio() < 0.3f) return false;
 
-        // If Raw Intuition can be used and there are more than 2 hostiles in range, use it.
-        if (RawIntuitionPvE.CanUse(out act, onLastAbility: true) && NumberOfHostilesInRange > 2) return true;
+        // If Raw Intuition can be used and there are more than 2 hostiles in range or SoloIntuition Config Option is checked, use it.
+        if (RawIntuitionPvE.CanUse(out act, onLastAbility: true) && (RawSingleTargets || NumberOfHostilesInRange > 2)) return true;
 
         // If the player's Bloodwhetting or Raw Intuition status will not end in the next GCD, don't use any defensive abilities.
         if (!Player.WillStatusEndGCD(0, 0, true, StatusID.Bloodwhetting, StatusID.RawIntuition)) return false;
