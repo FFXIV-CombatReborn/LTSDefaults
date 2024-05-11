@@ -6,8 +6,8 @@ namespace DefaultRotations.Ranged;
 public sealed class MCH_Default : MachinistRotation
 {
     #region Config Options
-    [RotationConfig(CombatType.PvE, Name = "Uses Rook Autoturret/Automaton Queen immediately whenever you get 50 battery")]
-    public bool UseQueenWhenever { get; set; } = true;
+    [RotationConfig(CombatType.PvE, Name = "Skip Queen Logic and uses Rook Autoturret/Automaton Queen immediately whenever you get 50 battery")]
+    public bool SkipQueenLogic { get; set; } = false;
     #endregion
 
     #region Countdown logic
@@ -76,6 +76,7 @@ public sealed class MCH_Default : MachinistRotation
     protected override bool AttackAbility(IAction nextGCD, out IAction? act)
     {
         // Define conditions under which the Rook Autoturret/Queen can be used.
+        bool NoQueenLogic = SkipQueenLogic;
         bool OpenerQueen = !CombatElapsedLess(20f) && CombatElapsedLess(25f);
         bool CombatTimeQueen = CombatElapsedLess(60f) && !CombatElapsedLess(45f);
         bool WildfireCooldownQueen = WildfirePvE.Cooldown.IsCoolingDown && WildfirePvE.Cooldown.ElapsedAfter(105f) && Battery == 100 &&
@@ -88,7 +89,7 @@ public sealed class MCH_Default : MachinistRotation
         // If Wildfire is active, use Hypercharge.....Period
         if (Player.HasStatus(true, StatusID.Wildfire_1946))
         {
-            return HyperchargePvE.CanUse(out act, skipClippingCheck: true, skipComboCheck: true);
+            return HyperchargePvE.CanUse(out act, skipClippingCheck: true);
         }
         // Burst
         if (IsBurst)
@@ -97,7 +98,7 @@ public sealed class MCH_Default : MachinistRotation
 
             {
                 if ((IsLastAbility(false, HyperchargePvE) || Heat >= 50) && !CombatElapsedLess(10) && CanUseHyperchargePvE(out _)
-                && !LowLevelHyperCheck && WildfirePvE.CanUse(out act, onLastAbility: true, skipComboCheck: true)) return true;
+                && !LowLevelHyperCheck && WildfirePvE.CanUse(out act, onLastAbility: true)) return true;
             }
         }
         // Use Hypercharge if at least 12 seconds of combat and (if wildfire will not be up in 30 seconds or if you hit 100 heat)
@@ -105,15 +106,10 @@ public sealed class MCH_Default : MachinistRotation
         {
             if (CanUseHyperchargePvE(out act)) return true;
         }
-        // Rook Autoturret/Queen Logic toggle on
-        if (UseQueenWhenever && (OpenerQueen || CombatTimeQueen || WildfireCooldownQueen || BatteryCheckQueen || LastGCDCheckQueen))
+        // Rook Autoturret/Queen Logic
+        if (NoQueenLogic || OpenerQueen || CombatTimeQueen || WildfireCooldownQueen || BatteryCheckQueen || LastGCDCheckQueen)
         {
-            return RookAutoturretPvE.CanUse(out act, skipComboCheck: true);
-        }
-        // Rook Autoturret/Queen Logic toggle off
-        if (!UseQueenWhenever)
-        {
-            return RookAutoturretPvE.CanUse(out act, skipComboCheck: true);
+            if (RookAutoturretPvE.CanUse(out act)) return true;
         }
         // Use Barrel Stabilizer on CD if won't cap
         if (BarrelStabilizerPvE.CanUse(out act)) return true;
