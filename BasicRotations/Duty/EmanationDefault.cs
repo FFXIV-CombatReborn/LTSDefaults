@@ -11,7 +11,7 @@ internal class EmanationDefault : DutyRotation
         bool Lol2 = HostileTarget?.CastActionId == 8522
         bool Lol3 = HostileTarget?.CastActionId == 8523
 
-        if (Lol1 && Lol2 && Lol3)
+        if (Lol1 || Lol2 || Lol3)
         {
             if (VrilPvE.CanUse(out act)) return true; // Normal
             if (VrilPvE_9345.CanUse(out act)) return true; // Extreme
