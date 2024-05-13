@@ -99,13 +99,13 @@ public sealed class WAR_Default : WarriorRotation
         if (Player.HasStatus(true, StatusID.Holmgang_409) && Player.GetHealthRatio() < 0.3f) return false;
 
         // If Raw Intuition can be used and there are more than 2 hostiles in range or SoloIntuition Config Option is checked, use it.
-        if (RawIntuitionPvE.CanUse(out act, onLastAbility: true) && (RawSingleTargets || NumberOfHostilesInRange > 2)) return true;
+        if (RawIntuitionPvE.CanUse(out act) && (RawSingleTargets || NumberOfHostilesInRange > 2)) return true;
 
         // If the player's Bloodwhetting or Raw Intuition status will not end in the next GCD, don't use any defensive abilities.
         if (!Player.WillStatusEndGCD(0, 0, true, StatusID.Bloodwhetting, StatusID.RawIntuition)) return false;
 
         // If Reprisal can be used, use it.
-        if (ReprisalPvE.CanUse(out act, skipAoeCheck: true, onLastAbility: true)) return true;
+        if (ReprisalPvE.CanUse(out act, skipAoeCheck: true)) return true;
 
         // If Rampart is not cooling down or has been cooling down for more than 60 seconds, and Vengeance can be used, use Vengeance.
         if ((!RampartPvE.Cooldown.IsCoolingDown || RampartPvE.Cooldown.ElapsedAfter(60)) && VengeancePvE.CanUse(out act)) return true;

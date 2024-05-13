@@ -36,19 +36,19 @@ public sealed class DNC_Default : DancerRotation
     {
         if (Player.HasStatus(true, StatusID.TechnicalFinish))
         {
-            if (DevilmentPvE.CanUse(out act, skipClippingCheck: true)) return true;
+            if (DevilmentPvE.CanUse(out act)) return true;
         }
 
         // Special handling if the last action was Quadruple Technical Finish and level requirement is met
         if (IsLastGCD(ActionID.QuadrupleTechnicalFinishPvE) && TechnicalStepPvE.EnoughLevel)
         {
             // Attempt to use Devilment ignoring clipping checks
-            if (DevilmentPvE.CanUse(out act, skipClippingCheck: true)) return true;
+            if (DevilmentPvE.CanUse(out act)) return true;
         }
         // Similar handling for Double Standard Finish when level requirement is not met
         else if (IsLastGCD(ActionID.DoubleStandardFinishPvE) && !TechnicalStepPvE.EnoughLevel)
         {
-            if (DevilmentPvE.CanUse(out act, skipClippingCheck: true)) return true;
+            if (DevilmentPvE.CanUse(out act)) return true;
         }
 
         // If currently dancing, defer to the base class emergency handling

@@ -37,7 +37,7 @@ public class PLD_Default : PaladinRotation
             if (HasTankStance && OathGauge == 100 && UseOath(out act)) return true;
         }
 
-        if (Player.HasStatus(true, StatusID.Cover) && HallowedGroundPvE.CanUse(out act, onLastAbility: true)) return true;
+        if (Player.HasStatus(true, StatusID.Cover) && HallowedGroundPvE.CanUse(out act)) return true;
 
         if ((Player.HasStatus(true, StatusID.Rampart) || Player.HasStatus(true, StatusID.Sentinel)) && InterventionPvE.CanUse(out act) &&
             InterventionPvE.Target.Target?.GetHealthRatio() < 0.6) return true;
@@ -54,7 +54,7 @@ public class PLD_Default : PaladinRotation
         if (InCombat)
         {
             if (UseBurstMedicine(out act)) return true;
-            if (IsBurst && !CombatElapsedLess(5) && FightOrFlightPvE.CanUse(out act, onLastAbility: true)) return true;
+            if (IsBurst && !CombatElapsedLess(5) && FightOrFlightPvE.CanUse(out act)) return true;
         }
         if (CombatElapsedLess(8)) return false;
 

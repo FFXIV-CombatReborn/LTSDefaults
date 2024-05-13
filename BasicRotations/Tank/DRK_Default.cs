@@ -69,11 +69,11 @@ public sealed class DRK_Default : DarkKnightRotation
         if (Player.HasStatus(true, StatusID.BlackestNight)) return false;
 
         //10
-        if (OblationPvE.CanUse(out act, usedUp: true, onLastAbility: true)) return true;
+        if (OblationPvE.CanUse(out act, usedUp: true)) return true;
 
-        if (ReprisalPvE.CanUse(out act, skipAoeCheck: true, onLastAbility: true)) return true;
+        if (ReprisalPvE.CanUse(out act, skipAoeCheck: true)) return true;
 
-        if (TheBlackestNightPvE.CanUse(out act, onLastAbility: true)) return true;
+        if (TheBlackestNightPvE.CanUse(out act)) return true;
         //30
         if ((!RampartPvE.Cooldown.IsCoolingDown || RampartPvE.Cooldown.ElapsedAfter(60)) && ShadowWallPvE.CanUse(out act)) return true;
 
@@ -100,10 +100,10 @@ public sealed class DRK_Default : DarkKnightRotation
                 && BloodWeaponPvE.CanUse(out act)) return true;
             if (!DeliriumPvE.EnoughLevel)
             {
-                if (BloodWeaponPvE.CanUse(out act, skipClippingCheck: true)) return true;
+                if (BloodWeaponPvE.CanUse(out act)) return true;
             }
             if (LivingShadowPvE.CanUse(out act, skipAoeCheck: true)) return true;
-            if (BloodspillerPvE.CanUse(out act, skipClippingCheck: true, skipComboCheck: true)) return true;
+            if (BloodspillerPvE.CanUse(out act, skipComboCheck: true)) return true;
         }
 
         if (CombatLess)
@@ -144,8 +144,8 @@ public sealed class DRK_Default : DarkKnightRotation
         //Use Blood
         if (UseBlood)
         {
-            if (QuietusPvE.CanUse(out act, skipClippingCheck: true, skipComboCheck: true)) return true;
-            if (BloodspillerPvE.CanUse(out act, skipClippingCheck: true, skipComboCheck: true)) return true;
+            if (QuietusPvE.CanUse(out act, skipComboCheck: true)) return true;
+            if (BloodspillerPvE.CanUse(out act, skipComboCheck: true)) return true;
         }
 
         //AOE

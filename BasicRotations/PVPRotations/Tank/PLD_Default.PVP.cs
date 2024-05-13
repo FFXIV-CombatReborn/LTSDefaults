@@ -62,7 +62,7 @@ public sealed class PLD_DefaultPvP : PaladinRotation
         {
             if (status.Value && Player.HasStatus(true, (StatusID)status.Key))
             {
-                return PurifyPvP.CanUse(out action, skipClippingCheck: true);
+                return PurifyPvP.CanUse(out action);
             }
         }
 

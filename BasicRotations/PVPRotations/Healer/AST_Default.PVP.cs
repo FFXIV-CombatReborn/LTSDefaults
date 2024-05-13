@@ -62,7 +62,7 @@ public class AST_DefaultPVP : AstrologianRotation
         {
             if (status.Value && Player.HasStatus(true, (StatusID)status.Key))
             {
-                return PurifyPvP.CanUse(out action, skipClippingCheck: true);
+                return PurifyPvP.CanUse(out action);
             }
         }
 

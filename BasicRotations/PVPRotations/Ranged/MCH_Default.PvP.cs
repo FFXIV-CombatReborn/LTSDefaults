@@ -62,7 +62,7 @@ public sealed class MCH_DefaultPvP : MachinistRotation
         {
             if (status.Value && Player.HasStatus(true, (StatusID)status.Key))
             {
-                return PurifyPvP.CanUse(out action, skipClippingCheck: true);
+                return PurifyPvP.CanUse(out action);
             }
         }
 
@@ -86,7 +86,7 @@ public sealed class MCH_DefaultPvP : MachinistRotation
 
         if (BishopAutoturretPvP.CanUse(out act, skipAoeCheck: true)) return true;
         // Use WildfirePvP if Overheated
-        if (Player.HasStatus(true, StatusID.Overheated_3149) && WildfirePvP.CanUse(out act, skipAoeCheck: true, skipComboCheck: true, skipClippingCheck: true)) return true;
+        if (Player.HasStatus(true, StatusID.Overheated_3149) && WildfirePvP.CanUse(out act, skipAoeCheck: true, skipComboCheck: true)) return true;
 
         // Check if BioblasterPvP, AirAnchorPvP, or ChainSawPvP can be used
         if (InCombat && !Player.HasStatus(true, StatusID.Analysis) &&

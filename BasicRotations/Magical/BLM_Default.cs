@@ -81,7 +81,7 @@ public class BLM_Default : BlackMageRotation
         //To Fire
         if (CurrentMp >= 7200 && UmbralIceStacks == 2 && ParadoxPvE.EnoughLevel)
         {
-            if ((HasFire || HasSwift) && TransposePvE.CanUse(out act, onLastAbility: true)) return true;
+            if ((HasFire || HasSwift) && TransposePvE.CanUse(out act)) return true;
         }
         if (nextGCD.IsTheSameTo(false, FireIiiPvE) && HasFire)
         {
@@ -104,7 +104,7 @@ public class BLM_Default : BlackMageRotation
         if (InFireOrIce(out act, out var mustGo)) return true;
         if (mustGo) return false;
         //Triplecast for moving.
-        if (IsMoving && HasHostilesInRange && TriplecastPvE.CanUse(out act, usedUp: true, skipClippingCheck: true)) return true;
+        if (IsMoving && HasHostilesInRange && TriplecastPvE.CanUse(out act, usedUp: true)) return true;
 
         if (AddElementBase(out act)) return true;
         if (ScathePvE.CanUse(out act)) return true;
@@ -265,7 +265,7 @@ public class BLM_Default : BlackMageRotation
             if (AddThunder(out act, 0)) return true;
         }
 
-        if (TriplecastPvE.CanUse(out act, skipClippingCheck: true)) return true;
+        if (TriplecastPvE.CanUse(out act)) return true;
 
         if (AddThunder(out act, 0) && Player.WillStatusEndGCD(1, 0, true,
             StatusID.Thundercloud)) return true;

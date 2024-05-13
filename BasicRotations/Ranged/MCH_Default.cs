@@ -53,7 +53,7 @@ public sealed class MCH_Default : MachinistRotation
         // Attempt to use Reassemble if it's ready
         if (isReassembleUsable)
         {
-            if (ReassemblePvE.CanUse(out act, onLastAbility: true, skipClippingCheck: true, skipComboCheck: true, usedUp: true)) return true;
+            if (ReassemblePvE.CanUse(out act, skipComboCheck: true, usedUp: true)) return true;
         }
 
         // Use Ricochet
@@ -89,7 +89,7 @@ public sealed class MCH_Default : MachinistRotation
         // If Wildfire is active, use Hypercharge.....Period
         if (Player.HasStatus(true, StatusID.Wildfire_1946))
         {
-            return HyperchargePvE.CanUse(out act, skipClippingCheck: true);
+            return HyperchargePvE.CanUse(out act);
         }
         // Burst
         if (IsBurst)
@@ -98,7 +98,7 @@ public sealed class MCH_Default : MachinistRotation
 
             {
                 if ((IsLastAbility(false, HyperchargePvE) || Heat >= 50) && !CombatElapsedLess(10) && CanUseHyperchargePvE(out _)
-                && !LowLevelHyperCheck && WildfirePvE.CanUse(out act, onLastAbility: true)) return true;
+                && !LowLevelHyperCheck && WildfirePvE.CanUse(out act)) return true;
             }
         }
         // Use Hypercharge if at least 12 seconds of combat and (if wildfire will not be up in 30 seconds or if you hit 100 heat)
@@ -142,7 +142,7 @@ public sealed class MCH_Default : MachinistRotation
         }
 
         // Special condition for using ChainSaw outside of AoE checks if no action is chosen within 4 GCDs.
-        if (!CombatElapsedLessGCD(4) && ChainSawPvE.CanUse(out act, skipAoeCheck: true)) return true;
+        if (!CombatElapsedLessGCD(4) && ChainSawPvE.CanUse(out act)) return true;
 
         // AoE actions: ChainSaw and SpreadShot based on their usability.
         if (SpreadShotPvE.CanUse(out _))

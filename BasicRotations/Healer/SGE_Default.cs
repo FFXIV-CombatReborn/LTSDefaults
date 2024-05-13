@@ -43,12 +43,12 @@ public sealed class SGE_Default : SageRotation
     {
         if (Addersgall <= 1)
         {
-            if (PanhaimaPvE.CanUse(out act, onLastAbility: true)) return true;
+            if (PanhaimaPvE.CanUse(out act)) return true;
         }
 
-        if (KeracholePvE.CanUse(out act, onLastAbility: true)) return true;
+        if (KeracholePvE.CanUse(out act)) return true;
 
-        if (HolosPvE.CanUse(out act, onLastAbility: true)) return true;
+        if (HolosPvE.CanUse(out act)) return true;
 
         return base.DefenseAreaAbility(nextGCD, out act);
     }
@@ -58,19 +58,19 @@ public sealed class SGE_Default : SageRotation
     {
         if (Addersgall <= 1)
         {
-            if (HaimaPvE.CanUse(out act, onLastAbility: true)) return true;
+            if (HaimaPvE.CanUse(out act)) return true;
         }
 
-        if (TaurocholePvE.CanUse(out act, onLastAbility: true) && TaurocholePvE.Target.Target?.GetHealthRatio() < 0.8) return true;
+        if (TaurocholePvE.CanUse(out act) && TaurocholePvE.Target.Target?.GetHealthRatio() < 0.8) return true;
 
         if (Addersgall <= 1)
         {
-            if ((!HaimaPvE.EnoughLevel || HaimaPvE.Cooldown.ElapsedAfter(20)) && PanhaimaPvE.CanUse(out act, onLastAbility: true)) return true;
+            if ((!HaimaPvE.EnoughLevel || HaimaPvE.Cooldown.ElapsedAfter(20)) && PanhaimaPvE.CanUse(out act)) return true;
         }
 
-        if ((!TaurocholePvE.EnoughLevel || TaurocholePvE.Cooldown.ElapsedAfter(20)) && KeracholePvE.CanUse(out act, onLastAbility: true)) return true;
+        if ((!TaurocholePvE.EnoughLevel || TaurocholePvE.Cooldown.ElapsedAfter(20)) && KeracholePvE.CanUse(out act)) return true;
 
-        if (HolosPvE.CanUse(out act, onLastAbility: true)) return true;
+        if (HolosPvE.CanUse(out act)) return true;
 
         return base.DefenseSingleAbility(nextGCD, out act);
     }
@@ -81,13 +81,13 @@ public sealed class SGE_Default : SageRotation
         if (PhysisIiPvE.CanUse(out act)) return true;
         if (!PhysisIiPvE.EnoughLevel && PhysisPvE.CanUse(out act)) return true;
 
-        if (KeracholePvE.CanUse(out act, onLastAbility: true) && EnhancedKeracholeTrait.EnoughLevel) return true;
+        if (KeracholePvE.CanUse(out act) && EnhancedKeracholeTrait.EnoughLevel) return true;
 
-        if (HolosPvE.CanUse(out act, onLastAbility: true) && PartyMembersAverHP < 0.50f) return true;
+        if (HolosPvE.CanUse(out act) && PartyMembersAverHP < 0.50f) return true;
 
-        if (IxocholePvE.CanUse(out act, onLastAbility: true)) return true;
+        if (IxocholePvE.CanUse(out act)) return true;
 
-        if (KeracholePvE.CanUse(out act, onLastAbility: true)) return true;
+        if (KeracholePvE.CanUse(out act)) return true;
 
         return base.HealAreaAbility(nextGCD, out act);
     }
@@ -107,14 +107,14 @@ public sealed class SGE_Default : SageRotation
         var tank = PartyMembers.GetJobCategory(JobRole.Tank);
         if (Addersgall < 1 && (tank.Any(t => t.GetHealthRatio() < 0.65f) || PartyMembers.Any(b => b.GetHealthRatio() < 0.20f)))
         {
-            if (HaimaPvE.CanUse(out act, onLastAbility: true)) return true;
+            if (HaimaPvE.CanUse(out act)) return true;
 
             if (PhysisIiPvE.CanUse(out act)) return true;
             if (!PhysisIiPvE.EnoughLevel && PhysisPvE.CanUse(out act)) return true;
 
-            if (HolosPvE.CanUse(out act, onLastAbility: true)) return true;
+            if (HolosPvE.CanUse(out act)) return true;
 
-            if ((!HaimaPvE.EnoughLevel || HaimaPvE.Cooldown.ElapsedAfter(20)) && PanhaimaPvE.CanUse(out act, onLastAbility: true)) return true;
+            if ((!HaimaPvE.EnoughLevel || HaimaPvE.Cooldown.ElapsedAfter(20)) && PanhaimaPvE.CanUse(out act)) return true;
         }
 
         if (tank.Any(t => t.GetHealthRatio() < 0.60f))
