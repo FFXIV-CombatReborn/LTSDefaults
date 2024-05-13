@@ -8,13 +8,7 @@
     <None Remove="Duty\PVPRotations\**" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Remove="Duty\EmanationDefault.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Duty\EmanationDefault.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="RotationSolverReborn.Basic" Version="4.1.0.4" />
+    <PackageReference Include="RotationSolverReborn.Basic" Version="4.1.1.1" />
   </ItemGroup>
   <ItemGroup>
 	  <Reference Include="Dalamud">
