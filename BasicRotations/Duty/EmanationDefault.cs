@@ -6,10 +6,10 @@ namespace DefaultRotations.Duty;
 [DutyTerritory(263, 264)]
 internal class EmanationDefault : DutyRotation
 {
-    public override bool AntiKnockbackAbility(out IAction? act)
+    protected override bool EmergencyAbility(IAction nextGCD, out IAction? act)
     {
         if (VrilPvE.CanUse(out act)) return true; // Normal
         if (VrilPvE_9345.CanUse(out act)) return true; // Extreme
-        return base.AntiKnockbackAbility(out act);
+        return base.EmergencyAbility(nextGCD, out act);
     }
 }
