@@ -42,9 +42,9 @@ public sealed class GNB_Default : GunbreakerRotation
     protected override bool DefenseSingleAbility(IAction nextGCD, out IAction? act)
     {
         //10
-        if (CamouflagePvE.CanUse(out act, onLastAbility: true)) return true;
+        if (CamouflagePvE.CanUse(out act)) return true;
         //15
-        if (HeartOfStonePvE.CanUse(out act, onLastAbility: true)) return true;
+        if (HeartOfStonePvE.CanUse(out act)) return true;
 
         //30
         if ((!RampartPvE.Cooldown.IsCoolingDown || RampartPvE.Cooldown.ElapsedAfter(60)) && NebulaPvE.CanUse(out act)) return true;
@@ -59,14 +59,14 @@ public sealed class GNB_Default : GunbreakerRotation
     [RotationDesc(ActionID.AuroraPvE)]
     protected override bool HealSingleAbility(IAction nextGCD, out IAction? act)
     {
-        if (AuroraPvE.CanUse(out act, usedUp: true, onLastAbility: true)) return true;
+        if (AuroraPvE.CanUse(out act, usedUp: true)) return true;
         return base.HealSingleAbility(nextGCD, out act);
     }
     protected override bool AttackAbility(IAction nextGCD, out IAction? act)
     {
         //if (IsBurst && CanUseNoMercy(out act)) return true;
 
-        if (!CombatElapsedLessGCD(5) && NoMercyPvE.CanUse(out act, skipAoeCheck: true, skipClippingCheck: true)) return true;
+        if (!CombatElapsedLessGCD(5) && NoMercyPvE.CanUse(out act, skipAoeCheck: true)) return true;
 
         if (JugularRipPvE.CanUse(out act)) return true;
 

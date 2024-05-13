@@ -32,7 +32,7 @@ public sealed class MNK_Default : MonkRotation
         if (InCombat)
         {
             if (UseBurstMedicine(out act)) return true;
-            if (IsBurst && !CombatElapsedLessGCD(2) && RiddleOfFirePvE.CanUse(out act, onLastAbility: true)) return true;
+            if (IsBurst && !CombatElapsedLessGCD(2) && RiddleOfFirePvE.CanUse(out act)) return true;
         }
         return base.EmergencyAbility(nextGCD, out act);
     }

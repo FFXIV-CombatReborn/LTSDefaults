@@ -62,7 +62,7 @@ public class RDM_DefaultPvP : RedMageRotation
         {
             if (status.Value && Player.HasStatus(true, (StatusID)status.Key))
             {
-                return PurifyPvP.CanUse(out action, skipClippingCheck: true);
+                return PurifyPvP.CanUse(out action);
             }
         }
 

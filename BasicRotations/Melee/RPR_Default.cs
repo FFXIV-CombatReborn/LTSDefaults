@@ -117,14 +117,14 @@ public sealed class RPR_Default : ReaperRotation
 
         if (HasSoulReaver)
         {
-            if (GuillotinePvE.CanUse(out act, skipClippingCheck: true)) return true;
+            if (GuillotinePvE.CanUse(out act)) return true;
             if (Player.HasStatus(true, StatusID.EnhancedGibbet))
             {
-                if (GibbetPvE.CanUse(out act, skipClippingCheck: true, skipComboCheck: true)) return true;
+                if (GibbetPvE.CanUse(out act, skipComboCheck: true)) return true;
             }
             else
             {
-                if (GallowsPvE.CanUse(out act, skipClippingCheck: true, skipComboCheck: true)) return true;
+                if (GallowsPvE.CanUse(out act, skipComboCheck: true)) return true;
             }
         }
 
