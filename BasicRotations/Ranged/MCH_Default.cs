@@ -57,14 +57,14 @@ public sealed class MCH_Default : MachinistRotation
         }
 
         // Use Ricochet
-        if (isRicochetMore && ((!IsLastAction(true, new[] { GaussRoundPvE, RicochetPvE }) && IsLastGCD(true, HeatBlastPvE)) || !IsLastGCD(true, HeatBlastPvE)))
+        if (isRicochetMore && ((!IsLastAction(true, new[] { GaussRoundPvE, RicochetPvE }) && IsLastGCD(true, new[] { HeatBlastPvE, AutoCrossbowPvE })) || !IsLastGCD(true, new[] { HeatBlastPvE, AutoCrossbowPvE })))
         {
             if (RicochetPvE.CanUse(out act, skipAoeCheck: true, usedUp: true))
                 return true;
         }
 
         // Use Gauss
-        if (isGaussMore && ((!IsLastAction(true, new[] { GaussRoundPvE, RicochetPvE }) && IsLastGCD(true, HeatBlastPvE)) || !IsLastGCD(true, HeatBlastPvE)))
+        if (isGaussMore && ((!IsLastAction(true, new[] { GaussRoundPvE, RicochetPvE }) && IsLastGCD(true, new[] { HeatBlastPvE, AutoCrossbowPvE })) || !IsLastGCD(true, new[] { HeatBlastPvE, AutoCrossbowPvE })))
         {
             if (GaussRoundPvE.CanUse(out act, usedUp: true))
                 return true;
