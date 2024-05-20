@@ -221,7 +221,7 @@ public sealed class NIN_Default : NinjaRotation
             {
                 if (RaitonPvE_18877.CanUse(out act, skipAoeCheck: true)) return true;
             }
-            else if (chiId == DotonPvE_18880.ID && !IsLastAction(false, DotonPvE_18880) && !Player.HasStatus(true, StatusID.Doton) && !IsMoving)
+            else if (chiId == DotonPvE_18880.ID && !IsLastAction(false, DotonPvE_18880) && !Player.HasStatus(true, StatusID.Doton))
             {
                 if (DotonPvE_18880.CanUse(out act, skipAoeCheck: true)) return true;
             }
