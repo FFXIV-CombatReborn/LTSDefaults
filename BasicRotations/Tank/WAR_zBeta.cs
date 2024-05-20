@@ -13,8 +13,16 @@ public sealed class WAR_zBeta : WarriorRotation
     public bool SoloIntuition { get; set; } = false;
 
     [Range(0, 1, ConfigUnitType.Percent)]
-    [RotationConfig(CombatType.PvE, Name = "Nascent Flash Heal Threshold (Target must drop below this threshold for Nascent Flash to be used)")]
+    [RotationConfig(CombatType.PvE, Name = "Nascent Flash Heal Threshold")]
     public float FlashHeal { get; set; } = 0.6f;
+
+    [Range(0, 1, ConfigUnitType.Percent)]
+    [RotationConfig(CombatType.PvE, Name = "Thrill Of Battle Heal Threshold")]
+    public float ThrillOfBattleHeal { get; set; } = 0.6f;
+
+    [Range(0, 1, ConfigUnitType.Percent)]
+    [RotationConfig(CombatType.PvE, Name = "Equilibrium Heal Threshold")]
+    public float EquilibriumHeal { get; set; } = 0.6f;
 
     #endregion
 
@@ -82,11 +90,16 @@ public sealed class WAR_zBeta : WarriorRotation
 
     protected override bool GeneralAbility(IAction nextGCD, out IAction? act)
     {
-        // If the player's health ratio is less than 0.6 (60%), consider using healing abilities.
-        if (Player.GetHealthRatio() < 0.6f)
+        // If the player's health ratio is less than configured setting, consider using healing abilities.
+        if (Player.GetHealthRatio() < ThrillOfBattleHeal)
         {
             // If Thrill of Battle can be used, use it and return true.
             if (ThrillOfBattlePvE.CanUse(out act)) return true;
+        }
+
+        // If the player's health ratio is less than configured setting, consider using healing abilities.
+        if (Player.GetHealthRatio() < EquilibriumHeal)
+        {
 
             // If Equilibrium can be used, use it and return true.
             if (EquilibriumPvE.CanUse(out act)) return true;
