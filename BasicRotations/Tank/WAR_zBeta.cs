@@ -1,6 +1,6 @@
 ﻿namespace DefaultRotations.Tank;
 
-[Rotation("Default", CombatType.PvE, GameVersion = "6.58")]
+[Rotation("Beta", CombatType.PvE, GameVersion = "6.58")]
 [SourceCode(Path = "main/DefaultRotations/Tank/WAR_zBeta.cs")]
 [Api(1)]
 public sealed class WAR_zBeta : WarriorRotation
@@ -14,7 +14,7 @@ public sealed class WAR_zBeta : WarriorRotation
 
     [Range(0, 1, ConfigUnitType.Percent)]
     [RotationConfig(CombatType.PvE, Name = "Nascent Flash Heal Threshold (Target must drop below this threshold for Nascent Flash to be used)")]
-    public float FlashHeal { get; set; } = 0.5f;
+    public float FlashHeal { get; set; } = 0.6f;
 
     #endregion
 
