@@ -27,11 +27,11 @@ public sealed class SGE_Default : SageRotation
     public float ZoeHeal { get; set; } = 0.6f;
 
     [Range(0, 1, ConfigUnitType.Percent)]
-    [RotationConfig(CombatType.PvE, Name = "Health threshold party member needs to be to use an OGCD Heal")]
+    [RotationConfig(CombatType.PvE, Name = "Health threshold party member needs to be to use an OGCD Heal while not holding addersgal stacks")]
     public float OGCDHeal { get; set; } = 0.20f;
 
     [Range(0, 1, ConfigUnitType.Percent)]
-    [RotationConfig(CombatType.PvE, Name = "Health threshold tank party member needs to use an OGCD Heal on Tanks")]
+    [RotationConfig(CombatType.PvE, Name = "Health threshold tank party member needs to use an OGCD Heal on Tanks while not holding addersgal stacks")]
     public float OGCDTankHeal { get; set; } = 0.65f;
 
     [Range(0, 1, ConfigUnitType.Percent)]

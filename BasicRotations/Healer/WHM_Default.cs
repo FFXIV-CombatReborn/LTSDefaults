@@ -9,8 +9,20 @@ public sealed class WHM_Default :WhiteMageRotation
     [RotationConfig(CombatType.PvE, Name = "Use Lily at max stacks.")]
     public bool UseLilyWhenFull { get; set; } = true;
 
-    [RotationConfig(CombatType.PvE, Name = "Regen on Tank at 5 seconds remaining on Countdown.")]
+    [RotationConfig(CombatType.PvE, Name = "Regen on Tank at 5 seconds remaining on Prepull Countdown.")]
     public bool UsePreRegen { get; set; } = true;
+
+    [Range(0, 1, ConfigUnitType.Percent)]
+    [RotationConfig(CombatType.PvE, Name = "Minimum health threshold party member needs to be to use Benediction")]
+    public float BenedictionHeal { get; set; } = 0.3f;
+
+    [Range(0, 1, ConfigUnitType.Percent)]
+    [RotationConfig(CombatType.PvE, Name = "If a party member's health drops below this percentage, the Regen healing ability will not be used on them")]
+    public float RegenHeal { get; set; } = 0.3f;
+
+    [Range(0, 10000, ConfigUnitType.None, 100)]
+    [RotationConfig(CombatType.PvE, Name = "Casting cost requirement for Thin Air to be used")]
+    public float ThinAirNeed { get; set; } = 1000;
     #endregion
 
     #region Countdown Logic
@@ -31,7 +43,7 @@ public sealed class WHM_Default :WhiteMageRotation
     #region oGCD Logic
     protected override bool EmergencyAbility(IAction nextGCD, out IAction? act)
     {
-        if (nextGCD is IBaseAction action && action.Info.MPNeed >= 1000 &&
+        if (nextGCD is IBaseAction action && action.Info.MPNeed >= ThinAirNeed &&
             ThinAirPvE.CanUse(out act)) return true;
 
         if (nextGCD.IsTheSameTo(true, AfflatusRapturePvE, MedicaPvE, MedicaIiPvE, CureIiiPvE)
@@ -80,7 +92,7 @@ public sealed class WHM_Default :WhiteMageRotation
     protected override bool HealSingleAbility(IAction nextGCD, out IAction? act)
     {
         if (BenedictionPvE.CanUse(out act) &&
-            RegenPvE.Target.Target?.GetHealthRatio() < 0.3) return true;
+            RegenPvE.Target.Target?.GetHealthRatio() < BenedictionHeal) return true;
 
         if (!IsMoving && AsylumPvE.CanUse(out act)) return true;
 
@@ -125,7 +137,7 @@ public sealed class WHM_Default :WhiteMageRotation
     {
         if (AfflatusSolacePvE.CanUse(out act)) return true;
 
-        if (RegenPvE.CanUse(out act) && (RegenPvE.Target.Target?.GetHealthRatio() > 0.3)) return true;
+        if (RegenPvE.CanUse(out act) && (RegenPvE.Target.Target?.GetHealthRatio() > RegenHeal)) return true;
 
         if (CureIiPvE.CanUse(out act)) return true;
 
