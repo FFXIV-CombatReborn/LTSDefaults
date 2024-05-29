@@ -143,6 +143,9 @@ public sealed class BRD_Default : BardRotation
     #region GCD Logic
     protected override bool GeneralGCD(out IAction? act)
     {
+        if (ShadowbitePvE.CanUse(out act)) return true;
+        if (StraightShotPvE.CanUse(out act)) return true;
+
         if (IronJawsPvE.CanUse(out act)) return true;
         if (IronJawsPvE.CanUse(out act, skipStatusProvideCheck: true) && (IronJawsPvE.Target.Target?.WillStatusEnd(30, true, IronJawsPvE.Setting.TargetStatusProvide ?? []) ?? false))
         {
@@ -157,13 +160,11 @@ public sealed class BRD_Default : BardRotation
             if (Player.HasStatus(true, StatusID.RagingStrikes) && BarragePvE.Cooldown.IsCoolingDown) return true;
         }
 
-        if (ShadowbitePvE.CanUse(out act)) return true;
         if (QuickNockPvE.CanUse(out act)) return true;
 
         if (WindbitePvE.CanUse(out act)) return true;
         if (VenomousBitePvE.CanUse(out act)) return true;
 
-        if (StraightShotPvE.CanUse(out act)) return true;
         if (HeavyShotPvE.CanUse(out act)) return true;
 
         return base.GeneralGCD(out act);
