@@ -9,6 +9,14 @@ public sealed class AST_Default : AstrologianRotation
     [Range(4, 20, ConfigUnitType.Seconds)]
     [RotationConfig(CombatType.PvE, Name = "Use Earthly Star during countdown timer.")]
     public float UseEarthlyStarTime { get; set; } = 15;
+
+    [Range(0, 1, ConfigUnitType.Percent)]
+    [RotationConfig(CombatType.PvE, Name = "Minimum HP threshold party member needs to be to use Aspected Benefic")]
+    public float AspectedBeneficHeal { get; set; } = 0.4f;
+
+    [Range(0, 1, ConfigUnitType.Percent)]
+    [RotationConfig(CombatType.PvE, Name = "Minimum HP threshold among party member needed to use Horoscope")]
+    public float HoroscopeHeal { get; set; } = 0.3f;
     #endregion
 
     #region Countdown Logic
@@ -61,9 +69,6 @@ public sealed class AST_Default : AstrologianRotation
     #region GCD Logic
     protected override bool GeneralGCD(out IAction? act)
     {
-        ////Add AspectedBeneficwhen not in combat.
-        //if (NotInCombatDelay && AspectedBeneficDefensePvE.CanUse(out act)) return true;
-
         if (GravityPvE.CanUse(out act)) return true;
 
         if (CombustPvE.CanUse(out act)) return true;
@@ -78,7 +83,7 @@ public sealed class AST_Default : AstrologianRotation
     {
         if (AspectedBeneficPvE.CanUse(out act)
             && (IsMoving
-            || AspectedBeneficPvE.Target.Target?.GetHealthRatio() > 0.4)) return true;
+            || AspectedBeneficPvE.Target.Target?.GetHealthRatio() > AspectedBeneficHeal)) return true;
 
         if (BeneficIiPvE.CanUse(out act)) return true;
         if (BeneficPvE.CanUse(out act)) return true;
@@ -177,7 +182,7 @@ public sealed class AST_Default : AstrologianRotation
         if (!Player.HasStatus(true, StatusID.HoroscopeHelios, StatusID.Horoscope) && HoroscopePvE.CanUse(out act)) return true;
 
         if ((Player.HasStatus(true, StatusID.HoroscopeHelios)
-            || PartyMembersMinHP < 0.3)
+            || PartyMembersMinHP < HoroscopeHeal)
             && HoroscopePvE.CanUse(out act)) return true;
 
         return base.HealSingleAbility(nextGCD, out act);
