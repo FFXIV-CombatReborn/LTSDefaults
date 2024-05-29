@@ -6,6 +6,9 @@ namespace DefaultRotations.Healer;
 public sealed class WHM_Default :WhiteMageRotation
 {
     #region Config Options
+    [RotationConfig(CombatType.PvE, Name = "Use spells with cast times to heal. (Ignored if you are the only healer in party)")]
+    public bool GCDHeal { get; set; } = false;
+
     [RotationConfig(CombatType.PvE, Name = "Use Lily at max stacks.")]
     public bool UseLilyWhenFull { get; set; } = true;
 
@@ -182,8 +185,10 @@ public sealed class WHM_Default :WhiteMageRotation
         AfflatusRapturePvE.Setting.RotationCheck = () => BloodLily < 3;
         AfflatusSolacePvE.Setting.RotationCheck = () => BloodLily < 3;
     }
+    public override bool CanHealSingleSpell => base.CanHealSingleSpell && (GCDHeal || PartyMembers.GetJobCategory(JobRole.Healer).Count() < 2);
+    public override bool CanHealAreaSpell => base.CanHealAreaSpell && (GCDHeal || PartyMembers.GetJobCategory(JobRole.Healer).Count() < 2);
 
-        private bool UseLily(out IAction? act)
+    private bool UseLily(out IAction? act)
     {
         if (AfflatusRapturePvE.CanUse(out act, skipAoeCheck: true)) return true;
         if (AfflatusSolacePvE.CanUse(out act)) return true;
