@@ -17,11 +17,6 @@ public sealed class AST_Default : AstrologianRotation
     [Range(0, 1, ConfigUnitType.Percent)]
     [RotationConfig(CombatType.PvE, Name = "Minimum HP threshold among party member needed to use Horoscope")]
     public float HoroscopeHeal { get; set; } = 0.3f;
-
-    [Range(0, 1, ConfigUnitType.Percent)]
-    [RotationConfig(CombatType.PvE, Name = "Average health threshold party members need to be to use Holos")]
-    public float HolosHeal { get; set; } = 0.5f;
-
     #endregion
 
     #region Countdown Logic
