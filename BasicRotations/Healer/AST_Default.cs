@@ -6,6 +6,9 @@ namespace DefaultRotations.Healer;
 public sealed class AST_Default : AstrologianRotation
 {
     #region Config Options
+    [RotationConfig(CombatType.PvE, Name = "Use spells with cast times to heal. (Ignored if you are the only healer in party)")]
+    public bool GCDHeal { get; set; } = false;
+
     [Range(4, 20, ConfigUnitType.Seconds)]
     [RotationConfig(CombatType.PvE, Name = "Use Earthly Star during countdown timer.")]
     public float UseEarthlyStarTime { get; set; } = 15;
@@ -205,5 +208,11 @@ public sealed class AST_Default : AstrologianRotation
 
         return base.HealAreaAbility(nextGCD, out act);
     }
+    #endregion
+
+    #region Extra Methods
+    public override bool CanHealSingleSpell => base.CanHealSingleSpell && (GCDHeal || PartyMembers.GetJobCategory(JobRole.Healer).Count() < 2);
+    public override bool CanHealAreaSpell => base.CanHealAreaSpell && (GCDHeal || PartyMembers.GetJobCategory(JobRole.Healer).Count() < 2);
+
     #endregion
 }

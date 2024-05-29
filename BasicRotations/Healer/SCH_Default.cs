@@ -6,14 +6,18 @@ namespace DefaultRotations.Healer;
 public sealed class SCH_Default : ScholarRotation
 {
     #region Config Options
-    [RotationConfig(CombatType.PvE, Name = "Use spells with cast times to heal.")]
+    [RotationConfig(CombatType.PvE, Name = "Use spells with cast times to heal. (Ignored if you are the only healer in party)")]
     public bool GCDHeal { get; set; } = false;
 
     [RotationConfig(CombatType.PvE, Name = "Recitation at 15 seconds remaining on Countdown.")]
     public bool PrevDUN { get; set; } = false;
 
-    [RotationConfig(CombatType.PvE, Name = "Give Recitation to Tank")]
+    [RotationConfig(CombatType.PvE, Name = "Give Adloquium/Galvanize to Tank during Countdown (Requires above enabled)")]
     public bool GiveT { get; set; } = false;
+
+    [Range(0, 1, ConfigUnitType.Percent)]
+    [RotationConfig(CombatType.PvE, Name = "Remove Aetherpact to conserve resources if party member is above this percentage")]
+    public float AetherpactRemove { get; set; } = 0.9f;
     #endregion
 
     #region Countdown Logic
@@ -97,7 +101,7 @@ public sealed class SCH_Default : ScholarRotation
         //Remove Aetherpact
         foreach (var item in PartyMembers)
         {
-            if (item.GetHealthRatio() < 0.9) continue;
+            if (item.GetHealthRatio() < AetherpactRemove) continue;
             if (item.HasStatus(true, StatusID.FeyUnion_1223))
             {
                 act = AetherpactPvE;
