@@ -6,9 +6,57 @@ namespace DefaultRotations.Healer;
 public sealed class SGE_Default : SageRotation
 {
     #region Config Options
-    [RotationConfig(CombatType.PvE, Name = "Use spells with cast times to heal.")]
+    [RotationConfig(CombatType.PvE, Name = "Use spells with cast times to heal. (Ignored if you are the only healer in party)")]
     public bool GCDHeal { get; set; } = false;
     #endregion
+
+    [Range(0, 1, ConfigUnitType.Percent)]
+    [RotationConfig(CombatType.PvE, Name = "Health threshold party member needs to be to use Taurochole")]
+    public float TaurocholeHeal { get; set; } = 0.8f;
+
+    [Range(0, 1, ConfigUnitType.Percent)]
+    [RotationConfig(CombatType.PvE, Name = "Health threshold party member needs to be to use Soteria")]
+    public float SoteriaHeal { get; set; } = 0.85f;
+
+    [Range(0, 1, ConfigUnitType.Percent)]
+    [RotationConfig(CombatType.PvE, Name = "Average health threshold party members need to be to use Holos")]
+    public float HolosHeal { get; set; } = 0.5f;
+
+    [Range(0, 1, ConfigUnitType.Percent)]
+    [RotationConfig(CombatType.PvE, Name = "Health threshold tank party member needs to use Zoe")]
+    public float ZoeHeal { get; set; } = 0.6f;
+
+    [Range(0, 1, ConfigUnitType.Percent)]
+    [RotationConfig(CombatType.PvE, Name = "Health threshold party member needs to be to use an OGCD Heal")]
+    public float OGCDHeal { get; set; } = 0.20f;
+
+    [Range(0, 1, ConfigUnitType.Percent)]
+    [RotationConfig(CombatType.PvE, Name = "Health threshold tank party member needs to use an OGCD Heal on Tanks")]
+    public float OGCDTankHeal { get; set; } = 0.65f;
+
+    [Range(0, 1, ConfigUnitType.Percent)]
+    [RotationConfig(CombatType.PvE, Name = "Health threshold party member needs to be to use Krasis")]
+    public float KrasisHeal { get; set; } = 0.3f;
+
+    [Range(0, 1, ConfigUnitType.Percent)]
+    [RotationConfig(CombatType.PvE, Name = "Health threshold tank party member needs to use Krasis")]
+    public float KrasisTankHeal { get; set; } = 0.7f;
+
+    [Range(0, 1, ConfigUnitType.Percent)]
+    [RotationConfig(CombatType.PvE, Name = "Health threshold party member needs to be to use Pneuma as a ST heal")]
+    public float PneumaSTPartyHeal { get; set; } = 0.2f;
+
+    [Range(0, 1, ConfigUnitType.Percent)]
+    [RotationConfig(CombatType.PvE, Name = "Health threshold tank party member needs to use Pneuma as a ST heal")]
+    public float PneumaSTTankHeal { get; set; } = 0.6f;
+
+    [Range(0, 1, ConfigUnitType.Percent)]
+    [RotationConfig(CombatType.PvE, Name = "Average health threshold party members need to be to use Pneuma as an AOE heal")]
+    public float PneumaAOEPartyHeal { get; set; } = 0.65f;
+
+    [Range(0, 1, ConfigUnitType.Percent)]
+    [RotationConfig(CombatType.PvE, Name = "Health threshold tank party member needs to use Pneuma as an AOE heal")]
+    public float PneumaAOETankHeal { get; set; } = 0.6f;
 
     #region Countdown Logic
     protected override IAction? CountDownAction(float remainTime)
@@ -61,7 +109,7 @@ public sealed class SGE_Default : SageRotation
             if (HaimaPvE.CanUse(out act)) return true;
         }
 
-        if (TaurocholePvE.CanUse(out act) && TaurocholePvE.Target.Target?.GetHealthRatio() < 0.8) return true;
+        if (TaurocholePvE.CanUse(out act) && TaurocholePvE.Target.Target?.GetHealthRatio() < TaurocholeHeal) return true;
 
         if (Addersgall <= 1)
         {
@@ -83,7 +131,7 @@ public sealed class SGE_Default : SageRotation
 
         if (KeracholePvE.CanUse(out act) && EnhancedKeracholeTrait.EnoughLevel) return true;
 
-        if (HolosPvE.CanUse(out act) && PartyMembersAverHP < 0.50f) return true;
+        if (HolosPvE.CanUse(out act) && PartyMembersAverHP < HolosHeal) return true;
 
         if (IxocholePvE.CanUse(out act)) return true;
 
@@ -101,11 +149,11 @@ public sealed class SGE_Default : SageRotation
 
         if ((!TaurocholePvE.EnoughLevel || TaurocholePvE.Cooldown.IsCoolingDown) && DruocholePvE.CanUse(out act)) return true;
 
-        if (SoteriaPvE.CanUse(out act) && PartyMembers.Any(b => b.HasStatus(true, StatusID.Kardion) && b.GetHealthRatio() < 0.85f)) return true;
+        if (SoteriaPvE.CanUse(out act) && PartyMembers.Any(b => b.HasStatus(true, StatusID.Kardion) && b.GetHealthRatio() < SoteriaHeal)) return true;
 
 
         var tank = PartyMembers.GetJobCategory(JobRole.Tank);
-        if (Addersgall < 1 && (tank.Any(t => t.GetHealthRatio() < 0.65f) || PartyMembers.Any(b => b.GetHealthRatio() < 0.20f)))
+        if (Addersgall < 1 && (tank.Any(t => t.GetHealthRatio() < OGCDTankHeal) || PartyMembers.Any(b => b.GetHealthRatio() < OGCDHeal)))
         {
             if (HaimaPvE.CanUse(out act)) return true;
 
@@ -117,12 +165,12 @@ public sealed class SGE_Default : SageRotation
             if ((!HaimaPvE.EnoughLevel || HaimaPvE.Cooldown.ElapsedAfter(20)) && PanhaimaPvE.CanUse(out act)) return true;
         }
 
-        if (tank.Any(t => t.GetHealthRatio() < 0.60f))
+        if (tank.Any(t => t.GetHealthRatio() < ZoeHeal))
         {
             if (ZoePvE.CanUse(out act)) return true;
         }
 
-        if (tank.Any(t => t.GetHealthRatio() < 0.70f) || PartyMembers.Any(b => b.GetHealthRatio() < 0.30f))
+        if (tank.Any(t => t.GetHealthRatio() < KrasisTankHeal) || PartyMembers.Any(b => b.GetHealthRatio() < KrasisHeal))
         {
             if (KrasisPvE.CanUse(out act)) return true;
         }
@@ -208,7 +256,7 @@ public sealed class SGE_Default : SageRotation
         if (!PhlegmaIiiPvE.EnoughLevel && PhlegmaIiPvE.CanUse(out act, usedUp: IsMoving, skipAoeCheck: true)) return true;
         if (!PhlegmaIiPvE.EnoughLevel && PhlegmaPvE.CanUse(out act, usedUp: IsMoving, skipAoeCheck: true)) return true;
 
-        if (PartyMembers.Any(b => b.GetHealthRatio() < 0.20f) || PartyMembers.GetJobCategory(JobRole.Tank).Any(t => t.GetHealthRatio() < 0.6f))
+        if (PartyMembers.Any(b => b.GetHealthRatio() < PneumaSTPartyHeal) || PartyMembers.GetJobCategory(JobRole.Tank).Any(t => t.GetHealthRatio() < PneumaSTTankHeal))
         {
             if (PneumaPvE.CanUse(out act, skipAoeCheck: true)) return true;
         }
@@ -242,7 +290,7 @@ public sealed class SGE_Default : SageRotation
     [RotationDesc(ActionID.PneumaPvE, ActionID.PrognosisPvE, ActionID.EukrasianPrognosisPvE)]
     protected override bool HealAreaGCD(out IAction? act)
     {
-        if (PartyMembersAverHP < 0.65f || DyskrasiaPvE.CanUse(out _) && PartyMembers.GetJobCategory(JobRole.Tank).Any(t => t.GetHealthRatio() < 0.6f))
+        if (PartyMembersAverHP < PneumaAOEPartyHeal || DyskrasiaPvE.CanUse(out _) && PartyMembers.GetJobCategory(JobRole.Tank).Any(t => t.GetHealthRatio() < PneumaAOETankHeal))
         {
             if (PneumaPvE.CanUse(out act, skipAoeCheck: true)) return true;
         }
