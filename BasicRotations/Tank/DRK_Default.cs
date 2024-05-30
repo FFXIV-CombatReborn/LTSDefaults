@@ -55,8 +55,8 @@ public sealed class DRK_Default : DarkKnightRotation
     [RotationDesc(ActionID.DarkMissionaryPvE, ActionID.ReprisalPvE)]
     protected override bool DefenseAreaAbility(IAction nextGCD, out IAction? act)
     {
-        if (!InTwoMIsBurst() && DarkMissionaryPvE.CanUse(out act)) return true;
-        if (!InTwoMIsBurst() && ReprisalPvE.CanUse(out act, skipAoeCheck: true)) return true;
+        if (!InTwoMIsBurst && DarkMissionaryPvE.CanUse(out act)) return true;
+        if (!InTwoMIsBurst && ReprisalPvE.CanUse(out act, skipAoeCheck: true)) return true;
 
         return base.DefenseAreaAbility(nextGCD, out act);
     }
@@ -103,10 +103,9 @@ public sealed class DRK_Default : DarkKnightRotation
                 if (BloodWeaponPvE.CanUse(out act)) return true;
             }
             if (LivingShadowPvE.CanUse(out act, skipAoeCheck: true)) return true;
-            if (BloodspillerPvE.CanUse(out act, skipComboCheck: true)) return true;
         }
 
-        if (CombatLess)
+        if (CombatElapsedLess(3))
         {
             act = null;
             return false;
@@ -119,7 +118,7 @@ public sealed class DRK_Default : DarkKnightRotation
         if (NumberOfHostilesInRange >= 3 && AbyssalDrainPvE.CanUse(out act)) return true;
         if (CarveAndSpitPvE.CanUse(out act)) return true;
 
-        if (InTwoMIsBurst())
+        if (InTwoMIsBurst)
         {
             if (ShadowbringerPvE.CanUse(out act, usedUp: true, skipAoeCheck: true)) return true;
 
@@ -129,7 +128,7 @@ public sealed class DRK_Default : DarkKnightRotation
 
         if (SaltAndDarknessPvE.CanUse(out act)) return true;
 
-        if (InTwoMIsBurst())
+        if (InTwoMIsBurst)
         {
             if (PlungePvE.CanUse(out act, usedUp: true, skipAoeCheck: true) && !IsMoving) return true;
         }
@@ -173,23 +172,23 @@ public sealed class DRK_Default : DarkKnightRotation
         get
         {
             // Conditions based on player statuses and ability cooldowns.
-            if (!DeliriumPvE.EnoughLevel) return true;
-            if (UnleashPvE.CanUse(out _) && !LivingShadowPvE.EnoughLevel) return true;
+            if (!DeliriumPvE.EnoughLevel || !LivingShadowPvE.EnoughLevel) return true;
             if (Player.HasStatus(true, StatusID.Delirium_1972) && LivingShadowPvE.Cooldown.IsCoolingDown) return true;
             if ((DeliriumPvE.Cooldown.WillHaveOneChargeGCD(1) && !LivingShadowPvE.Cooldown.WillHaveOneChargeGCD(3)) || Blood >= 90 && !LivingShadowPvE.Cooldown.WillHaveOneChargeGCD(1)) return true;
 
             return false;
+
         }
     }
     // Determines if currently in a burst phase based on cooldowns of key abilities.
-    private bool InTwoMIsBurst()
+    private bool InTwoMIsBurst
     {
-        if ((BloodWeaponPvE.Cooldown.IsCoolingDown && DeliriumPvE.Cooldown.IsCoolingDown && ((LivingShadowPvE.Cooldown.IsCoolingDown && !(LivingShadowPvE.Cooldown.ElapsedAfter(15))) || !LivingShadowPvE.EnoughLevel))) return true;
-        else return false;
+        get
+        {
+            if ((BloodWeaponPvE.Cooldown.IsCoolingDown && DeliriumPvE.Cooldown.IsCoolingDown && ((LivingShadowPvE.Cooldown.IsCoolingDown && !(LivingShadowPvE.Cooldown.ElapsedAfter(15))) || !LivingShadowPvE.EnoughLevel))) return true;
+            else return false;
+        }
     }
-
-    // Checks if combat time is less than 3 seconds.
-    private static bool CombatLess => CombatElapsedLess(3);
 
     // Manages DarkSide ability based on several conditions.
     private bool CheckDarkSide
@@ -198,11 +197,11 @@ public sealed class DRK_Default : DarkKnightRotation
         {
             if (DarkSideEndAfterGCD(3)) return true;
 
-            if (CombatLess) return false;
+            if (CombatElapsedLess(3)) return false;
 
-            if ((InTwoMIsBurst() && HasDarkArts) || (HasDarkArts && Player.HasStatus(true, StatusID.BlackestNight)) || (HasDarkArts && DarkSideEndAfterGCD(3))) return true;
+            if ((InTwoMIsBurst && HasDarkArts) || (HasDarkArts && Player.HasStatus(true, StatusID.BlackestNight)) || (HasDarkArts && DarkSideEndAfterGCD(3))) return true;
 
-            if ((InTwoMIsBurst() && BloodWeaponPvE.Cooldown.IsCoolingDown && LivingShadowPvE.Cooldown.IsCoolingDown && SaltedEarthPvE.Cooldown.IsCoolingDown && ShadowbringerPvE.Cooldown.CurrentCharges == 0 && CarveAndSpitPvE.Cooldown.IsCoolingDown)) return true;
+            if ((InTwoMIsBurst && BloodWeaponPvE.Cooldown.IsCoolingDown && LivingShadowPvE.Cooldown.IsCoolingDown && SaltedEarthPvE.Cooldown.IsCoolingDown && ShadowbringerPvE.Cooldown.CurrentCharges == 0 && CarveAndSpitPvE.Cooldown.IsCoolingDown)) return true;
 
             if (TheBlackestNight && CurrentMp < 6000) return false;
 
