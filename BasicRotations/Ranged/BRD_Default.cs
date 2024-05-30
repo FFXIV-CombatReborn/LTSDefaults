@@ -10,6 +10,9 @@ public sealed class BRD_Default : BardRotation
     [RotationConfig(CombatType.PvE, Name = @"Use Raging Strikes on ""Wanderer's Minuet""")]
     public bool BindWAND { get; set; } = false;
 
+    [RotationConfig(CombatType.PvE, Name = "Use Shot Procs Immediately (May result in dots dropping)")]
+    public bool ShotProcsReady { get; set; } = false;
+
     [Range(1, 45, ConfigUnitType.Seconds, 1)]
     [RotationConfig(CombatType.PvE, Name = "Wanderer's Minuet Uptime")]
     public float WANDTime { get; set; } = 43;
@@ -143,8 +146,13 @@ public sealed class BRD_Default : BardRotation
     #region GCD Logic
     protected override bool GeneralGCD(out IAction? act)
     {
-        if (ShadowbitePvE.CanUse(out act)) return true;
-        if (StraightShotPvE.CanUse(out act)) return true;
+        if (ShotProcsReady)
+        {
+            if (StraightShotPvE.CanUse(out act)) return true;
+            if (ShadowbitePvE.CanUse(out act)) return true;
+        }
+        if (WindbitePvE.CanUse(out act)) return true;
+        if (VenomousBitePvE.CanUse(out act)) return true;
 
         if (IronJawsPvE.CanUse(out act)) return true;
         if (IronJawsPvE.CanUse(out act, skipStatusProvideCheck: true) && (IronJawsPvE.Target.Target?.WillStatusEnd(30, true, IronJawsPvE.Setting.TargetStatusProvide ?? []) ?? false))
@@ -152,6 +160,7 @@ public sealed class BRD_Default : BardRotation
             if (Player.HasStatus(true, StatusID.RagingStrikes) && Player.WillStatusEndGCD(1, 0, true, StatusID.RagingStrikes)) return true;
         }
 
+        if (StraightShotPvE.CanUse(out act)) return true;
         if (CanUseApexArrow(out act)) return true;
 
         if (BlastArrowPvE.CanUse(out act, skipAoeCheck: true))
@@ -160,11 +169,8 @@ public sealed class BRD_Default : BardRotation
             if (Player.HasStatus(true, StatusID.RagingStrikes) && BarragePvE.Cooldown.IsCoolingDown) return true;
         }
 
+        if (ShadowbitePvE.CanUse(out act)) return true;
         if (QuickNockPvE.CanUse(out act)) return true;
-
-        if (WindbitePvE.CanUse(out act)) return true;
-        if (VenomousBitePvE.CanUse(out act)) return true;
-
         if (HeavyShotPvE.CanUse(out act)) return true;
 
         return base.GeneralGCD(out act);
